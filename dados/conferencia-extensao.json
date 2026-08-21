@@ -1,0 +1,6 @@
+{
+ "gerado_em": null,
+ "fonte": "ainda não gerado — rode: python ferramentas/conferir-acervo-vs-cadastro.py --gravar",
+ "observacao": "Conferência da extensão de cada eixo contra a Planilha Geral do Departamento Rodoviário, que é fonte independente da geometria. Enquanto «eixos» estiver vazio, a plataforma diz, em cada eixo, que a extensão não tem conferência independente — o que é verdade. Não preencher à mão: este arquivo é saída de ferramenta.",
+ "eixos": {}
+}

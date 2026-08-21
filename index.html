@@ -1,0 +1,271 @@
+<!-- Plataforma de Controle de Obra Unifilar — SEINFRA/AM · DMOB
+     Arquivo único, sem etapa de build. Dados na pasta `dados/`. -->
+<meta charset="utf-8">
+<title>Trena — Controle de Obra Unifilar · SEINFRA/AM</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="bibliotecas/leaflet-1.9.4/leaflet.css">
+<style>
+:root{
+  --navy:#16324F; --navy2:#1F4E79; --azul:#2E5496; --azul-cl:#DDEBF7;
+  --verde:#2E9E5B; --ambar:#F0A32B; --vermelho:#D9534F;
+  --cinza:#8E9AA6; --cinza-cl:#E8EDF2; --linha:#D4DBE2; --fundo:#F6F8FA;
+  --texto:#1F2933; --texto2:#5A6673;
+  --sombra:0 1px 3px rgba(22,50,79,.10), 0 4px 14px rgba(22,50,79,.06);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:var(--texto);background:var(--fundo)}
+body{display:flex;flex-direction:column;overflow:hidden}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+.hidden{display:none!important}
+
+header{display:flex;align-items:center;gap:14px;padding:8px 16px;background:var(--navy);color:#fff;flex:0 0 auto}
+header .marca{display:flex;flex-direction:column;line-height:1.15}
+header .marca b{font-size:15px;letter-spacing:.2px}
+header .marca span{font-size:10.5px;text-transform:uppercase;letter-spacing:.14em;color:#9FC2E8}
+header .sep{flex:1}
+header input[type=text]{background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.22);border-radius:6px;padding:6px 10px;color:#fff;min-width:250px}
+header input[type=text]::placeholder{color:#A9C4E0}
+.btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.24);color:#fff;border-radius:6px;padding:6px 12px;font-size:13px}
+.btn:hover{background:rgba(255,255,255,.20)}
+.btn.pri{background:var(--verde);border-color:var(--verde)}
+
+main{flex:1;display:flex;min-height:0}
+aside{width:322px;flex:0 0 322px;background:#fff;border-right:1px solid var(--linha);overflow-y:auto;padding-bottom:24px}
+aside h2{margin:0;padding:11px 14px 9px;font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--navy);background:var(--azul-cl);border-bottom:1px solid var(--linha);display:flex;align-items:center;gap:8px}
+aside h2 i{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:var(--navy);color:#fff;font-size:10.5px;font-style:normal;font-weight:700}
+.bloco{padding:12px 14px;border-bottom:1px solid var(--linha)}
+.campo{margin-bottom:10px}
+.campo:last-child{margin-bottom:0}
+.campo label{display:block;font-size:11px;font-weight:600;color:var(--texto2);margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em}
+.dica{font-size:11px;color:var(--texto2);margin-top:4px;line-height:1.35}
+select,input[type=number],input[type=search]{width:100%;padding:7px 9px;border:1px solid var(--linha);border-radius:6px;background:#fff}
+select:focus,input:focus{outline:2px solid var(--azul-cl);border-color:var(--azul)}
+.linha2{display:flex;gap:8px}
+.linha2>*{flex:1;min-width:0}
+.seg{display:flex;border:1px solid var(--linha);border-radius:6px;overflow:hidden}
+.seg button{flex:1;padding:7px 4px;background:#fff;border:0;border-right:1px solid var(--linha);font-size:12.5px}
+.seg button:last-child{border-right:0}
+.seg button.on{background:var(--navy);color:#fff;font-weight:600}
+.dropzone{border:1.5px dashed var(--linha);border-radius:8px;padding:16px 10px;text-align:center;color:var(--texto2);font-size:12.5px;background:#FBFCFD}
+.dropzone.drag{border-color:var(--verde);background:#F1F9F4;color:var(--verde)}
+.dropzone b{color:var(--navy)}
+.svc{display:flex;align-items:flex-start;gap:8px;padding:6px 4px;border-radius:6px}
+.svc:hover{background:var(--fundo)}
+.svc input{margin:2px 0 0}
+.svc .nm{flex:1;font-size:12.5px;line-height:1.3}
+.svc .gr{font-size:10.5px;color:var(--texto2)}
+.svc .lados{font-size:10px;color:var(--texto2);white-space:nowrap;padding-top:2px}
+.mini{font-size:11.5px;padding:5px 9px;border-radius:6px;border:1px solid var(--linha);background:#fff;color:var(--navy)}
+.mini:hover{background:var(--azul-cl)}
+.leg{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px}
+.leg i{width:26px;height:15px;border-radius:3px;border:1px solid rgba(0,0,0,.12);flex:0 0 auto}
+
+section.painel{flex:1;display:flex;flex-direction:column;min-width:0}
+.abas{display:flex;gap:2px;padding:8px 14px 0;background:#fff;border-bottom:1px solid var(--linha);align-items:center}
+.abas button[data-v]{padding:8px 15px;border:1px solid transparent;border-bottom:0;border-radius:7px 7px 0 0;background:transparent;color:var(--texto2);font-size:13px;font-weight:600}
+.abas button[data-v].on{background:var(--fundo);border-color:var(--linha);color:var(--navy)}
+.abas .sep{flex:1}
+.abas .info{font-size:11.5px;color:var(--texto2);padding-right:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:46vw}
+.conteudo{flex:1;min-height:0;position:relative;overflow:auto}
+#vMapa{position:absolute;inset:0}
+#mapa{position:absolute;inset:0}
+.vazio{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--texto2);text-align:center;padding:30px;background:var(--fundo);z-index:500}
+.vazio b{color:var(--navy);font-size:16px}
+
+.wrapmat{padding:12px 14px 40px}
+table.mat{border-collapse:separate;border-spacing:0;font-size:11.5px;background:#fff;box-shadow:var(--sombra);border-radius:8px}
+table.mat th,table.mat td{border-right:1px solid var(--linha);border-bottom:1px solid var(--linha);padding:0;text-align:center;white-space:nowrap}
+table.mat thead th{position:sticky;top:0;z-index:3;background:var(--navy);color:#fff;font-weight:600;font-size:10.5px;padding:6px 5px}
+table.mat thead th.g{background:var(--navy2);width:34px;min-width:34px}
+table.mat th.sv{position:sticky;left:0;z-index:4;background:var(--navy);text-align:left;padding-left:10px;min-width:236px}
+table.mat tbody th.sv{background:#fff;color:var(--texto);font-weight:500;font-size:11.5px;text-align:left;padding:4px 8px 4px 10px;border-right:2px solid var(--linha);z-index:2}
+table.mat tbody th.sv .lado{display:inline-block;min-width:26px;font-size:9.5px;font-weight:700;color:#fff;background:var(--cinza);border-radius:3px;padding:1px 4px;margin-right:6px;text-align:center}
+table.mat tbody tr.gr th.sv{background:var(--azul-cl);color:var(--navy);font-weight:700;font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;padding:5px 10px}
+table.mat tbody tr.gr td{background:var(--azul-cl)}
+table.mat td.cel{width:30px;min-width:30px;height:24px;cursor:pointer;font-size:10px;font-weight:700;user-select:none}
+table.mat td.cel:hover{outline:2px solid var(--navy);outline-offset:-2px;position:relative;z-index:1}
+table.mat td.fora{background:repeating-linear-gradient(45deg,#fff,#fff 4px,#F0F2F5 4px,#F0F2F5 8px);cursor:default}
+table.mat tfoot th,table.mat tfoot td{background:#F1F4F7;font-weight:700;font-size:10.5px;position:sticky;bottom:0;z-index:2}
+table.mat tfoot th.sv{background:#F1F4F7;color:var(--navy);z-index:3}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:12px;padding:14px}
+.card{background:#fff;border-radius:10px;padding:12px 14px;box-shadow:var(--sombra);border-top:3px solid var(--navy)}
+.card .rot{font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--texto2)}
+.card .val{font-size:20px;font-weight:700;color:var(--navy);margin-top:2px;line-height:1.2}
+.card .sub{font-size:11px;color:var(--texto2)}
+table.res{width:calc(100% - 28px);margin:0 14px 24px;border-collapse:collapse;background:#fff;box-shadow:var(--sombra);border-radius:8px;overflow:hidden;font-size:12.5px}
+table.res th,table.res td{padding:7px 10px;border-bottom:1px solid var(--linha);text-align:right}
+table.res th:first-child,table.res td:first-child{text-align:left}
+table.res thead th{background:var(--navy);color:#fff;font-size:11px;text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+table.res tbody tr:hover{background:var(--fundo)}
+table.res tfoot td{background:#F1F4F7;font-weight:700}
+.barra{height:8px;border-radius:4px;background:var(--cinza-cl);overflow:hidden;min-width:70px}
+.barra i{display:block;height:100%;background:var(--verde)}
+
+.rel{max-width:1080px;margin:0 auto;padding:22px 26px 60px;background:#fff}
+.rel h1{font-size:19px;color:var(--navy);margin:0 0 6px}
+.rel h2{font-size:12.5px;color:var(--navy);margin:22px 0 8px;padding-bottom:4px;border-bottom:1.5px solid var(--azul-cl);text-transform:uppercase;letter-spacing:.08em}
+.rel .meta{font-size:12px;color:var(--texto2);margin-bottom:3px}
+.rel table{width:100%;border-collapse:collapse;font-size:11.5px;margin-bottom:10px}
+.rel th,.rel td{border:1px solid var(--linha);padding:5px 7px;text-align:right}
+.rel th:first-child,.rel td:first-child{text-align:left}
+.rel thead th{background:var(--azul-cl);color:var(--navy);font-size:10.5px;text-transform:uppercase}
+.croqui{padding:14px}
+.croqui .cx{background:#fff;border-radius:10px;box-shadow:var(--sombra);padding:12px;display:inline-block;max-width:100%}
+.croqui img{display:block;max-width:100%;height:auto;border-radius:6px;border:1px solid var(--linha)}
+.croqui .barraf{display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+.croqui .st{font-size:12px;color:var(--texto2)}
+.aviso{background:#FFF8E6;border:1px solid #F0D48A;border-radius:8px;padding:11px 13px;font-size:12.5px;margin:14px}
+.aviso b{color:#8A6D12}
+
+@media print{
+  header,aside,.abas{display:none!important}
+  body,main,section.painel,.conteudo{overflow:visible;height:auto;display:block}
+  .rel{max-width:none;padding:0}
+  @page{size:A4 landscape;margin:10mm}
+}
+</style>
+
+<header>
+  <div class="marca">
+    <b>Trena</b>
+    <span>Controle de obra unifilar · SEINFRA/AM — DMOB</span>
+  </div>
+  <input type="text" id="nomeObra" placeholder="Identificação da obra — ex.: AM-010, recuperação do KM 13 ao KM 268">
+  <div class="sep"></div>
+  <button class="btn" id="btNovo">Novo</button>
+  <button class="btn" id="btAbrir">Abrir</button>
+  <button class="btn pri" id="btSalvar">Salvar</button>
+  <input type="file" id="fileProjeto" accept=".json" class="hidden">
+</header>
+
+<main>
+  <aside>
+    <h2><i>1</i> Eixo da obra</h2>
+    <div class="bloco">
+      <div class="campo">
+        <label>Origem do traçado</label>
+        <div class="seg" id="segFonte">
+          <button data-f="rodovia" class="on">Rodovia</button>
+          <button data-f="ramal">Ramal</button>
+          <button data-f="arquivo">KML / KMZ</button>
+        </div>
+      </div>
+      <div class="campo" id="cxAcervo">
+        <label id="lbAcervo">Rodovia estadual</label>
+        <input type="search" id="buscaAcervo" placeholder="Filtrar por nome, município, situação…">
+        <select id="selAcervo" size="9" style="margin-top:6px"></select>
+        <div class="dica" id="infoAcervo">Acervo do Departamento Rodoviário.</div>
+      </div>
+      <div class="campo hidden" id="cxArquivo">
+        <label>Arquivo do traçado</label>
+        <div class="dropzone" id="dz">
+          Arraste o <b>KML</b> ou <b>KMZ</b> aqui<br>ou clique para escolher
+          <input type="file" id="fileGeo" accept=".kml,.kmz" class="hidden">
+        </div>
+        <div class="dica" id="infoArq">O arquivo é lido no próprio navegador; nada sai da máquina.</div>
+      </div>
+    </div>
+
+    <h2><i>2</i> Trecho e referência</h2>
+    <div class="bloco">
+      <div class="campo">
+        <label>Referência das colunas</label>
+        <div class="seg" id="segRef">
+          <button data-r="km" class="on">Quilômetro</button>
+          <button data-r="est">Estaqueamento</button>
+        </div>
+        <div class="dica" id="dicaRef">Colunas por quilômetro inteiro do eixo.</div>
+      </div>
+      <div class="campo">
+        <label>Trecho em obra</label>
+        <div class="linha2">
+          <div><input type="number" id="kmIni" min="0" step="1" placeholder="KM inicial"></div>
+          <div><input type="number" id="kmFim" min="0" step="1" placeholder="KM final"></div>
+        </div>
+        <div class="dica">A obra pode ocupar só parte do eixo. Fora do trecho, a célula fica hachurada e não recebe lançamento.</div>
+      </div>
+      <div class="campo">
+        <label>Sentido do eixo</label>
+        <button class="mini" id="btInverte" style="width:100%">Inverter sentido (KM 0 na outra ponta)</button>
+        <div class="dica" id="dicaSentido">Escolha um eixo para ver como o KM 0 foi definido.</div>
+      </div>
+      <div class="campo">
+        <label>Estaca do início do eixo</label>
+        <input type="number" id="estOff" min="0" step="1" value="0">
+        <div class="dica">Use quando o estaqueamento do projeto não começa em zero.</div>
+      </div>
+    </div>
+
+    <h2><i>3</i> Serviços</h2>
+    <div class="bloco">
+      <div class="campo">
+        <label>Catálogo</label>
+        <select id="selCat"></select>
+        <div class="dica" id="infoCat"></div>
+      </div>
+      <div class="campo">
+        <div class="linha2">
+          <button class="mini" id="btTodos">Marcar todos</button>
+          <button class="mini" id="btNenhum">Desmarcar</button>
+        </div>
+      </div>
+      <div id="listaSvc"></div>
+      <div class="campo" style="margin-top:10px">
+        <label>Acrescentar serviço</label>
+        <div class="linha2">
+          <input type="search" id="novoSvc" placeholder="Nome do serviço">
+          <select id="novoLado" style="max-width:120px">
+            <option value="U">Pista única</option>
+            <option value="LD,LE" selected>Faixa D e E</option>
+            <option value="AD,AE">Acost. D e E</option>
+          </select>
+        </div>
+        <button class="mini" id="btAddSvc" style="margin-top:6px;width:100%">Acrescentar</button>
+      </div>
+    </div>
+
+    <h2><i>4</i> Legenda</h2>
+    <div class="bloco" id="legenda"></div>
+  </aside>
+
+  <section class="painel">
+    <div class="abas">
+      <button data-v="mapa" class="on">Mapa</button>
+      <button data-v="matriz">Matriz de controle</button>
+      <button data-v="croqui">Croqui</button>
+      <button data-v="resumo">Resumo</button>
+      <button data-v="rel">Relatório</button>
+      <div class="sep"></div>
+      <span class="info" id="infoTopo"></span>
+      <button class="mini" id="btCSV">Exportar CSV</button>
+      <button class="mini" id="btImprimir">Imprimir</button>
+    </div>
+    <div class="conteudo" id="conteudo">
+      <div id="vMapa"><div id="mapa"></div></div>
+      <div id="vMatriz" class="hidden"></div>
+      <div id="vCroqui" class="hidden"></div>
+      <div id="vResumo" class="hidden"></div>
+      <div id="vRel" class="hidden"></div>
+      <div class="vazio" id="semEixo">
+        <b>Escolha um eixo para começar</b>
+        <div>Selecione uma rodovia ou um ramal do acervo, ou carregue um KML/KMZ.<br>
+        A plataforma divide o traçado quilômetro a quilômetro e monta a matriz de controle.</div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script src="bibliotecas/leaflet-1.9.4/leaflet.js"></script>
+<script src="bibliotecas/jszip-3.10.1/jszip.min.js"></script>
+<script src="app/00-estado.js"></script>
+<script src="app/01-motor.js"></script>
+<script src="app/02-arquivos.js"></script>
+<script src="app/03-acervo.js"></script>
+<script src="app/04-mapa.js"></script>
+<script src="app/05-croqui.js"></script>
+<script src="app/06-matriz.js"></script>
+<script src="app/07-relatorio.js"></script>
+<script src="app/08-persistencia.js"></script>
+<script src="app/09-app.js"></script>

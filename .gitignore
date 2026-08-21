@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.pyc
+
+# sistema operacional
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# projetos salvos pelo usuário na própria pasta
+projeto-*.json
+
+# saida das provas (arquivos de teste regenerados a cada execucao)
+ferramentas/_temp/
+
+# planilha de controle da SEINFRA: fonte do catalogo, fica so na maquina
+referencia/
+
+# canal de trabalho entre agentes: registro interno, nao e o produto
+_canal/
