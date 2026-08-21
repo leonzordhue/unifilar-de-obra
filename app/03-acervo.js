@@ -5,7 +5,12 @@ async function carregaJSON(u){
   if (!r.ok) throw new Error(`não foi possível ler ${u} (HTTP ${r.status})`);
   return r.json();
 }
+/** Traçados guardados pelo usuário no navegador — a quarta origem, «Acervo local». */
+function acervoDoNavegador(){
+  return {itens: (typeof acervoLocal === 'function' ? acervoLocal() : [])};
+}
 async function acervo(tipo){
+  if (tipo === 'local') return acervoDoNavegador();
   if (!S.acervo[tipo]){
     S.acervo[tipo] = await carregaJSON(tipo === 'rodovia'
       ? 'dados/acervo-rodovias-estaduais.json' : 'dados/acervo-ramais.json');
@@ -15,7 +20,9 @@ async function acervo(tipo){
 // Obra se mede onde ha pista. Quando parte do eixo e planejada, a extensao total engana:
 // o rotulo diz quanto e implantado, que e o que se pode medir de recuperacao.
 const kmImplantado = it => it.km_implantado == null ? null : it.km_implantado;
-const rotuloAcervo = it => it.tipo === 'rodovia'
+const rotuloAcervo = it => it.tipo === 'local'
+  ? `${it.nome} — ${fmt(it.km_geometria, 1)} km · guardado em ${it.guardado_em || '—'}`
+  : it.tipo === 'rodovia'
   ? `${it.nome} — ${fmt(it.km_geometria, 1)} km`
     + (kmImplantado(it) != null && kmImplantado(it) < it.km_geometria - 0.05
        ? (it.km_implantado < 0.05 ? ' · planejada'
@@ -24,7 +31,8 @@ const rotuloAcervo = it => it.tipo === 'rodovia'
   : `${it.nome} — ${fmt(it.km_geometria, 1)} km` + (it.municipio ? ' · ' + it.municipio : '');
 async function pintaAcervo(){
   const tipo = S.fonte, sel = $('#selAcervo');
-  $('#lbAcervo').textContent = tipo === 'rodovia' ? 'Rodovia estadual' : 'Ramal';
+  $('#lbAcervo').textContent = tipo === 'rodovia' ? 'Rodovia estadual'
+    : tipo === 'ramal' ? 'Ramal' : 'Traçado guardado neste navegador';
   sel.innerHTML = '<option>carregando…</option>';
   let d;
   try { d = await acervo(tipo); }

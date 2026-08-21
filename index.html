@@ -260,7 +260,7 @@ table.res tfoot td{background:#F1F4F7;font-weight:700}
   <button class="btn" id="btGuardar">Guardar obra</button>
   <button class="btn" id="btAbrir">Abrir</button>
   <button class="btn pri" id="btSalvar">Salvar</button>
-  <input type="file" id="fileProjeto" accept=".json" class="hidden">
+  <input type="file" id="fileProjeto" accept=".json,.zip" class="hidden">
 </header>
 
 <main>
@@ -273,6 +273,7 @@ table.res tfoot td{background:#F1F4F7;font-weight:700}
           <button data-f="rodovia" class="on">Rodovia</button>
           <button data-f="ramal">Ramal</button>
           <button data-f="arquivo">KML / KMZ</button>
+          <button data-f="local" title="Traçados que você guardou neste navegador">Acervo local</button>
         </div>
       </div>
       <div class="campo" id="cxAcervo">
@@ -288,6 +289,7 @@ table.res tfoot td{background:#F1F4F7;font-weight:700}
           <input type="file" id="fileGeo" accept=".kml,.kmz" class="hidden">
         </div>
         <div class="dica" id="infoArq">O arquivo é lido no próprio navegador; nada sai da máquina.</div>
+        <button class="mini" id="btGuardaAcervo" style="width:100%;margin-top:6px">Guardar no acervo local</button>
       </div>
     </div>
 
@@ -378,6 +380,7 @@ table.res tfoot td{background:#F1F4F7;font-weight:700}
       <div class="sep"></div>
       <span class="info" id="infoTopo"></span>
       <button class="mini" id="btCSV">Exportar CSV</button>
+      <button class="mini" id="btCDE" title="Pacote para o ambiente comum de dados: eixo em GeoJSON e KML, matriz e ensaios em CSV, fotos, croqui e o projeto reabrível">Pacote CDE</button>
       <button class="mini" id="btImprimir">Imprimir</button>
     </div>
     <div class="conteudo" id="conteudo">
@@ -442,6 +445,7 @@ table.res tfoot td{background:#F1F4F7;font-weight:700}
 <script src="app/08-persistencia.js"></script>
 <script src="app/10-ensaios.js"></script>
 <script src="app/11-painel.js"></script>
+<script src="app/12-cde.js"></script>
 <script src="app/13-faixa.js"></script>
 <script src="app/14-obras.js"></script>
 <script src="app/15-contrato.js"></script>

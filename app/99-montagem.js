@@ -125,6 +125,8 @@ function liga(){
   };
   $$('.abas button[data-v]').forEach(b => b.onclick = () => mostra(b.dataset.v));
   $('#btCSV').onclick = exportaCSV;
+  $('#btCDE').onclick = exportaCDE;
+  $('#btGuardaAcervo').onclick = guardaNoAcervoLocal;
   $('#btImprimir').onclick = () => { mostra('rel'); setTimeout(() => window.print(), 300); };
 
   const dz = $('#dz'), fg = $('#fileGeo');
@@ -145,8 +147,15 @@ function liga(){
   $('#fileProjeto').onchange = async () => {
     const f = $('#fileProjeto').files[0];
     if (!f) return;
-    try { aplicaProjeto(JSON.parse(await f.text())); salvaLocal(); }
-    catch (e){ alert('Não foi possível abrir o projeto: ' + e.message); }
+    try {
+      // Aceita o projeto solto e o pacote CDE: quem recebe o pacote não deveria ter de
+      // descompactar para achar o json lá dentro.
+      const p = f.name.toLowerCase().endsWith('.zip')
+        ? await abrePacoteCDE(f) : JSON.parse(await f.text());
+      aplicaProjeto(p);
+      salvaLocal();
+    }
+    catch (e){ alert('Não foi possível abrir: ' + e.message); }
   };
   $('#btNovo').onclick = () => {
     if (!confirm('Começar um projeto novo? O controle atual será descartado.')) return;

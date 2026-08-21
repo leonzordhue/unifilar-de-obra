@@ -121,11 +121,10 @@ function baixa(blob, nome){
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 4000);
 }
-function exportaCSV(){
+/** O TEXTO do CSV, separado do download: o pacote CDE precisa do mesmo conteúdo, e duas
+    versões da mesma conta divergem no dia em que uma for corrigida e a outra não. */
+function textoCSV(){
   const linhas = linhasMatriz(), segs = segsNoTrecho();
-  if (!S.eixo || !linhas.length){
-    alert('Escolha um eixo e marque serviços antes de exportar.'); return;
-  }
   const sep = ';';
   const cab = ['SERVICO', 'LADO', 'CONCLUIDO', 'EM ANDAMENTO', 'SEM PLANEJAMENTO',
     'PREVISTO', 'NAO SE APLICA', '% EXECUTADO',
@@ -137,8 +136,14 @@ function exportaCSV(){
       r.pct == null ? '' : (100 * r.pct).toFixed(1).replace('.', ','),
       ...segs.map(sg => nomeStatus(S.dados[chave(l, sg.id)] || ''))].join(sep));
   });
+  return out.join('\r\n');
+}
+function exportaCSV(){
+  if (!S.eixo || !linhasMatriz().length){
+    alert('Escolha um eixo e marque serviços antes de exportar.'); return;
+  }
   const nome = `controle-obra-${(S.obra || S.eixo.nome).replace(/[^\w\-]+/g, '-').toLowerCase()}.csv`;
-  baixa(new Blob(['﻿' + out.join('\r\n')], {type: 'text/csv;charset=utf-8'}), nome);
+  baixa(new Blob(['﻿' + textoCSV()], {type: 'text/csv;charset=utf-8'}), nome);
 }
 
 
