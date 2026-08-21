@@ -53,11 +53,11 @@ def via(cod):
 
 def carrega():
     ac = json.load(io.open(ACERVO, encoding='utf-8'))['itens']
-    trena = {}
+    sicor = {}
     for r in ac:
         v = via((r.get('codigos') or [''])[0])
         if v:
-            trena[v] = r
+            sicor[v] = r
     if not os.path.exists(RETRATO):
         print('falta o retrato do cadastro:')
         print('  ' + RETRATO)
@@ -76,14 +76,14 @@ def carrega():
         if (t.get('situacao') or '').upper() in IMPLANTADO:
             d['implantado'] += e
         d['trechos'].append(t)
-    return trena, cad, ret
+    return sicor, cad, ret
 
 
-trena, cad, ret = carrega()
+sicor, cad, ret = carrega()
 
 print('=' * 100)
-print('ACERVO DO TRENA  x  CADASTRO DO DEPARTAMENTO RODOVIARIO')
-print(f'  SICOR ...... {len(trena)} eixos')
+print('ACERVO DO SICOR  x  CADASTRO DO DEPARTAMENTO RODOVIARIO')
+print(f'  SICOR ...... {len(sicor)} eixos')
 print(f'  cadastro ... {len(cad)} eixos · {ret.get("procedencia")}'
       + (f' · lido em {ret["lido_em"]}' if ret.get('lido_em') else ''))
 print('=' * 100)
@@ -95,8 +95,8 @@ print(f"{'':<8}{'SICOR':>10}{'cadastro':>12}{'':>4}{'SICOR':>11}{'cadastro':>13}
       f"   situação")
 print('-' * 100)
 
-for v in sorted(set(trena) & set(cad)):
-    t, c = trena[v], cad[v]
+for v in sorted(set(sicor) & set(cad)):
+    t, c = sicor[v], cad[v]
     ti = t.get('km_implantado')
     ti = 0.0 if ti is None else float(ti)
     ci = c['implantado']
@@ -137,7 +137,7 @@ for v in sorted(set(trena) & set(cad)):
                 f'({", ".join(x["cod"] for x in c["trechos"] if x["situacao"] != "PLA")}) '
                 f'que não existe na geometria do acervo — falta traçado, não sobra '
                 f'número. O que o acervo traz é a diretriz planejada até '
-                f'{(trena[v].get("fim") or "").strip()[:40]}')
+                f'{(sicor[v].get("fim") or "").strip()[:40]}')
     elif estado == 'IMPLANTADO DIVERGE':
         nota = (f'Implantado no cadastro: {ci:.2f} km; no acervo: {ti:.2f} km. '
                 f'A diferença está na classificação de situação física dos trechos')
@@ -158,15 +158,15 @@ for v in sorted(set(trena) & set(cad)):
         codigos_cadastro=[x['cod'] for x in c['trechos']])
 
 print('-' * 100)
-soma_ti = sum(float(trena[v].get('km_implantado') or 0) for v in trena)
+soma_ti = sum(float(sicor[v].get('km_implantado') or 0) for v in sicor)
 soma_ci = sum(cad[v]['implantado'] for v in cad)
 print(f'{"IMPLANTADO, somando tudo":<8}{soma_ti:>10.1f}{soma_ci:>12.1f}'
       f'   diferença {soma_ti - soma_ci:+.1f} km')
 
-so_t = sorted(set(trena) - set(cad))
-so_c = sorted(set(cad) - set(trena))
+so_t = sorted(set(sicor) - set(cad))
+so_c = sorted(set(cad) - set(sicor))
 if so_t:
-    print(f'\nSÓ NO TRENA: {["AM-" + v for v in so_t]}')
+    print(f'\nSÓ NO SICOR: {["AM-" + v for v in so_t]}')
 if so_c:
     print(f'\nSÓ NO CADASTRO: {["AM-" + v for v in so_c]}')
     for v in so_c:
@@ -181,7 +181,7 @@ if falhas:
         c = cad[v]
         print(f'\nAM-{v}  ({tipo})')
         print(f'   SICOR:    {tt:.3f} km de traçado, {ti:.3f} km implantado, '
-              f'fim declarado "{(trena[v].get("fim") or "")[:44]}"')
+              f'fim declarado "{(sicor[v].get("fim") or "")[:44]}"')
         print(f'   cadastro: {ct:.3f} km em {len(c["trechos"])} trecho(s), '
               f'{ci:.3f} km implantado')
         for x in c['trechos']:

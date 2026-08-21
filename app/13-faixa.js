@@ -52,12 +52,12 @@ function pintaFaixa(){
       : svcs.length === 1 ? svcs[0].cor
       : `linear-gradient(90deg,${svcs.map((s, k) =>
           `${s.cor} ${100 * k / svcs.length}% ${100 * (k + 1) / svcs.length}%`).join(',')})`;
-    const rot = (i === 0 || i === S.segs.length - 1 || Math.round(sg.ini) % passo === 0)
-      ? `<span class="rot">${esc(rotuloCurto(sg))}</span>` : '';
+    const marco = i === 0 || i === S.segs.length - 1 || Math.round(sg.ini) % passo === 0;
+    const rot = marco ? `<span class="rot">${esc(rotuloCurto(sg))}</span>` : '';
     const dica = `${rotuloSeg(sg)} · ${fmt(sg.ext, 3)} km`
       + (svcs.length ? ' · ' + svcs.map(s => s.svc + ' (' + s.status.map(nomeStatus).join('/') + ')').join(' · ')
                      : ' · sem lançamento');
-    return `<div class="km${sel.has(sg.id) ? ' sel' : ''}${dentro ? '' : ' fora'}"
+    return `<div class="km${marco ? ' marco' : ''}${sel.has(sg.id) ? ' sel' : ''}${dentro ? '' : ' fora'}"
       data-id="${sg.id}" title="${esc(dica)}" style="background:${fundo}">${rot}</div>`;
   }).join('');
 

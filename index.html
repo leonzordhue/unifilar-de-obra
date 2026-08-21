@@ -179,9 +179,13 @@ table.res tfoot td{background:#F1F4F7;font-weight:700}
 .faixaVazia{font-size:12px;color:var(--texto2);padding:10px 2px}
 .faixaTrilho{display:flex;height:40px;border:1px solid var(--linha);border-radius:5px;
   overflow-x:auto;overflow-y:hidden;background:#F4F7FA;user-select:none;cursor:crosshair}
-.faixaTrilho .km{position:relative;flex:1 1 0;min-width:4px;border-right:1px solid rgba(255,255,255,.55);
-  transition:box-shadow .08s}
-.faixaTrilho .km:last-child{border-right:0}
+/* A divisa entre quilômetros é preta e cheia: é ela que faz a faixa ser lida como régua.
+   Em divisa de marco (a que leva rótulo) a linha engrossa, para a escala se ler de longe. */
+.faixaTrilho .km{position:relative;flex:1 1 0;min-width:4px;
+  border-right:1px solid #14202B;transition:box-shadow .08s}
+.faixaTrilho .km.marco{border-right-width:2px}
+.faixaTrilho .km:first-child{border-left:1px solid #14202B}
+.faixaTrilho .km:last-child{border-right:1px solid #14202B}
 .faixaTrilho .km.fora{background-image:repeating-linear-gradient(45deg,#fff 0 4px,#E3E9EF 4px 8px)}
 .faixaTrilho .km.sel{box-shadow:inset 0 0 0 2px var(--navy);z-index:2}
 .faixaTrilho .rot{position:absolute;bottom:1px;left:50%;transform:translateX(-50%);

@@ -83,11 +83,11 @@ ram = json.load(io.open(os.path.join(RAIZ, 'dados',
                 'acervo-ramais.json'), encoding='utf-8'))
 ram = ram['itens'] if isinstance(ram, dict) else ram
 
-trena = {}
+sicor = {}
 for r in rod:
     m = re.match(r'^(\d{3})', (r.get('codigos') or [''])[0])
     if m:
-        trena[m.group(1)] = r
+        sicor[m.group(1)] = r
 
 out = []
 w = out.append
@@ -96,7 +96,7 @@ w('|---|---|---|---|')
 
 detalhe = []
 for v in NAO_VERIF:
-    t = trena.get(v)
+    t = sicor.get(v)
     if not t:
         w(f'| AM-{v} | — | — | ausente do acervo |')
         continue
