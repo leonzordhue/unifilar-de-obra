@@ -22,7 +22,16 @@ function pintaRel(){
   const kmTr = segs.reduce((a, s) => a + kmNoTrecho(s), 0);
   const geoTot = S.segs.reduce((a, s) => a + s.ext, 0);
   const saltos = (S.eixo.meta && S.eixo.meta.saltos_km) || [];
+  // Rodapé do documento impresso, pedido pelo HAL9000 em `estilo/impressao.css`: repetido
+  // em toda página pelo `position:fixed`, é o que torna a folha solta rastreável ao contrato.
+  // Numeração «página X de Y» não entra: o Chromium não implementa contador de página fora
+  // das margin boxes do @page, e número de página errado é pior que nenhum.
+  const rodapeImp = [S.contrato && 'Contrato ' + esc(S.contrato),
+                     esc((S.obra || S.eixo.nome || '').slice(0, 80)),
+                     'emitido em ' + new Date().toLocaleDateString('pt-BR')]
+    .filter(Boolean).join(' · ');
   alvo.innerHTML = `<div class="rel">
+    <div id="rodapeImpressao">${rodapeImp}</div>
     <h1>Relatório de controle de obra — unifilar</h1>
     <div class="meta"><b>Obra:</b> ${esc(S.obra || S.eixo.nome)}</div>
     <div class="meta"><b>Eixo:</b> ${esc(S.eixo.nome)} — ${

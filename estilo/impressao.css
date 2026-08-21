@@ -5,17 +5,123 @@
    que é o que sai da plataforma e vai para o processo.
 
    O relatório de tela já esconde cabeçalho, lateral, abas e as janelas de ficha e obras
-   (regras `@media print` no `index.html`). O que falta é o comportamento de PÁGINA, que na
-   tela não existe:
+   (regras `@media print` no `index.html`). O que este arquivo resolve é o comportamento de
+   PÁGINA, que na tela não existe.
 
-   - quebra de página entre seções, sem partir tabela no meio de uma linha
-   - cabeçalho de tabela repetido quando ela atravessa a página (`thead { display: table-header-group }`)
-   - a imagem do croqui caber numa página inteira, sem estourar a margem
-   - «Contrato · obra · página X de Y» — se der, com contador de página em CSS
-   - tamanho de fonte que sobrevive à impressão em A4 retrato
-   - foto de ensaio em miniatura, e não ocupando um terço da página
+   Provado por `ferramentas/testar-impressao.py`, que gera o PDF pelo próprio Chromium e mede
+   o resultado — número de páginas, cabeçalho de tabela em toda página que tem linha, imagem
+   dentro da área útil, título que não fica órfão no pé da página.
 
-   Prova esperada: `ferramentas/testar-impressao.py` — gerar o PDF pelo Chromium
-   (`page.pdf(...)`), contar páginas, e medir que nenhuma tabela do relatório fica com o
-   cabeçalho órfão nem com linha cortada. Sem a prova, isto é opinião sobre papel.
-*/
+   O que NÃO dá para fazer daqui, e por isso não está fingido: numeração «página X de Y». O
+   Chromium só aceita contador de página dentro das margin boxes do `@page`
+   (`@bottom-center { content: counter(page) }`), que ele não implementa; `counter(page)` em
+   elemento comum imprime sempre 0. Quem imprime pelo navegador tem a numeração do próprio
+   diálogo de impressão. Para o número sair no documento, é preciso um elemento no HTML do
+   relatório — pedido registrado em COORDENACAO.md. Se ele existir com o id
+   `#rodapeImpressao`, as regras do fim deste arquivo já o posicionam. */
+
+/* A orientação e a margem vêm do `@media print` do index.html (A4 landscape, 10mm): a
+   tabela de detalhamento por faixa é larga e em retrato começa a quebrar coluna. Aqui só se
+   acrescenta a margem de rodapé, para o rodapé fixo não pisar no conteúdo. */
+@page { margin: 10mm 10mm 14mm; }
+
+/* ------------------------------------------------------------------ corpo */
+.rel {
+  font-size: 10pt;
+  line-height: 1.35;
+  color: #14202B;                 /* preto de impressão: o cinza de tela some no papel */
+}
+.rel h1 { font-size: 15pt; margin: 0 0 6pt; }
+.rel .meta { font-size: 9pt; }
+.rel .dica { font-size: 8pt; }
+
+/* ------------------------------------------------- seções e quebra de página */
+/* Cada seção começa em página nova, menos a primeira: o relatório vai para processo e é lido
+   seção a seção, não corrido. */
+.rel h2 {
+  font-size: 12pt;
+  break-before: page;
+  break-after: avoid;             /* título nunca fica sozinho no pé da página */
+  margin: 0 0 6pt;
+  padding-bottom: 3pt;
+  border-bottom: 1px solid #1F4E79;
+}
+.rel h2:first-of-type { break-before: auto; }
+.rel h3 { break-after: avoid; font-size: 10.5pt; margin: 8pt 0 3pt; }
+/* Um parágrafo de nota logo abaixo do título tem de acompanhar o título. */
+.rel h2 + .meta, .rel h2 + table, .rel h3 + table { break-before: avoid; }
+
+/* ------------------------------------------------------------------ tabelas */
+.rel table {
+  width: 100%;
+  border-collapse: collapse;
+  break-inside: auto;             /* tabela longa PODE atravessar páginas... */
+  margin: 0 0 8pt;
+  font-size: 9pt;
+}
+/* ...mas com o cabeçalho repetido em cada página, senão a página 2 é um bloco de números sem
+   nome de coluna — e número sem rótulo, em medição de obra, é convite a erro de leitura. */
+.rel thead { display: table-header-group; }
+.rel tfoot { display: table-footer-group; }
+.rel tr { break-inside: avoid; page-break-inside: avoid; }   /* linha nunca é cortada ao meio */
+.rel th, .rel td {
+  border: 1px solid #B8C2CC;
+  padding: 2.5pt 4pt;
+  text-align: left;
+}
+.rel thead th {
+  background: #EDF1F5 !important;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  font-size: 8.5pt;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+/* As cores de status e de conformidade são informação, não enfeite: sem elas o quadro impresso
+   perde o semáforo que o fiscal usa para ler a página de longe. */
+.rel [style*="background"] {
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* ------------------------------------------------------------------ imagens */
+/* Croqui: `width:100%` no HTML esticaria a imagem além da página em landscape. Aqui a largura
+   volta a ser automática para o `max-height` limitar sem distorcer a proporção. */
+.rel img {
+  width: auto !important;
+  max-width: 100%;
+  max-height: 150mm;
+  break-inside: avoid;
+}
+/* Foto de ensaio é miniatura de conferência, não ilustração: 64×46 na tela, e no papel
+   também — uma foto por linha de tabela ocupando um terço da página tornaria o anexo
+   ilegível. */
+.rel td img { max-height: 14mm; }
+
+/* ------------------------------------------------------------------ rodapé */
+/* `position: fixed` é o único jeito, no Chromium, de repetir um elemento em todas as páginas
+   impressas. O texto institucional é fixo; contrato, obra e número de página dependem de
+   elemento no HTML (ver o cabeçalho deste arquivo). */
+.rel::after {
+  content: "SICOR — Sistema de Controle de Obras Rodoviárias · SEINFRA/AM — Departamento de Mobilidade";
+  position: fixed;
+  bottom: 2mm;
+  left: 0;
+  right: 0;
+  font-size: 7.5pt;
+  color: #5A6B7B;
+  text-align: center;
+}
+#rodapeImpressao {
+  position: fixed;
+  bottom: 6mm;
+  left: 0;
+  right: 0;
+  font-size: 8pt;
+  color: #14202B;
+  text-align: center;
+}
+
+/* Nada da interface de operação entra no documento: o que sobrar aqui vira ruído no processo. */
+.rel .mini, .rel button, .rel select, .rel input { display: none !important; }
