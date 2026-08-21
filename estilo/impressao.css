@@ -1,0 +1,21 @@
+/* Folha de estilo da IMPRESSÃO. Dono: HAL9000.
+
+   Carregada com `media="print"`, então nada aqui afeta a tela — e a tela não precisa ser
+   consultada para mexer aqui. É o arquivo inteiro dedicado ao documento em papel ou PDF,
+   que é o que sai da plataforma e vai para o processo.
+
+   O relatório de tela já esconde cabeçalho, lateral, abas e as janelas de ficha e obras
+   (regras `@media print` no `index.html`). O que falta é o comportamento de PÁGINA, que na
+   tela não existe:
+
+   - quebra de página entre seções, sem partir tabela no meio de uma linha
+   - cabeçalho de tabela repetido quando ela atravessa a página (`thead { display: table-header-group }`)
+   - a imagem do croqui caber numa página inteira, sem estourar a margem
+   - «Contrato · obra · página X de Y» — se der, com contador de página em CSS
+   - tamanho de fonte que sobrevive à impressão em A4 retrato
+   - foto de ensaio em miniatura, e não ocupando um terço da página
+
+   Prova esperada: `ferramentas/testar-impressao.py` — gerar o PDF pelo Chromium
+   (`page.pdf(...)`), contar páginas, e medir que nenhuma tabela do relatório fica com o
+   cabeçalho órfão nem com linha cortada. Sem a prova, isto é opinião sobre papel.
+*/

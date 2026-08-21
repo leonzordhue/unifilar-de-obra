@@ -25,6 +25,7 @@ function render(){
   $('#dicaRef').textContent = S.ref === 'est'
     ? `Estaca de ${EST_M} m — KM 1 corresponde à estaca ${1000 / EST_M}.`
     : 'Colunas por quilômetro inteiro do eixo.';
+  pintaContrato();
   if (S.vista === 'croqui') pintaCroqui();
   else if (S.vista === 'matriz') pintaMatriz();
   else if (S.vista === 'resumo') pintaResumo();
@@ -187,7 +188,8 @@ function liga(){
   try { S.catEns = await carregaJSON('dados/catalogo-ensaios.json'); }
   catch (e){ S.catEns = {itens: [], grupos: []}; }
   montaSvc(); montaEns(); carregaFotos();
-  pintaCat(); pintaSvc(); pintaEns(); pintaLegenda(); montaAbas(); liga(); iniMapa();
+  pintaCat(); pintaSvc(); pintaEns(); pintaContrato(); pintaLegenda();
+  montaAbas(); liga(); iniMapa();
   await pintaAcervo();
   const salvo = localStorage.getItem(CHAVE_LOCAL);
   if (salvo){

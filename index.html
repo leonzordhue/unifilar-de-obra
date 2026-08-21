@@ -4,6 +4,7 @@
 <title>SICOR — Sistema de Controle de Obras Rodoviárias · SEINFRA/AM</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="bibliotecas/leaflet-1.9.4/leaflet.css">
+<link rel="stylesheet" href="estilo/impressao.css" media="print">
 <style>
 :root{
   --navy:#16324F; --navy2:#1F4E79; --azul:#2E5496; --azul-cl:#DDEBF7;
@@ -233,6 +234,17 @@ table.res tfoot td{background:#F1F4F7;font-weight:700}
 .obrasNota{font-size:11.5px;color:var(--texto2);padding:10px 18px;border-top:1px solid var(--linha);
   line-height:1.5}
 @media print{#obras{display:none!important}}
+
+/* ---- contrato ---- */
+.rotCampo{display:flex;flex-direction:column;gap:3px;margin-bottom:7px;font-size:10px;
+  text-transform:uppercase;letter-spacing:.06em;color:var(--texto2)}
+.rotCampo input{font:13px inherit;padding:6px 8px;border:1px solid var(--linha);border-radius:6px;
+  text-transform:none;letter-spacing:0;color:var(--texto)}
+.tabQt{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:5px}
+.tabQt td{padding:2px 0;border-bottom:1px solid var(--linha)}
+.tabQt td:last-child{width:76px}
+.tabQt input{width:100%;font:12px inherit;padding:3px 6px;border:1px solid var(--linha);
+  border-radius:5px;text-align:right}
 </style>
 
 <header>
@@ -337,7 +349,10 @@ table.res tfoot td{background:#F1F4F7;font-weight:700}
       </div>
     </div>
 
-    <h2><i>4</i> Ensaios</h2>
+    <h2><i>4</i> Contrato</h2>
+    <div class="bloco" id="blocoContrato"></div>
+
+    <h2><i>5</i> Ensaios</h2>
     <div class="bloco">
       <div class="campo">
         <div class="linha2">
@@ -349,7 +364,7 @@ table.res tfoot td{background:#F1F4F7;font-weight:700}
       </div>
     </div>
 
-    <h2><i>5</i> Legenda</h2>
+    <h2><i>6</i> Legenda</h2>
     <div class="bloco" id="legenda"></div>
   </aside>
 
@@ -429,4 +444,5 @@ table.res tfoot td{background:#F1F4F7;font-weight:700}
 <script src="app/11-painel.js"></script>
 <script src="app/13-faixa.js"></script>
 <script src="app/14-obras.js"></script>
+<script src="app/15-contrato.js"></script>
 <script src="app/99-montagem.js"></script>

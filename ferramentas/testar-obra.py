@@ -162,6 +162,44 @@ def main():
            f"conf={rs['pctConformidade']} previstos={rs['previstos']}")
         pg.evaluate("fechaFicha()")
 
+        print("\n5a. QUANTIDADE CONTRATADA E QUADRO POR SERVIÇO")
+        # o escritório mede contra o contratado: 2 km executados de 3 contratados são 67%,
+        # e não os 15% que os mesmos 2 km representam num trecho de 13 km
+        pg.evaluate("""() => {
+            // conclui o KM 3 e o KM 4; o KM 9 fica em andamento
+            const l = {svc: 'EROSÕES', lado: 'U'};
+            [3, 4].forEach(id => S.dados[chave(l, id)] = 'C');
+            const s = S.svc.find(x => x.nome === 'EROSÕES');
+            s.km_contratado = 3;
+            const o = document.querySelector('[data-ct="objeto"]');
+            o.value = 'Recuperação de erosões na AM-151';
+            o.dispatchEvent(new Event('input'));
+            const v = document.querySelector('[data-ct="valor"]');
+            v.value = '1250000'; v.dispatchEvent(new Event('input'));
+            render();
+        }""")
+        pg.wait_for_timeout(900)
+        q = pg.evaluate("quadroObra().find(x => x.svc === 'EROSÕES')")
+        ok(q is not None and abs(q["C"] - 2) < 0.05,
+           "quilômetros concluídos do serviço, contados uma vez por quilômetro",
+           f"{q['C']:.2f} km" if q else "não achou")
+        ok(q and q["pctContrato"] and abs(q["pctContrato"] - 2 / 3) < 0.01,
+           "% do contrato mede contra a quantidade contratada",
+           f"{100 * q['pctContrato']:.1f}% de 3 km" if q and q["pctContrato"] else "—")
+        ok(q and q["E"] and abs(q["E"] - 1) < 0.05,
+           "o quilômetro em andamento não entra como concluído",
+           f"{q['E']:.2f} km em andamento" if q else "—")
+        ok(q and q["pctTrecho"] is not None and q["pctTrecho"] < 0.2,
+           "% do trecho continua existindo, e é outro número",
+           f"{100 * q['pctTrecho']:.1f}%" if q and q["pctTrecho"] is not None else "—")
+        outros = pg.evaluate("quadroObra().filter(x => x.svc !== 'EROSÕES')")
+        ok(all(x["pctContrato"] is None for x in outros),
+           "serviço sem quantidade informada não inventa percentual de contrato",
+           f"{len(outros)} serviço(s) sem quantidade")
+        cd = pg.evaluate("S.contratoDados")
+        ok(cd.get("objeto", "").startswith("Recuperação"),
+           "os dados do contrato ficam no projeto", cd.get("objeto", ""))
+
         print("\n5b. O ENSAIO CHEGA AO RELATÓRIO")
         # ensaio que não chega ao relatório não serve de nada numa medição
         pg.evaluate("document.querySelector(\".abas button[data-v='rel']\").click()")

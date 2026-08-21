@@ -35,6 +35,9 @@ function pintaRel(){
       <img src="${S.croqui.url}" style="width:100%;max-width:100%;border:1px solid #D4DBE2;border-radius:6px">
       <div class="meta" style="margin-top:4px">Traçado sobre imagem de satélite. ${esc(ATRIB_SAT)}.</div>` : ''}
 
+    ${blocoContratoRel() ? `<div class="meta"><b>Identificação do contrato</b></div>
+      ${blocoContratoRel()}` : ''}
+
     <h2>${S.croqui ? '2' : '1'}. Avanço geral</h2>
     <table><thead><tr><th>Indicador</th><th>Valor</th></tr></thead><tbody>
       <tr><td>Posições de controle (serviço × lado × quilômetro)</td><td>${linhas.length * segs.length}</td></tr>
@@ -46,6 +49,9 @@ function pintaRel(){
     </tbody></table>
 
     <h2>${S.croqui ? '3' : '2'}. Situação por serviço</h2>
+    ${tabelaQuadroObra()}
+    <div class="meta">Abaixo, o mesmo controle contado em posições — serviço, lado e
+      quilômetro —, que é a unidade de lançamento da plataforma.</div>
     <table><thead><tr><th>Serviço</th><th>Lado</th><th>Concl.</th><th>Em and.</th>
       <th>Sem plan.</th><th>Previsto</th><th>N/A</th><th>% exec.</th></tr></thead><tbody>${
       linhas.map(l => {const r = resumoLinha(l);

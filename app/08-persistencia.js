@@ -3,6 +3,7 @@
 function projetoAtual(){
   return {
     versao: 1, obra: $('#nomeObra').value, contrato: chaveContrato($('#contrato').value),
+    contratoDados: S.contratoDados || {},
     ref: S.ref, fonte: S.fonte, catId: S.catId,
     kmIni: S.kmIni, kmFim: S.kmFim, estOff: +$('#estOff').value || 0,
     invertido: S.invertido,
@@ -32,6 +33,7 @@ function aplicaProjeto(p){
   $('#nomeObra').value = p.obra || '';
   $('#contrato').value = p.contrato || '';
   S.contrato = p.contrato || '';
+  S.contratoDados = p.contratoDados || {};
   // ensaios: o projeto reaberto tem de trazer de volta o que foi medido, e a foto junto
   S.reg = Array.isArray(p.reg) ? p.reg : [];
   S.seqReg = p.seqReg || S.reg.length;

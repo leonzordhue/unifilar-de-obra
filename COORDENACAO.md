@@ -88,8 +88,8 @@ agentes salvando o mesmo arquivo se sobrescrevem em silêncio.
 
 | Frente | Dono | Arquivos que pode escrever |
 |---|---|---|
-| Casca, estado, abas, ficha técnica, persistência | **Cortanna** | `index.html`, `app/00-estado.js`, `app/09-app.js`, `app/08-persistencia.js`, `app/10-ensaios.js`, `ferramentas/testar-ensaios.py` |
-| Painel, gráfico de conformidade, mapa por critério | **HAL9000** | `app/11-painel.js`, `app/04-mapa.js`, `ferramentas/testar-painel.py` |
+| Casca, estado, abas, ficha técnica, persistência | **Cortanna** | `index.html`, `app/00-estado.js`, `app/09-app.js`, `app/08-persistencia.js`, `app/10-ensaios.js`, `app/13-faixa.js`, `app/14-obras.js`, `app/15-contrato.js`, `app/05-croqui.js`, `app/07-relatorio.js`, `ferramentas/testar-obra.py` |
+| Painel, gráfico, mapa por critério, impressão e desempenho | **HAL9000** | `app/11-painel.js`, `app/04-mapa.js`, `app/06-matriz.js`, `estilo/impressao.css`, `ferramentas/testar-painel.py`, `ferramentas/testar-impressao.py`, `ferramentas/testar-desempenho.py` |
 | Catálogo de ensaios, pacote CDE, acervo local | **jarvisIV** | `dados/catalogo-ensaios.json`, `app/12-cde.js`, `app/03-acervo.js`, `ferramentas/testar-cde.py` |
 | Conferência de acervo e cadastro | quem criou | as próprias ferramentas de conferência |
 
@@ -290,7 +290,11 @@ Atualize a sua linha no mesmo commit do código. Data no formato dd/mm hh:mm.
 | Obra guardada e reaberta por nº de contrato | Cortanna | **pronto e provado** (`testar-obra.py`) | 21/08 16:40 |
 | Ficha técnica por segmento (ensaio, norma, medição, responsável, foto) | Cortanna | **pronto e provado**, e o relatório leva os ensaios (seção 5, «Controle tecnológico») | 21/08 17:55 |
 | README e manual de uso | Cortanna | **atualizados** — faixa unifilar, ficha técnica, obra por contrato | 21/08 17:55 |
-| Painel, gráfico e mapa por critério | HAL9000 | painel pronto e provado; `11-painel.js` já está no html; falta o mapa por critério | 21/08 16:40 |
+| Painel, gráfico e mapa por critério | HAL9000 | painel e seletor de critério prontos; falta pôr `tabelaQuadroObra()` no painel | 21/08 18:40 |
+| Impressão do relatório (`estilo/impressao.css`) | HAL9000 | **disparada** — arquivo criado e ligado com `media="print"`; ver `_canal/HAL9000.md` | 21/08 18:40 |
+| Desempenho da matriz (`app/06-matriz.js` passa a ser dele) | HAL9000 | **disparada** — medir antes de corrigir | 21/08 18:40 |
+| Contrato, quantidade contratada e quadro por serviço | Cortanna | **pronto e provado** (`testar-obra.py`, bloco 5a) | 21/08 18:40 |
+| Conferência contra a planilha viva do DMOB | Cortanna | **pronta** — `importar-camada-de-km.py` é ferramenta de conferência, não fluxo de uso | 21/08 18:40 |
 | Catálogo de ensaios com normas | jarvisIV | **não iniciado — é o gargalo**; esqueleto pronto em `dados/catalogo-ensaios.json`, só faltam as normas | 21/08 16:40 |
 | Pacote CDE e acervo local | jarvisIV | não iniciado | — |
 | Nome definitivo da plataforma | Cortanna | «SICOR» recusado; opções levadas ao Paulo | 21/08 16:40 |
