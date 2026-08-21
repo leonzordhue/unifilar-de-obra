@@ -253,10 +253,75 @@ if (quebrou) {
     }
     return out;
   };
-  const limpaFonte = (t) => tiraTemplates(t)
-    .replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/\/\/[^\n]*/g, ' ')
-    .replace(/'(?:\\.|[^'])*'/g, "''").replace(/"(?:\\.|[^"])*"/g, '""')
-    .replace(/\/(?![*/])(?:\\.|\[(?:\\.|[^\]])*\]|[^/\n\\])+\/[gimsuy]*/g, '/RE/');
+  // Varredura em UMA passada, da esquerda para a direita.
+  //
+  // A versão anterior aplicava um `replace` por tipo, em cadeia, e isso é
+  // errado por construção: ela tirava comentários ANTES de tirar strings, então
+  // o `//` de uma URL dentro de string — `'<kml xmlns="http://www.opengis...'`
+  // no `12-cde.js` — era lido como início de comentário. A linha era cortada no
+  // meio, sobrava um apóstrofo ímpar, e daí para frente todo o pareamento de
+  // aspas se deslocava: o conteúdo de strings posteriores ficava exposto e
+  // virava "chamada de função". Foi assim que apareceu um `DADOS()` que não
+  // existe em lugar nenhum do código.
+  //
+  // Só uma varredura sequencial resolve, porque quem abre primeiro manda: dentro
+  // de string, `//` é texto; dentro de comentário, aspas são texto.
+  // Varredura com PILHA, porque template aninhado exige isso.
+  //
+  // A primeira tentativa tratava crase como aspa simples: andava até a próxima
+  // crase e pronto. Não serve — este código monta HTML com template dentro de
+  // interpolação (`${ `...` }`), e a crase de fechamento encontrada era a
+  // errada. O texto do template escapava e caía na varredura de chamadas. Como
+  // em português se escreve `ensaio(s)`, `julgado(s)`, `Ambos (...)`, cada
+  // plural virava "função que ninguém declara": quatro falsos positivos.
+  //
+  // Aqui o texto do template é apagado, mas o conteúdo de `${...}` é tratado
+  // como CÓDIGO — que é o que ele é. Assim a varredura ainda enxerga chamada
+  // feita dentro de interpolação, em vez de ficar cega para ela.
+  const limpaFonte = (t) => {
+    const n = t.length;
+    let out = '', i = 0;
+    // pilha: 'tpl' = dentro do texto de um template; 'exp' = dentro de ${...}
+    const pilha = [];
+    const emTexto = () => pilha[pilha.length - 1] === 'tpl';
+
+    while (i < n) {
+      const c = t[i], d = t[i + 1];
+
+      if (emTexto()) {
+        if (c === '\\') { out += '  '; i += 2; continue; }
+        if (c === '`') { pilha.pop(); out += '`'; i++; continue; }
+        if (c === '$' && d === '{') { pilha.push('exp'); out += '  '; i += 2; continue; }
+        out += (c === '\n' ? '\n' : ' ');   // preserva a linha, apaga o texto
+        i++; continue;
+      }
+
+      // ---- estamos em código ----
+      if (c === '/' && d === '*') {
+        const f = t.indexOf('*/', i + 2);
+        const bloco = t.slice(i, f < 0 ? n : f + 2);
+        out += bloco.replace(/[^\n]/g, ' ');            // mantém as linhas
+        i = f < 0 ? n : f + 2; continue;
+      }
+      if (c === '/' && d === '/') {
+        const f = t.indexOf('\n', i);
+        out += ' '.repeat((f < 0 ? n : f) - i);
+        i = f < 0 ? n : f; continue;
+      }
+      if (c === '"' || c === "'") {
+        let j = i + 1;
+        while (j < n && t[j] !== c && t[j] !== '\n') j += (t[j] === '\\' ? 2 : 1);
+        out += c + c + ' '.repeat(Math.max(0, j - i - 1));
+        i = j + 1; continue;
+      }
+      if (c === '`') { pilha.push('tpl'); out += '`'; i++; continue; }
+      if (c === '}' && pilha[pilha.length - 1] === 'exp') {
+        pilha.pop(); out += ' '; i++; continue;
+      }
+      out += c; i++;
+    }
+    return out;
+  };
 
   const declarados = new Set(['S', '$', '$$', 'arguments', 'this']);
   for (const m of mods) {

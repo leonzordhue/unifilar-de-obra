@@ -153,6 +153,54 @@ caso('avanco volta a contar celula em vez de km',
      injeta_pct_por_celula, 'difere do avanço real', 'testar-estaca-e-trecho.mjs')
 
 
+# 8. chamada dentro de INTERPOLACAO de template.
+# A varredura antiga apagava o template inteiro, inclusive o ${...}, e ficava
+# cega para chamada feita ali dentro — que neste projeto e' onde mora boa parte
+# do codigo, porque a interface e' montada com template. A varredura com pilha
+# trata ${...} como codigo; este caso prova que trata.
+def injeta_fantasma_em_template(base):
+    p = os.path.join(base, 'app', '13-faixa.js')
+    s = io.open(p, encoding='utf-8', newline='').read()
+    linha = ('\nfunction usaNoTemplate(){ return ' + chr(96) + 'x ${'
+             + 'somaQueNaoExiste(1)} y' + chr(96) + '; }\n')
+    io.open(p, 'w', encoding='utf-8', newline='').write(s + linha)
+
+
+caso('chamada dentro de ${...} de template', injeta_fantasma_em_template,
+     'somaQueNaoExiste')
+
+
+# 9. AO CONTRARIO dos outros: plural em portugues dentro de template e' TEXTO, e
+# a prova NAO pode reclamar dele. `ensaio(s)`, `julgado(s)`, `Ambos (...)` sao
+# indistinguiveis de chamada para uma varredura ingenua. Quando a minha perdia a
+# crase de fechamento de template aninhado, cada plural virava "funcao que
+# ninguem declara" — quatro falsos positivos de uma vez, no codigo real.
+FALSOS = []
+
+
+def falso_positivo(nome, aplica, nao_espera, prova='testar-modulos.mjs'):
+    FALSOS.append((nome, aplica, nao_espera, prova))
+
+
+def injeta_plural_em_template(base):
+    # Template com plural NO TEXTO e outro template dentro da interpolacao —
+    # exatamente a forma que quebrava a varredura. A primeira versao deste
+    # fixture era JavaScript INVALIDO, e a prova acusou erro de sintaxe: ela
+    # estava certa e o meu fixture errado. Montado com chr(96) porque escrever a
+    # crase aqui e' o que produziu a confusao.
+    p = os.path.join(base, 'app', '13-faixa.js')
+    s = io.open(p, encoding='utf-8', newline='').read()
+    b = chr(96)
+    linha = ('\nfunction textoPlural(n){ return ' + b
+             + '${n} ensaio(s), ${n} registro(s), Ambos (dois lados) e ${'
+             + b + 'aninhado ${n} vez(es)' + b + '}' + b + '; }\n')
+    io.open(p, 'w', encoding='utf-8', newline='').write(s + linha)
+
+
+falso_positivo('plural em portugues dentro de template nao e chamada',
+               injeta_plural_em_template, 'ensaio')
+
+
 print('=' * 78)
 print('AUTOTESTE DAS PROVAS — cada defeito injetado TEM de reprovar')
 print('=' * 78)
@@ -190,9 +238,34 @@ for nome, aplica, espera, prova in CASOS:
             print(f'  FALHOU  NAO pegou: {nome}')
             print(f'          codigo {rc}; esperava a mensagem conter "{espera}"')
 
+for nome, aplica, nao_espera, prova in FALSOS:
+    with tempfile.TemporaryDirectory() as tmp:
+        base = os.path.join(tmp, 'falso')
+        os.makedirs(base)
+        prepara(base)
+        aplica(base)
+        rc, saida = roda(base, prova)
+        # Aqui o certo e' PASSAR: o que foi injetado e' texto, nao defeito.
+        #
+        # A condicao NAO pode ser "a palavra X nao aparece na saida": eu tentei
+        # com 'ensaio' e deu falso alarme, porque existe um modulo chamado
+        # `10-ensaios.js` e o nome dele sai na linha "carregou" do passo 3.
+        # Procurar palavra na saida inteira e' o mesmo erro de mirar largo que
+        # essa familia de defeito vive cometendo. O que interessa e' se a prova
+        # ACUSOU algo.
+        acusou = [l.strip() for l in saida.split('\n') if 'FALHOU' in l]
+        if rc == 0 and not acusou:
+            print(f'  OK      nao reclamou de: {nome}')
+        else:
+            falhas += 1
+            print(f'  FALHOU  FALSO POSITIVO: {nome}')
+            for l in saida.split('\n'):
+                if 'FALHOU' in l:
+                    print('          ' + l.strip()[:110])
+
 print('=' * 78)
-print('AUTOTESTE OK — o verificador reprova todos os defeitos injetados'
+print('AUTOTESTE OK — reprova todo defeito injetado e não inventa nenhum'
       if not falhas else
-      f'AUTOTESTE FALHOU — {falhas} furo(s) no verificador')
+      f'AUTOTESTE FALHOU — {falhas} furo(s) nas provas')
 print('=' * 78)
 sys.exit(1 if falhas else 0)

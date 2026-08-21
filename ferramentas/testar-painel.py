@@ -346,6 +346,38 @@ def main():
                "e o gráfico do contratado passa a existir")
             ok("% DO CONTRATO" in t.upper(), "a coluna «% do contrato» entra no quadro")
 
+            print("")
+            print("11. CLIQUE NA MATRIZ REPINTA SÓ O QUE MUDOU")
+            # A matriz da AM-010 tem 5.918 células e remontá-las a cada clique custava 246 ms
+            # (medido). O clique passou a atualizar a célula, o resumo da linha e o rodapé da
+            # coluna. A prova de que NÃO remonta é o nó da tabela continuar sendo o mesmo
+            # objeto: se alguém voltar a chamar `pintaMatriz()` no clique, o nó é substituído
+            # e este bloco reprova.
+            pg.click("#abas button[data-v='matriz']")
+            pg.wait_for_timeout(1200)
+            m = pg.evaluate("""() => {
+                const t = document.querySelector('#vMatriz table.mat');
+                if (!t) return null;
+                window.__tab = t;
+                const cel = document.querySelector('#vMatriz td.cel');
+                const antesTxt = cel.textContent;
+                const linha = cel.closest('tr');
+                const antesResumo = [...linha.querySelectorAll('td')].slice(0,5).map(td => td.textContent).join('|');
+                cel.click();
+                const t2 = document.querySelector('#vMatriz table.mat');
+                const depoisResumo = [...linha.querySelectorAll('td')].slice(0,5).map(td => td.textContent).join('|');
+                return {mesmoNo: window.__tab === t2, antesTxt, depoisTxt: cel.textContent,
+                        antesResumo, depoisResumo}; }""")
+            ok(m is not None and m["mesmoNo"],
+               "a tabela NÃO é remontada no clique (mesmo nó no DOM)",
+               "mesmo nó" if m and m["mesmoNo"] else "a tabela foi refeita")
+            ok(m and m["depoisTxt"] != m["antesTxt"],
+               "a célula tocada muda de estado",
+               f"«{m['antesTxt']}» → «{m['depoisTxt']}»" if m else "")
+            ok(m and m["depoisResumo"] != m["antesResumo"],
+               "e o resumo da linha acompanha na hora",
+               f"{m['antesResumo']} → {m['depoisResumo']}" if m else "")
+
         print(f"\nERROS DE CONSOLE: {len(console)}")
         for c in console[:6]:
             print("  ", c)

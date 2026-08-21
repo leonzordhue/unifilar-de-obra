@@ -133,3 +133,58 @@ table.mat th.sv { min-width: 150px; font-size: 11px; }
   aside { max-height: 42vh; }
   .cards { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); }
 }
+
+/* ------------------------------------------- o que o fiscal precisa ver junto */
+/* A Cortanna mediu e mostrou o defeito que era meu: com a lateral empilhada, o mapa crescia
+   e empurrava a faixa unifilar para FORA da tela — em tablet paisagem ela terminava em 803 px
+   numa tela de 768, e no telefone começava 164 px abaixo do fim. O toque funcionava; a faixa é
+   que não estava lá.
+
+   Em campo o mapa é o que pode ceder: quem está com o tablet na mão está lançando serviço, e
+   quem lança é a faixa. Então a coluna passa a ter altura da tela, a lateral e a faixa ficam
+   com o tamanho que precisam, e o mapa fica com o que sobrar. */
+main {
+  height: 100vh;
+  height: 100dvh;                      /* dvh desconta a barra do navegador no telefone */
+  overflow: hidden;
+}
+aside { flex: 0 0 auto; }
+section.painel {
+  flex: 1 1 auto;
+  min-height: 0;                       /* sem isto o filho impede a coluna de encolher */
+  display: flex;
+  flex-direction: column;
+}
+.conteudo, #conteudo { flex: 1 1 auto; min-height: 0; overflow: auto; }
+#vMapa { height: 100%; min-height: 0; }
+#mapaCaixa { flex: 1 1 auto; min-height: 110px; }
+#faixaBox { flex: 0 0 auto; }          /* a faixa nunca é a que encolhe */
+
+/* --------------------------------------------- medido: quem estava empurrando a faixa */
+/* `#mapaCaixa` tem `min-height: 220px` na folha da página, que vem DEPOIS deste arquivo no
+   <head> — a minha regra de 110 px empatava em especificidade e perdia. Com `body` na frente
+   ela passa a valer. Números medidos em tablet paisagem: mapa 220 + caixa da faixa 173 = 393
+   dentro de um espaço de 281, e a faixa terminava 35 px abaixo da tela. */
+body #mapaCaixa {
+  min-height: 90px;
+  flex: 1 1 0;
+}
+body #vMapa { display: flex; flex-direction: column; }
+body #conteudo, body .conteudo { overflow: hidden; }   /* quem rola é cada vista, não a moldura */
+
+/* A caixa da faixa chegava a 337 px no telefone — cabeçalho, trilho e barra de lançamento.
+   Ela é a razão de o fiscal estar com o aparelho na mão, então encolhe sem sumir. */
+body #faixaBox { padding: 6px 8px 8px; }
+body #faixaBox .faixaCab { margin-bottom: 4px; gap: 6px; }
+body #faixaBox select, body #faixaBox button { min-height: 40px; }
+
+@media (max-height: 820px) {
+  aside { max-height: 30vh; }           /* em paisagem a altura é o recurso escasso */
+}
+@media (max-width: 480px) {
+  /* o cabeçalho ocupava 219 px de uma tela de 844 — um quarto da tela para dizer o nome do
+     sistema. O subtítulo institucional sai; a marca e os botões ficam. */
+  header .marca span { display: none; }
+  header { padding: 6px 10px; gap: 6px 8px; }
+  aside { max-height: 32vh; }
+}

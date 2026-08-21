@@ -144,8 +144,23 @@ def main():
                    "e ocupa a largura útil, em vez de uma janelinha",
                    f"{round(100*fic['l']/fic['vw'])}% da largura")
 
-            # a faixa unifilar é o gesto central do produto: se ela não responde ao toque, o
-            # fiscal não lança serviço — e isso é comportamento, não estilo
+            # DUAS perguntas separadas, e nessa ordem. A primeira versão desta prova juntava
+            # as duas e dizia «não responde ao toque» quando a faixa estava FORA da tela: mandou
+            # a Cortanna caçar defeito de evento por meia hora, num defeito que era meu, de
+            # layout. Prova que aponta o dono errado custa mais caro que prova nenhuma.
+            visivel = pg.evaluate("""() => {
+                const t = document.querySelector('#faixaTrilho') || document.querySelector('.faixaTrilho');
+                if (!t) return null;
+                const r = t.getBoundingClientRect();
+                return {topo: Math.round(r.top), base: Math.round(r.bottom),
+                        alturaTela: innerHeight,
+                        dentro: r.top >= 0 && r.bottom <= innerHeight + 1}; }""")
+            if visivel:
+                ok(visivel["dentro"],
+                   "a faixa unifilar cabe na área visível, sem rolar a página",
+                   f"faixa de {visivel['topo']} a {visivel['base']} px numa tela de "
+                   f"{visivel['alturaTela']} px")
+
             toque = pg.evaluate("""() => {
                 const t = document.querySelector('#faixaTrilho') || document.querySelector('.faixaTrilho');
                 if (!t) return null;
@@ -160,9 +175,17 @@ def main():
                 km.dispatchEvent(new MouseEvent('click', op));
                 return {antes, depois: (S.sel ? S.sel.size : 0), largura: Math.round(r.width)}; }""")
             if toque:
-                pendente(toque["depois"] != toque["antes"],
-                         "a faixa unifilar responde ao toque", "Cortanna · app/13-faixa.js",
-                         f"seleção {toque['antes']} → {toque['depois']} · célula de {toque['largura']}px")
+                # só agora a pergunta de comportamento, e só quando a faixa está visível:
+                # com o elemento fora da tela, `elementFromPoint` devolve nada e o veredito
+                # seria sobre o dono errado
+                if visivel and visivel["dentro"]:
+                    pendente(toque["depois"] != toque["antes"],
+                             "a faixa unifilar responde ao toque", "Cortanna · app/13-faixa.js",
+                             f"seleção {toque['antes']} → {toque['depois']} · célula de "
+                             f"{toque['largura']}px")
+                else:
+                    print("        (toque não avaliado: a faixa não está na área visível — "
+                          "o defeito a corrigir é o de layout, acima)")
 
             if GUARDAR:
                 pg.screenshot(path=os.path.join(TMP, f"campo-{nome.replace(' ', '-')}.png"),
