@@ -94,7 +94,9 @@ function resumoPorGrupo(ids){
       por.set(e.grupo, {grupo: e.grupo, cor: grupoEnsaio(e.grupo).cor,
                         previstos: 0, executados: 0, conformes: 0, naoConformes: 0, pct: null});
   });
-  const km = S.segs.filter(s => set.has(s.id)).reduce((a, s) => a + s.ext, 0);
+  // mesma régua de previstosEm: a frequência de ensaio se aplica ao que é obra, e
+  // não ao quilômetro cheio da ponta do trecho
+  const km = S.segs.filter(s => set.has(s.id)).reduce((a, s) => a + kmNoTrecho(s), 0);
   catalogoEnsaios().forEach(e => {
     if (e.por_km != null && isFinite(e.por_km)) por.get(e.grupo).previstos += e.por_km * km;
   });
