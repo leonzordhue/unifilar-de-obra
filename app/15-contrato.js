@@ -93,6 +93,10 @@ function quadroObra(){
   return [...porSvc.values()].map(q => {
     q.pctTrecho = q.kmTrecho > 0 ? q.C / q.kmTrecho : null;
     q.pctContrato = q.contratado ? q.C / q.contratado : null;
+    // Executado acima do contratado não é avanço: ou a quantidade contratada está errada, ou
+    // se lançou serviço fora do contrato. Medido na AM-010: 259 km lançados contra 175
+    // contratados dariam «148%» impressos num quadro de medição, sem uma palavra.
+    q.excedeContrato = q.pctContrato != null && q.pctContrato > 1.0005;
     return q;
   });
 }
@@ -114,7 +118,9 @@ function tabelaQuadroObra(){
       ${temCt ? `<td>${km(x.contratado || 0)}</td>` : ''}
       <td>${km(x.C)}</td><td>${km(x.E)}</td><td>${km(x.PA)}</td><td>${km(x.S)}</td>
       <td>${km(x.P)}</td><td>${pc(x.pctTrecho)}</td>
-      ${temCt ? `<td>${pc(x.pctContrato)}</td>` : ''}</tr>`).join('')}
+      ${temCt ? `<td>${x.excedeContrato
+        ? `<b title="executado acima do contratado">${pc(x.pctContrato)} ⚠</b>`
+        : pc(x.pctContrato)}</td>` : ''}</tr>`).join('')}
     <tr><td class="t"><b>Total</b></td>
       ${temCt ? `<td><b>${km(somaCt)}</b></td>` : ''}
       <td><b>${km(soma('C'))}</b></td><td><b>${km(soma('E'))}</b></td>
@@ -123,6 +129,12 @@ function tabelaQuadroObra(){
       <td><b>${pc(soma('kmTrecho') > 0 ? soma('C') / soma('kmTrecho') : null)}</b></td>
       ${temCt ? `<td><b>${pc(somaCt > 0 ? soma('C') / somaCt : null)}</b></td>` : ''}</tr>
     </tbody></table>
+    ${q.some(x => x.excedeContrato) ? `<div class="meta"><b>⚠ Executado acima do
+      contratado</b> em ${q.filter(x => x.excedeContrato).length} serviço(s):
+      ${esc(q.filter(x => x.excedeContrato).map(x => x.svc).join(', '))}. Isso não é avanço
+      acima de 100% — ou a quantidade contratada informada está errada, ou foi lançado
+      serviço além do que o contrato prevê. Confira antes de usar este quadro em medição.
+      </div>` : ''}
     <div class="meta">Em quilômetros. Um quilômetro conta uma vez por serviço, pelo estado
       mais avançado entre os lados. <b>% do trecho</b> mede onde a obra está; <b>% do
       contrato</b> mede quanto falta entregar${temCt ? '' : ' — e só aparece quando a '

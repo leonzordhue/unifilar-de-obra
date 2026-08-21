@@ -12,6 +12,8 @@ function projetoAtual(){
                     km_implantado: S.eixo.km_implantado, faixas: S.eixo.faixas || [],
                     inicio: S.eixo.inicio || '', fim: S.eixo.fim || '',
                     sentido: S.eixo.sentido || {}, meta: S.eixo.meta || null} : null,
+    // `Set` não sobrevive ao JSON: vira `{}` sem avisar. Vai como lista e volta como Set.
+    sel: [...(S.sel || [])],
     svc: S.svc, dados: S.dados,
     // controle tecnologico: ensaios contratados, registros e as fotos deles
     ens: S.ens, reg: S.reg, seqReg: S.seqReg,
@@ -44,7 +46,7 @@ function aplicaProjeto(p){
     if (x) x.on = e.on;
   });
   pintaEns();
-  S.sel = new Set();
+  S.sel = new Set(Array.isArray(p.sel) ? p.sel : []);
   S.ref = p.ref || 'km'; S.fonte = p.fonte || 'rodovia';
   S.catId = p.catId || S.cat.conjuntos[0].id;
   pintaCat();

@@ -200,6 +200,27 @@ def main():
         ok(cd.get("objeto", "").startswith("Recuperação"),
            "os dados do contrato ficam no projeto", cd.get("objeto", ""))
 
+        print("\n5a-bis. EXECUTADO ACIMA DO CONTRATADO É AVISADO")
+        # 2 km concluídos com 1 km contratado: 200% num quadro de medição não é avanço, é
+        # quantidade contratada errada ou serviço lançado fora do contrato
+        pg.evaluate("""() => {
+            S.svc.find(x => x.nome === 'EROSÕES').km_contratado = 1;
+            render();
+        }""")
+        pg.wait_for_timeout(700)
+        ex = pg.evaluate("quadroObra().find(x => x.svc === 'EROSÕES').excedeContrato")
+        ok(ex is True, "o quadro marca o serviço que passou do contratado", str(ex))
+        html = pg.evaluate("tabelaQuadroObra()")
+        ok("acima do" in html and "⚠" in html,
+           "e escreve por extenso o que aquilo significa")
+        pg.evaluate("""() => {
+            S.svc.find(x => x.nome === 'EROSÕES').km_contratado = 3;
+            render();
+        }""")
+        pg.wait_for_timeout(500)
+        ok(pg.evaluate("!quadroObra().find(x => x.svc === 'EROSÕES').excedeContrato"),
+           "e não marca quando está dentro do contratado")
+
         print("\n5b. O ENSAIO CHEGA AO RELATÓRIO")
         # ensaio que não chega ao relatório não serve de nada numa medição
         pg.evaluate("document.querySelector(\".abas button[data-v='rel']\").click()")
@@ -259,6 +280,9 @@ def main():
             "contrato": pg.evaluate("document.querySelector('#contrato').value"),
             "obra": pg.evaluate("document.querySelector('#nomeObra').value"),
         }
+        ok(pg.evaluate("Array.isArray([...(S.sel || [])]) && S.sel instanceof Set"),
+           "a seleção volta como Set, e não como objeto vazio",
+           f"{pg.evaluate('[...(S.sel || [])].length')} quilômetro(s) selecionado(s)")
         ok(volta["eixo"] == "AM-151", "o eixo volta", volta["eixo"])
         ok(volta["lanc"] == 3, "os três lançamentos voltam", str(volta["lanc"]))
         ok(volta["ens"] == 1, "o ensaio volta", str(volta["ens"]))
