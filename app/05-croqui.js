@@ -111,7 +111,10 @@ async function geraCroqui(largura = 1500, altura = 900){
   desenha(5, 'rgba(0,0,0,.40)', sg => !dentroTrecho(sg));
   desenha(2.4, 'rgba(255,255,255,.62)', sg => !dentroTrecho(sg));
   desenha(9, 'rgba(0,0,0,.60)', dentroTrecho);
-  desenha(5, sg => corPct(pctSeg(sg.id)), dentroTrecho);
+  // Mesmo critério de cor do mapa: escolher «Conformidade» na tela e imprimir um croqui
+  // pintado por avanço seria a plataforma se contradizer dentro do mesmo relatório.
+  desenha(5, sg => typeof corCriterio === 'function' ? corCriterio(sg, true)
+                 : corPct(pctSeg(sg.id)), dentroTrecho);
 
   const yb = H - 46;                       // topo da faixa de rodapé
   // marcação de quilômetro: ponto e rótulo a cada 10 km e nas pontas
@@ -147,9 +150,23 @@ async function geraCroqui(largura = 1500, altura = 900){
   g.fillText((S.obra || S.eixo.nome).slice(0, 92), 12, yb + 15);
   g.font = '400 11px system-ui, sans-serif'; g.fillStyle = '#CFE0F2';
   const kmTot = S.segs.reduce((a, x) => a + x.ext, 0);
-  g.fillText(`${S.eixo.nome} · ${fmt(kmTot, 1)} km · trecho em obra km ${fmt(S.kmIni, 0)} a `
-    + `${fmt(S.kmFim, 0)} · ${new Date().toLocaleDateString('pt-BR')}`, 12, yb + 32);
+  // O critério de cor entra na própria legenda: numa segunda linha, ele caía por cima
+  // desta. Quem lê o croqui impresso precisa saber o que a cor significa.
+  const crit = typeof CRITERIOS !== 'undefined'
+    ? (CRITERIOS.find(c => c.id === criterioMapa) || {}).nome : '';
   const cred = vieram ? ATRIB_SAT : 'imagem de satélite indisponível — traçado sobre fundo neutro';
+  // As duas legendas dividem a mesma linha; a da esquerda é aparada pelo que sobra, porque
+  // numa imagem estreita ela avançava por cima do crédito da imagem.
+  const espaco = W - 24 - g.measureText(cred).width - 14;
+  const base = `${S.eixo.nome} · ${fmt(kmTot, 1)} km · trecho em obra km ${fmt(S.kmIni, 0)} a `
+    + `${fmt(S.kmFim, 0)} · ${new Date().toLocaleDateString('pt-BR')}`;
+  // Numa imagem estreita, o critério sai inteiro em vez de sair cortado no meio da palavra:
+  // identificação do eixo e do trecho é o que não pode faltar.
+  let leg = base + (crit ? ` · cor: ${crit.toLowerCase()}` : '');
+  if (g.measureText(leg).width > espaco) leg = base;
+  while (leg.length > 12 && g.measureText(leg + '…').width > espaco) leg = leg.slice(0, -2);
+  if (leg !== base && leg !== base + (crit ? ` · cor: ${crit.toLowerCase()}` : '')) leg += '…';
+  g.fillText(leg, 12, yb + 32);
   g.textAlign = 'right';
   g.fillText(cred, W - 12, yb + 32);
   g.fillText('SEINFRA/AM — Departamento de Mobilidade', W - 12, yb + 15);
