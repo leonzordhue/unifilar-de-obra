@@ -1,8 +1,6 @@
-# Trena
+# SICOR — Sistema de Controle de Obras Rodoviárias
 
-**Controle de obra unifilar — SEINFRA/AM · Departamento de Mobilidade**
-
-Trena porque é o que ela faz: mede ao longo do eixo, quilômetro a quilômetro.
+**SEINFRA/AM · Departamento de Mobilidade (DMOB)**
 
 Plataforma para controlar obra rodoviária **quilômetro a quilômetro**, em rodovias estaduais
 e ramais do Amazonas. O usuário escolhe o eixo (do acervo do Departamento Rodoviário ou de um
@@ -161,7 +159,7 @@ mede o que o cadastro embutido afirma, e nada discorda. Só uma segunda fonte pe
 `326EAM1062`, com a extensão no próprio sufixo —, e a geometria do shapefile do DNIT
 mede 27,79 km com a etiqueta de 106,29 km. A pergunta que decide é de campo: a
 AM-326 termina em Urucará ou em Urucurituba? Enquanto não se decidir, quem abrir a
-AM-326 no Trena recebe uma matriz de 107 colunas. Hoje isso não afeta medição de
+AM-326 no SICOR recebe uma matriz de 107 colunas. Hoje isso não afeta medição de
 obra — a rodovia é leito natural nas duas fontes.
 
 O que elas medem, no acervo real:

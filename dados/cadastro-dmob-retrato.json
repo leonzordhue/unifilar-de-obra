@@ -3,7 +3,7 @@
  "origem": "\\\\seinfra-fs01\\ASPLAN\\8.Departamento Rodoviário\\9-BANCO DE DADOS\\1-PLANILHA GERAL DEPARTAMENTO\\PLANILHA GERAL DEPARTAMENTO RODOVIÁRIO.xlsx",
  "procedencia": "leitura ao vivo da rede",
  "lido_em": null,
- "observacao": "Retrato do cadastro do Departamento Rodoviario, usado como SEGUNDA fonte independente do acervo do Trena. Nao editar a mao: regerar com ferramentas/_cache_cadastro.py quando a rede voltar.",
+ "observacao": "Retrato do cadastro do Departamento Rodoviario, usado como SEGUNDA fonte independente do acervo do SICOR. Nao editar a mao: regerar com ferramentas/_cache_cadastro.py quando a rede voltar.",
  "trechos": [
   {
    "cod": "010EAM0239",

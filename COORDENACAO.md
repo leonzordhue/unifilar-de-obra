@@ -292,7 +292,7 @@ Atualize a sua linha no mesmo commit do código. Data no formato dd/mm hh:mm.
 | Painel, gráfico e mapa por critério | HAL9000 | painel pronto e provado; `11-painel.js` já está no html; falta o mapa por critério | 21/08 16:40 |
 | Catálogo de ensaios com normas | jarvisIV | **não iniciado — é o gargalo**; esqueleto pronto em `dados/catalogo-ensaios.json`, só faltam as normas | 21/08 16:40 |
 | Pacote CDE e acervo local | jarvisIV | não iniciado | — |
-| Nome definitivo da plataforma | Cortanna | «Trena» recusado; opções levadas ao Paulo | 21/08 16:40 |
+| Nome definitivo da plataforma | Cortanna | «SICOR» recusado; opções levadas ao Paulo | 21/08 16:40 |
 
 ### Mudanças que a coordenação fez em arquivo de outro dono
 

@@ -1,6 +1,6 @@
-# Manual de uso — Trena
+# Manual de uso — SICOR
 
-Controle de obra unifilar
+Sistema de Controle de Obras Rodoviárias
 
 SEINFRA/AM · Departamento de Mobilidade
 

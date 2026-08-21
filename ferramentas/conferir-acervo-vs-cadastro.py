@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-"""Confere o acervo do Trena contra o cadastro do Departamento Rodoviario.
+"""Confere o acervo do SICOR contra o cadastro do Departamento Rodoviario.
 
 Duas fontes independentes sobre a mesma malha:
-  A) dados/acervo-rodovias-estaduais.json  — Trena, derivado das camadas do DMOB
+  A) dados/acervo-rodovias-estaduais.json  — SICOR, derivado das camadas do DMOB
   B) dados/cadastro-dmob-retrato.json      — retrato da Planilha Geral do orgao
      (regerar com ferramentas/_cache_cadastro.py; ele tenta a rede e, se ela
       estiver fora, usa uma extracao previa DECLARANDO a procedencia)
@@ -83,7 +83,7 @@ trena, cad, ret = carrega()
 
 print('=' * 100)
 print('ACERVO DO TRENA  x  CADASTRO DO DEPARTAMENTO RODOVIARIO')
-print(f'  Trena ...... {len(trena)} eixos')
+print(f'  SICOR ...... {len(trena)} eixos')
 print(f'  cadastro ... {len(cad)} eixos · {ret.get("procedencia")}'
       + (f' · lido em {ret["lido_em"]}' if ret.get('lido_em') else ''))
 print('=' * 100)
@@ -91,7 +91,7 @@ print('=' * 100)
 falhas, avisos, registro = [], [], {}
 
 print(f"\n{'via':<8}{'IMPLANTADO':>22}{'':>4}{'TOTAL (c/ planejado)':>26}")
-print(f"{'':<8}{'Trena':>10}{'cadastro':>12}{'':>4}{'Trena':>11}{'cadastro':>13}"
+print(f"{'':<8}{'SICOR':>10}{'cadastro':>12}{'':>4}{'SICOR':>11}{'cadastro':>13}"
       f"   situação")
 print('-' * 100)
 
@@ -170,7 +170,7 @@ if so_t:
 if so_c:
     print(f'\nSÓ NO CADASTRO: {["AM-" + v for v in so_c]}')
     for v in so_c:
-        avisos.append(f'AM-{v} está no cadastro e não no acervo do Trena')
+        avisos.append(f'AM-{v} está no cadastro e não no acervo do SICOR')
 
 # ------------------------------------------------------- detalhe das falhas
 if falhas:
@@ -180,7 +180,7 @@ if falhas:
     for v, tipo, ti, ci, tt, ct in falhas:
         c = cad[v]
         print(f'\nAM-{v}  ({tipo})')
-        print(f'   Trena:    {tt:.3f} km de traçado, {ti:.3f} km implantado, '
+        print(f'   SICOR:    {tt:.3f} km de traçado, {ti:.3f} km implantado, '
               f'fim declarado "{(trena[v].get("fim") or "")[:44]}"')
         print(f'   cadastro: {ct:.3f} km em {len(c["trechos"])} trecho(s), '
               f'{ci:.3f} km implantado')
@@ -209,7 +209,7 @@ print('\n' + '=' * 100)
 if falhas:
     print(f'{len(falhas)} eixo(s) não fecham — conferir antes de medir obra:')
     for v, tipo, ti, ci, tt, ct in falhas:
-        print(f'  AM-{v} ({tipo}): implantado Trena {ti:.2f} km x '
+        print(f'  AM-{v} ({tipo}): implantado SICOR {ti:.2f} km x '
               f'cadastro {ci:.2f} km')
 else:
     print('IMPLANTADO: todos os eixos comuns fecham dentro da tolerância.')
