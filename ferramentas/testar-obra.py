@@ -167,6 +167,44 @@ def main():
            f"conf={rs['pctConformidade']} previstos={rs['previstos']}")
         pg.evaluate("fechaFicha()")
 
+        print("\n5-lados. UM QUILÔMETRO COM OS LADOS EM ESTADOS DIFERENTES")
+        # Achado auditando meu próprio código: limpeza lateral concluída num acostamento e
+        # prevista no outro entrava como «1 km concluído» — meio serviço virando serviço
+        # inteiro num quadro de medição. O quilômetro passa a contar pelo lado MENOS avançado.
+        casos = [
+            # aqui o que importa é o km NÃO entrar como concluído; o total de «previsto»
+            # inclui os outros doze quilômetros do eixo e não serviria de asserção
+            ("um lado concluído, outro previsto", "C", "", "C", 0.0),
+            ("os dois lados concluídos", "C", "C", "C", 1.0),
+            ("um concluído, outro não se aplica", "C", "NA", "C", 1.0),
+            ("os dois não se aplicam", "NA", "NA", "NA", 1.0),
+            ("um concluído, outro em andamento", "C", "E", "E", 1.0),
+        ]
+        for nome, a, b, esperado, quanto in casos:
+            r = pg.evaluate("""([a, b]) => {
+                const s = S.svc.find(x => x.on && x.lados.length > 1);
+                if (!s) return null;
+                const guardado = S.dados; S.dados = {};
+                if (a) S.dados[chave({svc: s.nome, lado: s.lados[0]}, 3)] = a;
+                if (b) S.dados[chave({svc: s.nome, lado: s.lados[1]}, 3)] = b;
+                const q = quadroObra().find(x => x.svc === s.nome);
+                const fora = {C: q.C, E: q.E, P: q.P, NA: q.NA, S: q.S, PA: q.PA};
+                S.dados = guardado;
+                return fora;
+            }""", [a, b])
+            if r is None:
+                ok(False, "há serviço de dois lados marcado para testar")
+                break
+            medido = r.get(esperado, 0)
+            # a mensagem tem de ler o que a asserção mede: quando o esperado é zero, o que
+            # se afirma é a AUSÊNCIA — «conta como C» com C igual a zero lê ao contrário
+            frase = (f"{nome} → NÃO entra como «{esperado}»" if quanto == 0
+                     else f"{nome} → conta como «{esperado}»")
+            ok(abs(medido - quanto) < 0.02, frase,
+               " · ".join(f"{k} {v:.2f}" for k, v in r.items() if v > 0.001) or "nada")
+        pg.evaluate("render()")
+        pg.wait_for_timeout(400)
+
         print("\n5a. QUANTIDADE CONTRATADA E QUADRO POR SERVIÇO")
         # o escritório mede contra o contratado: 2 km executados de 3 contratados são 67%,
         # e não os 15% que os mesmos 2 km representam num trecho de 13 km

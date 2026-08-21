@@ -393,6 +393,76 @@ def main():
            "a matriz mostra só os serviços do catálogo escolhido",
            f"CBUQ={so_um['temCBUQ']} EROSOES={so_um['temEROSOES']}")
 
+        print("\n12. REPINTURA PARCIAL x REPINTURA COMPLETA (otimização da matriz)")
+        # O clique repinta só o que mudou. Se esquecer de atualizar algo, a tela
+        # divergi do dado em silêncio. Aqui o DOM do caminho rápido é comparado
+        # com o DOM de um pintaMatriz() completo — tem de dar igual.
+        pg.evaluate("""() => {
+            document.querySelector("#segFonte button[data-f='rodovia']").click();
+        }""")
+        pg.wait_for_timeout(500)
+        pg.evaluate("""() => {
+            const s = document.querySelector('#selAcervo');
+            const o = [...s.options].find(x => x.textContent.includes('AM-070'));
+            s.value = o.value; s.dispatchEvent(new Event('change'));
+        }""")
+        pg.wait_for_timeout(2600)
+        pg.evaluate("document.querySelector(\".abas button[data-v='matriz']\").click()")
+        pg.wait_for_timeout(1500)
+
+        # retrato do DOM que interessa: texto e cor de cada célula, os totais de
+        # cada linha e o rodapé de cada coluna
+        RETRATO = """() => {
+            const cels = [...document.querySelectorAll('#vMatriz td.cel')].map(td =>
+                td.dataset.l + '|' + td.dataset.id + '|' + td.textContent.trim() +
+                '|' + td.style.background);
+            const tot = [...document.querySelectorAll('#vMatriz tbody tr')].map(tr =>
+                [...tr.querySelectorAll('td:not(.cel)')].map(x => x.textContent.trim()).join(','));
+            const pe = [...document.querySelectorAll('#vMatriz tfoot td')].map(x =>
+                x.textContent.trim());
+            return JSON.stringify({cels, tot, pe});
+        }"""
+
+        # caminho RÁPIDO: cliques de verdade, incluindo uma faixa com shift
+        pg.evaluate("""() => {
+            const q = i => document.querySelector(`#vMatriz td.cel[data-l="0"][data-id="${i}"]`);
+            [2, 3, 7].forEach(i => { const c = q(i); if (c) c.click(); });
+            const a = q(10), b = q(14);
+            if (a) a.click();
+            if (b) b.dispatchEvent(new MouseEvent('click', {shiftKey: true, bubbles: true}));
+            const outra = document.querySelector('#vMatriz td.cel[data-l="3"][data-id="5"]');
+            if (outra) { outra.click(); outra.click(); }
+        }""")
+        pg.wait_for_timeout(1200)
+        rapido = pg.evaluate(RETRATO)
+        lanc = pg.evaluate("Object.keys(S.dados).length")
+
+        # agora o caminho COMPLETO, sobre o MESMO estado
+        pg.evaluate("pintaMatriz()")
+        pg.wait_for_timeout(1200)
+        completo = pg.evaluate(RETRATO)
+
+        ok(lanc > 0, "os cliques do teste lançaram de fato", f"{lanc} lançamento(s)")
+        if rapido == completo:
+            ok(True, "repintura parcial idêntica à repintura completa",
+               "célula, totais da linha e rodapé")
+        else:
+            import json as _j
+            a, b = _j.loads(rapido), _j.loads(completo)
+            det = []
+            dif = [(x, y) for x, y in zip(a["cels"], b["cels"]) if x != y]
+            if len(a["cels"]) != len(b["cels"]):
+                det.append(f'nº de células {len(a["cels"])} vs {len(b["cels"])}')
+            if dif:
+                det.append(f'{len(dif)} célula(s), ex.: {dif[0][0]} vs {dif[0][1]}')
+            if a["tot"] != b["tot"]:
+                d2 = [(x, y) for x, y in zip(a["tot"], b["tot"]) if x != y]
+                det.append(f'totais de linha divergem: {d2[:2]}')
+            if a["pe"] != b["pe"]:
+                det.append(f'rodapé divergе: {a["pe"][:4]} vs {b["pe"][:4]}')
+            ok(False, "repintura parcial idêntica à repintura completa",
+               " · ".join(det) or "diferença não localizada")
+
         ctx.close()
         nav.close()
     srv.shutdown()

@@ -83,21 +83,69 @@ function pintaMatriz(){
   alvo.innerHTML = h;
   alvo.querySelectorAll('td.cel').forEach(td => td.onclick = ev => {
     const idx = +td.dataset.l, id = +td.dataset.id, l = linhas[idx];
+    const alterados = [];
     if (ev.shiftKey && S.ultimo && S.ultimo.l === idx){
       const a = Math.min(S.ultimo.id, id), b = Math.max(S.ultimo.id, id);
       segsNoTrecho().forEach(sg => {
         if (sg.id >= a && sg.id <= b){
           if (S.ultimo.v) S.dados[chave(l, sg.id)] = S.ultimo.v;
           else delete S.dados[chave(l, sg.id)];
+          alterados.push(sg.id);
         }
       });
     } else {
+      alterados.push(id);
       const k = chave(l, id);
       const prox = CICLO[(CICLO.indexOf(S.dados[k] || '') + 1) % CICLO.length];
       if (prox) S.dados[k] = prox; else delete S.dados[k];
       S.ultimo = {l: idx, id, v: prox};
     }
-    render(); salvaLocal();
+    // MEDIDO ANTES DE MEXER, na AM-010 (269 km × 22 linhas = 5.918 células):
+    //   pintaMatriz() ................ 313 ms (mediana de 7)
+    //   clique → repintura ........... 246 ms
+    //   linhasMatriz()+resumoLinha() ... 2 ms
+    // O custo não está na conta — está em remontar o HTML das 5.918 células a cada clique.
+    // Então o clique passa a repintar SÓ o que mudou: a célula (ou a faixa do shift), os
+    // totais daquela linha e a coluna do rodapé. As outras vistas continuam pelo `render()`
+    // completo, que é o certo: elas não são refeitas a cada toque.
+    atualizaCelulas(alvo, linhas, idx, l, segs, alterados);
+    if (S.vista !== 'matriz') render();
+    salvaLocal();
+  });
+}
+/** Repinta só as células alteradas, o resumo da linha e o rodapé das colunas tocadas. */
+function atualizaCelulas(alvo, linhas, idx, l, segs, ids){
+  ids.forEach(id => {
+    const td = alvo.querySelector(`td.cel[data-l="${idx}"][data-id="${id}"]`);
+    if (!td) return;
+    const v = S.dados[chave(l, id)] || '';
+    td.textContent = v;
+    td.style.background = v ? corStatus(v) : '#fff';
+    td.style.color = v ? txtStatus(v) : 'transparent';
+  });
+  const tr = alvo.querySelector(`td.cel[data-l="${idx}"]`);
+  if (tr && tr.parentElement){
+    const r = resumoLinha(l), tds = tr.parentElement.querySelectorAll('td');
+    if (tds.length >= 5){
+      tds[0].textContent = r.C || '';
+      tds[1].textContent = r.E || '';
+      tds[2].textContent = r.S || '';
+      tds[3].textContent = r.NA || '';
+      tds[4].innerHTML = `<b>${r.pct == null ? '—' : fmt(100 * r.pct, 0) + '%'}</b>`;
+    }
+  }
+  // O rodapé começa com um `td` de colspan 5, que ocupa as colunas de contagem: a primeira
+  // coluna de quilômetro é `pe[1]`, não `pe[0]`. Escrever em `pe[col]` jogava o percentual do
+  // primeiro quilômetro no espaçador e deslocava todos os outros uma coluna à esquerda — a
+  // repintura parcial mostrava o número do vizinho. Achado pelo bloco 12 do
+  // `testar-fluxos.py`, que compara a repintura parcial com a completa.
+  const pe = alvo.querySelectorAll('tfoot td');
+  ids.forEach(id => {
+    const col = segs.findIndex(sg => sg.id === id);
+    if (col >= 0 && pe[col + 1]){
+      const p = pctSeg(id);
+      pe[col + 1].textContent = p === null ? '' : fmt(p * 100, 0);
+    }
   });
 }
 function marcaColuna(id){

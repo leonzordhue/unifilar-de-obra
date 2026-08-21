@@ -75,19 +75,30 @@ function quadroObra(){
     svc: s.nome, cor: corServico(s.nome), contratado: kmContratado(s.nome),
     C: 0, E: 0, PA: 0, S: 0, P: 0, NA: 0, kmTrecho: 0
   }));
-  // o serviço ocupa vários lados; o quilômetro conta uma vez, pelo estado mais avançado
-  const ordem = {C: 5, E: 4, PA: 3, S: 2, P: 1, NA: 0};
+  // O serviço ocupa vários lados e o quilômetro conta UMA vez — pelo estado MENOS avançado.
+  //
+  // Medido em 21/08, antes desta correção: limpeza lateral concluída no acostamento direito e
+  // prevista no esquerdo entrava como «1 km concluído». Meio serviço virava serviço inteiro
+  // num quadro que vai a medição.
+  //
+  // Menos avançado, e não média: «concluído» num quadro de medição significa que não há mais
+  // nada a fazer ali, e com um lado pendente há. A média daria meio quilômetro concluído e
+  // meio previsto — número certo e leitura errada, porque ninguém saberia qual metade.
+  // «Não se aplica» não conta como atraso: um lado inaplicável não segura o quilômetro.
+  const ordem = {C: 5, E: 4, PA: 3, S: 2, P: 1};
   porSvc.forEach((q, nome) => {
     const lados = (S.svc.find(s => s.nome === nome) || {lados: []}).lados;
     segs.forEach(sg => {
       const km = kmNoTrecho(sg);
       q.kmTrecho += km;
-      let melhor = null;
+      let pior = null, todosNA = lados.length > 0;
       lados.forEach(ld => {
         const v = S.dados[chave({svc: nome, lado: ld}, sg.id)] || 'P';
-        if (melhor === null || ordem[v] > ordem[melhor]) melhor = v;
+        if (v === 'NA') return;                 // lado inaplicável não segura o quilômetro
+        todosNA = false;
+        if (pior === null || ordem[v] < ordem[pior]) pior = v;
       });
-      q[melhor === null ? 'P' : melhor] += km;
+      q[todosNA ? 'NA' : (pior === null ? 'P' : pior)] += km;
     });
   });
   return [...porSvc.values()].map(q => {
