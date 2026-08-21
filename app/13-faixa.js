@@ -95,16 +95,19 @@ function ligaFaixa(){
   const trilho = $('#faixaTrilho');
   if (!trilho) return;
   let arrastando = false, ligando = true, ultimo = null;
+  // O alvo vem da COORDENADA, e não de `ev.target`: com o dedo capturado pelo ponteiro,
+  // `target` continua sendo a célula onde o toque começou durante todo o arrasto.
   const idDe = ev => {
-    const e = ev.target.closest('.km');
-    return e ? +e.dataset.id : null;
+    const e = document.elementFromPoint(ev.clientX, ev.clientY);
+    const c = e && e.closest ? e.closest('.km') : null;
+    return c ? +c.dataset.id : null;
   };
   const aplica = (id, liga) => {
     if (id == null) return;
     const sel = CH_SEL();
     if (liga) sel.add(id); else sel.delete(id);
   };
-  trilho.onmousedown = ev => {
+  trilho.onpointerdown = ev => {
     const id = idDe(ev);
     if (id == null) return;
     ev.preventDefault();
@@ -117,14 +120,19 @@ function ligaFaixa(){
       ultimo = id;
     }
     arrastando = true;
+    // captura o ponteiro: o arrasto continua mesmo se o dedo sair da faixa
+    if (trilho.setPointerCapture) try { trilho.setPointerCapture(ev.pointerId); } catch (e){}
     atualizaSelecao();
   };
-  trilho.onmousemove = ev => {
+  trilho.onpointermove = ev => {
     if (!arrastando) return;
     aplica(idDe(ev), ligando);
     atualizaSelecao();
   };
-  document.addEventListener('mouseup', () => { arrastando = false; }, {once: true});
+  const solta = () => { arrastando = false; };
+  trilho.onpointerup = solta;
+  trilho.onpointercancel = solta;
+  document.addEventListener('pointerup', solta);
   trilho.ondblclick = ev => {
     const id = idDe(ev);
     if (id != null) abreFicha(id);

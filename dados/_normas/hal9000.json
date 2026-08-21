@@ -14,24 +14,24 @@
    "camada": "imprimação",
    "unidade": "l/m²",
    "norma_metodo": {
-    "codigo": "",
-    "titulo": "",
-    "orgao": "",
-    "fonte": ""
+    "codigo": "DNIT 144/2014-ES",
+    "titulo": "Pavimentação – Imprimação com ligante asfáltico – Especificação de serviço",
+    "orgao": "DNIT",
+    "fonte": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/especificacao-de-servico-es/dnit_144_2014_es.pdf"
    },
    "norma_especificacao": {
-    "codigo": "",
-    "titulo": "",
-    "orgao": "",
-    "fonte": ""
+    "codigo": "DNIT 144/2014-ES",
+    "titulo": "Pavimentação – Imprimação com ligante asfáltico – Especificação de serviço",
+    "orgao": "DNIT",
+    "fonte": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/especificacao-de-servico-es/dnit_144_2014_es.pdf"
    },
-   "criterio": "",
+   "criterio": "A taxa de aplicação T é a que a base absorve em 24 horas e deve ser determinada EXPERIMENTALMENTE na obra (DNIT 144/2014-ES, 5.1-b). As taxas usuais são 0,8 a 1,6 l/m² para asfalto diluído CM-30 e 0,9 a 1,7 l/m² para emulsão EAI, conforme o tipo e a textura da base. A norma não fixa limite de aceitação: o valor de referência é o determinado na obra e aprovado pela Fiscalização, e por isso os limites ficam nulos.",
    "limite_min": null,
    "limite_max": null,
-   "frequencia": "",
+   "frequencia": "Determinações aleatórias da taxa por bandeja de massa e área conhecidas, coletada na passagem do carro distribuidor (7.2.2). O número e a frequência seguem Plano de Amostragem Variável previamente aprovado pela Fiscalização, elaborado conforme a DNER-PRO 277/97 (7.4).",
    "por_km": null,
-   "confirmado": false,
-   "observacao": ""
+   "confirmado": true,
+   "observacao": "A própria ES traz o método no item 7.2.2 (bandejas), e por isso ela consta também como norma de método. por_km nulo: a frequência vem de plano de amostragem estatístico, não de quilômetro."
   },
   {
    "cod": "TAXA-PINTURA",
@@ -40,24 +40,24 @@
    "camada": "pintura de ligação",
    "unidade": "l/m²",
    "norma_metodo": {
-    "codigo": "",
-    "titulo": "",
-    "orgao": "",
-    "fonte": ""
+    "codigo": "DNIT 145/2012-ES",
+    "titulo": "Pavimentação – Pintura de ligação com ligante asfáltico – Especificação de serviço",
+    "orgao": "DNIT",
+    "fonte": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/especificacao-de-servico-es/dnit145_2012_es.pdf"
    },
    "norma_especificacao": {
-    "codigo": "",
-    "titulo": "",
-    "orgao": "",
-    "fonte": ""
+    "codigo": "DNIT 145/2012-ES",
+    "titulo": "Pavimentação – Pintura de ligação com ligante asfáltico – Especificação de serviço",
+    "orgao": "DNIT",
+    "fonte": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/especificacao-de-servico-es/dnit145_2012_es.pdf"
    },
-   "criterio": "",
-   "limite_min": null,
-   "limite_max": null,
-   "frequencia": "",
+   "criterio": "Taxa recomendada de ligante asfáltico RESIDUAL de 0,3 a 0,4 l/m² (DNIT 145/2012-ES, 5.1-b), com emulsão RR-1C diluída 1:1 com água antes da aplicação. Os limites gravados são a faixa recomendada pela ES; havendo valor de projeto, ele prevalece.",
+   "limite_min": 0.3,
+   "limite_max": 0.4,
+   "frequencia": "Determinação da taxa por bandeja na passagem do distribuidor (7.2.2), em número e frequência definidos por Plano de Amostragem Variável aprovado pela Fiscalização, conforme a DNER-PRO 277/97 (7.4).",
    "por_km": null,
-   "confirmado": false,
-   "observacao": ""
+   "confirmado": true,
+   "observacao": "O limite é de ligante RESIDUAL, não de emulsão aplicada — confundir os dois reprova serviço correto, porque a emulsão é diluída 1:1. A ES traz o método no item 7.2.2."
   },
   {
    "cod": "TEOR-LIGANTE",
@@ -66,24 +66,24 @@
    "camada": "CBUQ",
    "unidade": "%",
    "norma_metodo": {
-    "codigo": "",
-    "titulo": "",
-    "orgao": "",
-    "fonte": ""
+    "codigo": "DNIT 158/2011-ME",
+    "titulo": "Mistura asfáltica – Determinação da porcentagem de betume em mistura asfáltica utilizando o extrator Soxhlet – Método de ensaio",
+    "orgao": "DNIT",
+    "fonte": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/metodo-de-ensaio-me/dnit_158_2011_me.pdf"
    },
    "norma_especificacao": {
-    "codigo": "",
-    "titulo": "",
-    "orgao": "",
-    "fonte": ""
+    "codigo": "DNIT 031/2024-ES",
+    "titulo": "Pavimentação – Concreto asfáltico – Especificação de serviço",
+    "orgao": "DNIT",
+    "fonte": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/especificacao-de-servico-es/dnit_031_2024_es_com_incorporacao_da_errata-1.pdf"
    },
-   "criterio": "",
+   "criterio": "A porcentagem de CAP deve respeitar o projeto de dosagem, não podendo variar mais de ±0,3 % do teor de projeto, desde que atendidos os parâmetros volumétricos das Tabelas 4 e 5 (DNIT 031/2024-ES, 7.2.2). O critério é relativo ao teor de projeto, e por isso não há mínimo nem máximo absolutos.",
    "limite_min": null,
    "limite_max": null,
-   "frequencia": "",
+   "frequencia": "No mínimo uma determinação de teor de CAP a cada 4 horas de produção, sempre na primeira das 4 horas, em amostra coletada logo após a usinagem (7.2.2).",
    "por_km": null,
-   "confirmado": false,
-   "observacao": ""
+   "confirmado": true,
+   "observacao": "A ES admite DNER-ME 053/94, DNIT 158/2011-ME ou ASTM D 6307; consta aqui a DNIT 158/2011-ME, que é a norma DNIT vigente com texto público. O extrator deve ser calibrado para cada concreto asfáltico produzido. Frequência por hora de produção: por_km nulo."
   },
   {
    "cod": "GC-CBUQ",
@@ -92,50 +92,50 @@
    "camada": "CBUQ",
    "unidade": "%",
    "norma_metodo": {
-    "codigo": "",
-    "titulo": "",
-    "orgao": "",
-    "fonte": ""
+    "codigo": "DNIT 431/2020-ME",
+    "titulo": "Pavimentação – Misturas asfálticas – Densidade in situ usando densímetro não nuclear – Método de ensaio",
+    "orgao": "DNIT",
+    "fonte": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/metodo-de-ensaio-me/dnit_431_2020_me-1.pdf"
    },
    "norma_especificacao": {
-    "codigo": "",
-    "titulo": "",
-    "orgao": "",
-    "fonte": ""
+    "codigo": "DNIT 031/2024-ES",
+    "titulo": "Pavimentação – Concreto asfáltico – Especificação de serviço",
+    "orgao": "DNIT",
+    "fonte": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/especificacao-de-servico-es/dnit_031_2024_es_com_incorporacao_da_errata-1.pdf"
    },
-   "criterio": "",
-   "limite_min": null,
-   "limite_max": null,
-   "frequencia": "",
-   "por_km": null,
-   "confirmado": false,
-   "observacao": ""
+   "criterio": "GC = Gmbc / Gmbl × 100, onde Gmbc é a densidade relativa aparente medida em campo e Gmbl a determinada na dosagem. Não são permitidos valores inferiores a 97 % nem superiores a 100 %, com controle estatístico bilateral (DNIT 031/2024-ES, 7.3.1). O teto de 100 % não é zelo: compactar acima da densidade de projeto indica dosagem ou processo fora do previsto.",
+   "limite_min": 97.0,
+   "limite_max": 100.0,
+   "frequencia": "No mínimo uma determinação a cada 100 m de concreto asfáltico compactado, em locais escolhidos aleatoriamente, após o completo resfriamento da massa (7.3.1).",
+   "por_km": 10.0,
+   "confirmado": true,
+   "observacao": "Método alternativo aceito pela ES: DNIT 428/2022-ME, em corpos de prova extraídos da pista com sonda rotativa (ASTM D5361). por_km = 10 é a conversão direta de «a cada 100 m», que a norma define em metro de pista — e é mínimo, não teto."
   },
   {
    "cod": "ESTABILIDADE-MARSHALL",
    "nome": "Estabilidade Marshall",
    "grupo": "Revestimento asfáltico",
    "camada": "CBUQ",
-   "unidade": "N",
+   "unidade": "kgf",
    "norma_metodo": {
-    "codigo": "",
-    "titulo": "",
-    "orgao": "",
-    "fonte": ""
+    "codigo": "DNIT 447/2024-ME",
+    "titulo": "Misturas asfálticas – Ensaio de estabilidade e fluência Marshall – Método de ensaio",
+    "orgao": "DNIT",
+    "fonte": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/metodo-de-ensaio-me/errata-1-da-norma-dnit-447-2024-ensaio-de-estabilidade-e-fluencia-marshall-2-metodo-de-ensaio"
    },
    "norma_especificacao": {
-    "codigo": "",
-    "titulo": "",
-    "orgao": "",
-    "fonte": ""
+    "codigo": "DNIT 031/2024-ES",
+    "titulo": "Pavimentação – Concreto asfáltico – Especificação de serviço",
+    "orgao": "DNIT",
+    "fonte": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/especificacao-de-servico-es/dnit_031_2024_es_com_incorporacao_da_errata-1.pdf"
    },
-   "criterio": "",
-   "limite_min": null,
+   "criterio": "Estabilidade Marshall mínima de 500 kgf, com 75 golpes, conforme a Tabela 4 de requisitos de dosagem da DNIT 031/2024-ES. É requisito de DOSAGEM da mistura, verificado no projeto e na usina — não é medição de pista por quilômetro.",
+   "limite_min": 500.0,
    "limite_max": null,
-   "frequencia": "",
+   "frequencia": "Ensaio da dosagem do concreto asfáltico. Na produção, o controle corrente é o da subseção 7.2.4 da ES: densidade máxima medida a cada 4 h, umidade por dia de produção, resistência à tração por dia e dano por umidade induzida a cada 5 dias.",
    "por_km": null,
-   "confirmado": false,
-   "observacao": ""
+   "confirmado": true,
+   "observacao": "Unidade em kgf, como a norma expressa, e não em newton: converter em silêncio (500 kgf ≈ 4.903 N) faria o lançamento de campo divergir do boletim de laboratório. por_km nulo porque o requisito é de dosagem."
   },
   {
    "cod": "ESPESSURA-CBUQ",
@@ -144,24 +144,24 @@
    "camada": "CBUQ",
    "unidade": "cm",
    "norma_metodo": {
-    "codigo": "",
-    "titulo": "",
-    "orgao": "",
-    "fonte": ""
+    "codigo": "DNIT 031/2024-ES",
+    "titulo": "Pavimentação – Concreto asfáltico – Especificação de serviço",
+    "orgao": "DNIT",
+    "fonte": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/especificacao-de-servico-es/dnit_031_2024_es_com_incorporacao_da_errata-1.pdf"
    },
    "norma_especificacao": {
-    "codigo": "",
-    "titulo": "",
-    "orgao": "",
-    "fonte": ""
+    "codigo": "DNIT 031/2024-ES",
+    "titulo": "Pavimentação – Concreto asfáltico – Especificação de serviço",
+    "orgao": "DNIT",
+    "fonte": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/especificacao-de-servico-es/dnit_031_2024_es_com_incorporacao_da_errata-1.pdf"
    },
-   "criterio": "",
+   "criterio": "Espessura da camada compactada medida em corpos de prova extraídos da pista, admitindo-se variação de ±5 % em relação à espessura de projeto, com controle estatístico bilateral (DNIT 031/2024-ES, 7.3.2). O critério é relativo ao projeto: não há espessura mínima absoluta em norma.",
    "limite_min": null,
    "limite_max": null,
-   "frequencia": "",
-   "por_km": null,
-   "confirmado": false,
-   "observacao": ""
+   "frequencia": "No mínimo a cada 100 m. As mesmas amostras extraídas para a espessura podem servir para a densidade relativa aparente (7.3.2).",
+   "por_km": 10.0,
+   "confirmado": true,
+   "observacao": "Extração por sonda rotativa conforme ASTM D5361, citada pela ES. O procedimento de medição está no próprio item 7.3.2, e por isso a ES consta como norma de método."
   },
   {
    "cod": "TEMPERATURA-APLICACAO",
@@ -170,24 +170,24 @@
    "camada": "CBUQ",
    "unidade": "°C",
    "norma_metodo": {
-    "codigo": "",
-    "titulo": "",
-    "orgao": "",
-    "fonte": ""
+    "codigo": "DNIT 031/2024-ES",
+    "titulo": "Pavimentação – Concreto asfáltico – Especificação de serviço",
+    "orgao": "DNIT",
+    "fonte": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/especificacao-de-servico-es/dnit_031_2024_es_com_incorporacao_da_errata-1.pdf"
    },
    "norma_especificacao": {
-    "codigo": "",
-    "titulo": "",
-    "orgao": "",
-    "fonte": ""
+    "codigo": "DNIT 031/2024-ES",
+    "titulo": "Pavimentação – Concreto asfáltico – Especificação de serviço",
+    "orgao": "DNIT",
+    "fonte": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/especificacao-de-servico-es/dnit_031_2024_es_com_incorporacao_da_errata-1.pdf"
    },
-   "criterio": "",
+   "criterio": "Temperatura medida durante o espalhamento, imediatamente antes de iniciar a compactação, não podendo variar mais de ±5 °C em relação à indicada em projeto; devem ser evitadas temperaturas inferiores a 145 °C (DNIT 031/2024-ES, 7.3.1). O concreto asfáltico só pode ser aplicado com a superfície da pista acima de 10 °C — 15 °C para espessura inferior a 3 cm (6.1-c).",
    "limite_min": null,
    "limite_max": null,
-   "frequencia": "",
+   "frequencia": "Uma medição para cada carregamento de mistura, imediatamente antes do início da compactação (7.3.1).",
    "por_km": null,
-   "confirmado": false,
-   "observacao": ""
+   "confirmado": true,
+   "observacao": "Limites nulos de propósito: o critério é relativo à temperatura de projeto (±5 °C), e os 145 °C aparecem na norma como valor a ser evitado, não como reprovação automática. Frequência por carregamento, não por quilômetro."
   },
   {
    "cod": "IRI",
@@ -196,24 +196,24 @@
    "camada": "revestimento",
    "unidade": "m/km",
    "norma_metodo": {
-    "codigo": "",
-    "titulo": "",
-    "orgao": "",
-    "fonte": ""
+    "codigo": "DNIT 442/2023-PRO",
+    "titulo": "Pavimentação – Levantamento do perfil longitudinal de pavimentos com perfilômetro inercial – Procedimento",
+    "orgao": "DNIT",
+    "fonte": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/procedimento-pro/dnit_442_2023_pro.pdf"
    },
    "norma_especificacao": {
-    "codigo": "",
-    "titulo": "",
-    "orgao": "",
-    "fonte": ""
+    "codigo": "DNIT 031/2024-ES",
+    "titulo": "Pavimentação – Concreto asfáltico – Especificação de serviço",
+    "orgao": "DNIT",
+    "fonte": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/especificacao-de-servico-es/dnit_031_2024_es_com_incorporacao_da_errata-1.pdf"
    },
-   "criterio": "",
+   "criterio": "Para pavimentos NOVOS, IRI ≤ 2,0 m/km (QI ≤ 26 contagens/km). Para obras de RESTAURAÇÃO, IRI ≤ 2,4 m/km (QI ≤ 31 contagens/km) — DNIT 031/2024-ES. O limite gravado é o de pavimento novo, que é o mais exigente; em restauração o valor deve ser ajustado para 2,4 no lançamento, sob pena de reprovar serviço conforme.",
    "limite_min": null,
-   "limite_max": null,
-   "frequencia": "",
-   "por_km": null,
-   "confirmado": false,
-   "observacao": ""
+   "limite_max": 2.0,
+   "frequencia": "O IRI deve ser determinado a cada 200 m e/ou em segmentos indicados pela fiscalização.",
+   "por_km": 5.0,
+   "confirmado": true,
+   "observacao": "Medição com perfilômetro inercial (DNIT 442/2023-PRO) ou dispositivo equivalente devidamente calibrado. por_km = 5 é «a cada 200 m» convertido."
   },
   {
    "cod": "LARGURA",
@@ -222,51 +222,36 @@
    "camada": "qualquer",
    "unidade": "m",
    "norma_metodo": {
-    "codigo": "",
-    "titulo": "",
-    "orgao": "",
-    "fonte": ""
+    "codigo": "DNIT 031/2024-ES",
+    "titulo": "Pavimentação – Concreto asfáltico – Especificação de serviço",
+    "orgao": "DNIT",
+    "fonte": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/especificacao-de-servico-es/dnit_031_2024_es_com_incorporacao_da_errata-1.pdf"
    },
    "norma_especificacao": {
-    "codigo": "",
-    "titulo": "",
-    "orgao": "",
-    "fonte": ""
+    "codigo": "DNIT 031/2024-ES",
+    "titulo": "Pavimentação – Concreto asfáltico – Especificação de serviço",
+    "orgao": "DNIT",
+    "fonte": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/especificacao-de-servico-es/dnit_031_2024_es_com_incorporacao_da_errata-1.pdf"
    },
-   "criterio": "",
+   "criterio": "A largura da plataforma acabada não deve ser inferior à prevista em projeto, com controle estatístico unilateral (DNIT 031/2024-ES, 7.3.3). Como a referência é o projeto, não há limite absoluto em norma. No mesmo item: cotas do nivelamento entre -1 cm e +2 cm da prevista, e desvio de eixo e bordos de até ±5 cm.",
    "limite_min": null,
    "limite_max": null,
-   "frequencia": "",
-   "por_km": null,
-   "confirmado": false,
-   "observacao": ""
-  },
+   "frequencia": "Medidas a trena, no mínimo a cada 20 m (7.3.3).",
+   "por_km": 50.0,
+   "confirmado": true,
+   "observacao": "por_km = 50 é «a cada 20 m» convertido, e é mínimo. O procedimento está no próprio item 7.3.3, e por isso a ES consta como norma de método."
+  }
+ ],
+ "nao_confirmados": [
   {
    "cod": "FCK-CONCRETO",
    "nome": "Resistência à compressão do concreto",
    "grupo": "Drenagem",
-   "camada": "obra de arte corrente",
-   "unidade": "MPa",
-   "norma_metodo": {
-    "codigo": "",
-    "titulo": "",
-    "orgao": "",
-    "fonte": ""
-   },
-   "norma_especificacao": {
-    "codigo": "",
-    "titulo": "",
-    "orgao": "",
-    "fonte": ""
-   },
-   "criterio": "",
-   "limite_min": null,
-   "limite_max": null,
-   "frequencia": "",
-   "por_km": null,
-   "confirmado": false,
-   "observacao": ""
+   "motivo": "A especificação do DNIT para dispositivos de drenagem (DNIT 026/2025-ES, 5.1.1) não fixa fck: manda dosar o concreto para a resistência característica mínima «conforme especificado em projeto», remetendo às ABNT NBR 6118 e NBR 12655. O único valor absoluto que achei na ES é o do lastro de concreto magro, fck mínimo de 15 MPa aos 28 dias. O método usual é a ABNT NBR 5739, cujo texto não é público: só encontrei título e vigência em revendedores de norma, e fonte não primária não permite a outra pessoa refazer a conferência.",
+   "o_que_falta": "Título e vigência da ABNT NBR 5739 conferidos em fonte primária (acervo ABNT), e o fck que o contrato da obra exige — que é dado de projeto, não de norma.",
+   "fonte_consultada": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/especificacao-de-servico-es/dnit_026_2025_es.pdf"
   }
  ],
- "nao_confirmados": []
+ "conferido_em": "2026-08-21",
+ "como_conferi": "Cada norma foi baixada do portal do DNIT e lida no PDF: título do cabeçalho, número do item e texto do critério. Nenhum valor veio de resumo de terceiros. Registro o que mais me surpreendeu: a DNIT 031/2006-ES, que é a citada na maioria dos editais e memoriais, foi SUBSTITUÍDA pela DNIT 031/2024-ES (errata incorporada em 27/11/2025) — e os critérios mudaram: o grau de compactação passou a ter teto de 100 %, a espessura passou a ±5 %, e o IRI de aceitação caiu para 2,0 m/km em pavimento novo. Os valores aqui são os da norma vigente."
 }

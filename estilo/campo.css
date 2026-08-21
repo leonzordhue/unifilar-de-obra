@@ -14,3 +14,122 @@
    toque não dispara isso do mesmo jeito. Se for defeito de comportamento, o conserto é da
    Cortanna, em `app/13-faixa.js` — reporte em vez de contornar por CSS.
 */
+
+/* ------------------------------------------------------- barra do topo */
+/* MEDIDO ANTES DE MEXER (`testar-campo.py`): em tablet retrato a página rolava na horizontal
+   — scrollWidth 1.015 px numa viewport de 768 —, e quem transbordava era a barra do topo:
+   #btObras a 786 px, #btGuardar a 872, #btAbrir a 941, #btSalvar a 1.015. No telefone o
+   mesmo, contra 390 px de tela. Rolagem horizontal em tela de toque não é só feia: o dedo
+   que queria tocar um botão arrasta a página inteira. */
+header {
+  flex-wrap: wrap;                     /* o que não cabe desce, em vez de empurrar a página */
+  gap: 8px 10px;
+  padding: 8px 12px;
+}
+header .marca { flex: 1 1 100%; }      /* o nome do sistema ocupa a primeira linha sozinho */
+header .sep { display: none; }         /* o espaçador flexível não faz sentido em duas linhas */
+header input[type=text] {
+  min-width: 0;                        /* era 250px fixo: sozinho já estourava o telefone */
+  flex: 1 1 160px;
+}
+
+/* --------------------------------------------------------- alvo de toque */
+/* 81 alvos tinham menos de 40 px de altura — inputs de 34, botões de 33. O polegar tem
+   cerca de 45 px de contato: abaixo disso o erro de toque cresce, e errar aqui é lançar
+   serviço no quilômetro errado. */
+button, select, input, .abas button, .mini {
+  min-height: 40px;
+}
+input[type=checkbox], input[type=radio] {
+  min-height: 0;
+  width: 22px;
+  height: 22px;                        /* caixa de marcar não cresce em altura: cresce em área */
+}
+input, select, textarea {
+  font-size: 16px;                     /* abaixo de 16px o iOS dá zoom sozinho ao focar o campo */
+}
+#listaSvc .svc, #listaEns .ens { padding: 4px 0; }
+.abas button { padding-left: 14px; padding-right: 14px; }
+
+/* ------------------------------------------------------------- lateral */
+/* Em tela estreita a lateral deixa de ser coluna fixa e vira o começo da página: o fiscal
+   escolhe o eixo, desce para a faixa e some com a lateral rolando. */
+main { flex-direction: column; }
+aside {
+  width: auto;
+  max-width: none;
+  max-height: 46vh;                    /* não toma a tela inteira: o mapa tem de aparecer */
+  overflow-y: auto;
+}
+section.painel { min-height: 54vh; }
+
+/* --------------------------------------------------------- faixa unifilar */
+/* A célula de quilômetro chegava a 4 px de largura no telefone — alvo de toque impossível.
+   Com largura mínima maior, o trilho passa a rolar dentro de si mesmo (ele já tem
+   overflow-x: auto), que é o comportamento certo: a faixa rola, a página não. */
+.faixaTrilho { height: 52px; -webkit-overflow-scrolling: touch; }
+.faixaTrilho .km { min-width: 18px; }
+#faixaBox { padding: 8px 10px 10px; }
+
+/* ------------------------------------------------------------- matriz */
+/* A matriz tem 269 colunas e já rola dentro de `.wrapmat`. O que muda em campo é o tamanho
+   da célula: ela é o alvo de toque do lançamento. */
+.wrapmat { -webkit-overflow-scrolling: touch; }
+table.mat td.cel { min-width: 34px; height: 34px; }
+table.mat th.sv { min-width: 150px; font-size: 11px; }
+
+/* ---------------------------------------------------------------- ficha */
+/* Já cabia na tela (medido: 94 % da largura em tablet retrato). Aqui só se tira a moldura,
+   que em telefone rouba área útil sem informar nada. */
+.fichaCaixa { max-height: 96vh; border-radius: 8px; }
+#ficha { padding: 8px; }
+
+/* ------------------------------------------------------------- painel */
+.cards { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; padding: 10px; }
+.card .val { font-size: 18px; }
+
+/* --------------------------------------------------------- barra de abas */
+/* Segunda medição: no telefone o transbordo caiu de 1.015 para 699 px, e o que sobrou era
+   esta barra — abas, `#infoTopo` e os botões de exportar. Ela quebra em linhas, e a linha de
+   informação do eixo passa a ocupar a largura inteira em vez de empurrar os botões para
+   fora da tela. */
+.abas {
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 10px 0;
+}
+.abas .sep { display: none; }
+.abas .info, #infoTopo {
+  flex: 1 1 100%;
+  order: 9;                            /* desce para o fim da barra */
+  font-size: 11px;
+  line-height: 1.35;
+  white-space: normal;                 /* pode quebrar em duas linhas: é texto, não botão */
+}
+.abas button[data-v] { padding: 8px 12px; font-size: 12.5px; }
+
+/* A caixa de marcar serviço/ensaio é o alvo mais tocado da lateral e vinha com 22 px.
+   `transform` aumenta a caixa de toque de verdade — não é só efeito visual. */
+#listaSvc input[type=checkbox], #listaEns input[type=checkbox] {
+  width: 26px;
+  height: 26px;
+  transform: scale(1.55);
+  transform-origin: left center;
+  margin-right: 10px;
+}
+
+/* ------------------------------------------------------------- telefone */
+/* Abaixo de 480 px cada pixel de moldura conta: a ficha estava usando 88 % da largura só por
+   causa do respiro em volta dela. Em tablet o respiro ajuda a entender que é uma janela; em
+   telefone ele só rouba área de leitura. */
+@media (max-width: 480px) {
+  /* `body #ficha` e não `#ficha`: a folha da página vem depois deste arquivo no <head>, e em
+     empate de especificidade quem vem depois vence — foi por isso que o primeiro ajuste não
+     mexeu no número (a ficha continuou em 88 % da largura). */
+  body #ficha { padding: 3px; }
+  .fichaCaixa { border-radius: 6px; max-height: 98vh; }
+  .fichaTopo { padding: 10px 12px; }
+  #fichaCorpo { padding: 12px 12px 18px; }
+  aside { max-height: 42vh; }
+  .cards { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); }
+}

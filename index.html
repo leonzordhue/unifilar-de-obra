@@ -183,7 +183,9 @@ table.res tfoot td{background:#F1F4F7;font-weight:700}
 .faixaCab .sep{flex:1}
 .faixaVazia{font-size:12px;color:var(--texto2);padding:10px 2px}
 .faixaTrilho{display:flex;height:40px;border:1px solid var(--linha);border-radius:5px;
-  overflow-x:auto;overflow-y:hidden;background:#F4F7FA;user-select:none;cursor:crosshair}
+  overflow-x:auto;overflow-y:hidden;background:#F4F7FA;user-select:none;cursor:crosshair;
+  /* sem isto, o dedo arrastando na faixa rola a página em vez de selecionar quilômetro */
+  touch-action:none}
 /* A divisa entre quilômetros é preta e cheia: é ela que faz a faixa ser lida como régua.
    Em divisa de marco (a que leva rótulo) a linha engrossa, para a escala se ler de longe. */
 .faixaTrilho .km{position:relative;flex:1 1 0;min-width:4px;
