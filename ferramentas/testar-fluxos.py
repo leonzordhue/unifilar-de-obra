@@ -319,8 +319,12 @@ def main():
             const l = linhasMatriz().find(x => x.svc === 'BASE' && x.lado === 'LD');
             if (!l) return null;
             const id = S.segs[0].id;
-            S.dados[`${l.svc}|${l.lado}|${id}`] = 'C';
-            return { chave: `${l.svc}|${l.lado}|${id}`, total: Object.keys(S.dados).length };
+            // chave(l, id) e' a funcao do PRODUTO (app/06-matriz.js), no escopo
+            // global da pagina. Montar a chave a mao aqui fazia a prova medir a si
+            // mesma: no formato antigo ela injetava chave orfa e depois a achava.
+            const k = chave(l, id);
+            S.dados[k] = 'C';
+            return { chave: k, total: Object.keys(S.dados).length };
         }""")
         ok(marcou is not None, "BASE|LD existe no catálogo de recuperação",
            marcou["chave"] if marcou else "não achou a linha")
@@ -336,7 +340,7 @@ def main():
             const cat = S.catId || (document.querySelector('#selCat') || {}).value;
             const l = linhasMatriz().find(x => x.svc === 'BASE' && x.lado === 'LD');
             const id = S.segs[0].id;
-            const k = l ? `${l.svc}|${l.lado}|${id}` : null;
+            const k = l ? chave(l, id) : null;
             return { cat, achou: !!l, marcado: k ? (S.dados[k] || null) : null,
                      nLanc: Object.keys(S.dados).length,
                      pct: l ? resumoLinha(l).pct : null };
