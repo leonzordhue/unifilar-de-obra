@@ -20,6 +20,8 @@ próprio navegador e o projeto fica no `localStorage` até ser salvo em arquivo.
 
 | | |
 |---|---|
+| **Pacote CDE** | Um `.zip` para o ambiente comum de dados: eixo em GeoJSON e em KML colorido, matriz e ensaios em CSV, fotos, croqui e o projeto reabrível — e um `LEIA-ME` que declara de onde saiu cada número. «Abrir» aceita o pacote direto. |
+| **Acervo local** | Um KMZ carregado fica guardado no navegador e vira a quarta origem de traçado, sem regerar dado e sem depender de ninguém. |
 | **Faixa unifilar** | O traçado esticado numa linha reta embaixo do mapa, dividido em quilômetro ou estaca, com divisa preta entre eles. Seleciona-se (inclusive quilômetros não vizinhos) e aplica-se o serviço em lote; a cor do serviço aparece na faixa e no mapa. |
 | **Obra por contrato** | O projeto é guardado sob o número do contrato e reaberto pela busca: traçado, serviços, lançamentos e ensaios como estavam. |
 | **Controle tecnológico** | Ficha técnica por quilômetro: ensaio, norma de referência, medição, critério aplicado, resultado, responsável e foto. O critério fica gravado dentro do registro — alteração posterior do catálogo não reprova ensaio já aceito. |
@@ -61,8 +63,13 @@ app/
   10-ensaios.js                  ensaios, conformidade e ficha técnica do quilômetro
   11-painel.js                   painel de conformidade e gráfico por tipo de controle
   13-faixa.js                    faixa unifilar, seleção de quilômetros e lançamento em lote
+  12-cde.js                      pacote para o ambiente comum de dados e acervo local
   14-obras.js                    obras guardadas e reabertas por nº de contrato
+  15-contrato.js                 dados do contrato e quadro de avanço por serviço
   99-montagem.js                 montagem da interface e eventos — carrega por último
+estilo/
+  impressao.css                  o documento em papel: página, quebra, cabeçalho repetido
+  campo.css                      uso em tablet e telefone
 bibliotecas/
   leaflet-1.9.4/                 mapa e croqui
   jszip-3.10.1/                  descompactação do KMZ
@@ -84,6 +91,11 @@ ferramentas/
   testar-painel.py               painel de conformidade
   testar-prova-de-vazamento.py   lançamento não vaza entre catálogos de serviço
   testar-o-verificador.py        autoteste: o verificador reprova defeito injetado
+  testar-cde.py                  abre o pacote e confere cada arquivo contra a tela
+  testar-impressao.py            gera o PDF e mede página, cabeçalho órfão e rodapé
+  importar-camada-de-km.py       conferência contra a planilha viva do DMOB
+  juntar-normas.py               junta as fatias de pesquisa de norma, recusando o que não
+                                 tem código, título e fonte
 documentacao/
   MANUAL-DE-USO.md               passo a passo para quem vai usar
   imagens/                       capturas da plataforma em operação
@@ -204,6 +216,26 @@ dois JSON. O script imprime o método de sentido de cada rodovia e as inconsist�
 encontra no cadastro de origem — na última execução, o KM declarado nos ramais da **AM-326**
 (erro médio 68,7 km) e da **AM-363** (28,2 km) não fecha com a geometria, e a amarração
 desses dois foi descartada.
+
+## O que a plataforma não afirma
+
+Nenhuma dessas lacunas está escondida — todas aparecem na tela e no documento, porque número
+sem procedência num sistema de fiscalização é pior do que número ausente.
+
+- **Norma de ensaio ainda não conferida.** Onde o catálogo não tem a norma vista na fonte, a
+  plataforma escreve «pendente de confirmação» em vez de exibir um código, e o relatório diz
+  quantos ensaios estão nessa situação. O catálogo é preenchido por conferência em fonte, um
+  item por vez, e `ferramentas/juntar-normas.py` recusa item que se declare conferido sem
+  código, título e fonte.
+- **Percentual de ensaios executados** só existe onde a especificação define frequência por
+  quilômetro. Onde ela define por volume de material — o caso do grau de compactação —, o
+  campo fica vazio e a tela diz «sem base», e não «0%».
+- **Sentido do eixo** em sete rodovias estaduais e em todo traçado carregado pelo usuário: a
+  plataforma declara que não verificou e oferece o botão de inverter.
+- **Extensão**: a apurada na geometria e a do cadastro aparecem lado a lado. Para medição
+  contratual vale a do cadastro.
+- **Executado acima do contratado** é marcado com aviso: não é avanço acima de 100%, é
+  quantidade contratada errada ou serviço lançado fora do contrato.
 
 ## Imagem de satélite
 
