@@ -1,0 +1,272 @@
+{
+ "autor": "hal9000",
+ "instrucao": "Preencha SÓ o que conseguir confirmar na fonte. `confirmado: true` exige código, título e fonte da norma de método — o script `ferramentas/juntar-normas.py` recusa o que não tiver, e diz por quê. Critério que depende do projeto fica com limite nulo e o motivo em `criterio`. O que não conseguir confirmar, descreva em `nao_confirmados` com o motivo: isso também é entrega.",
+ "grupos": [
+  "Revestimento asfáltico",
+  "Geometria",
+  "Drenagem"
+ ],
+ "itens": [
+  {
+   "cod": "TAXA-IMPRIMACAO",
+   "nome": "Taxa de ligante na imprimação",
+   "grupo": "Revestimento asfáltico",
+   "camada": "imprimação",
+   "unidade": "l/m²",
+   "norma_metodo": {
+    "codigo": "",
+    "titulo": "",
+    "orgao": "",
+    "fonte": ""
+   },
+   "norma_especificacao": {
+    "codigo": "",
+    "titulo": "",
+    "orgao": "",
+    "fonte": ""
+   },
+   "criterio": "",
+   "limite_min": null,
+   "limite_max": null,
+   "frequencia": "",
+   "por_km": null,
+   "confirmado": false,
+   "observacao": ""
+  },
+  {
+   "cod": "TAXA-PINTURA",
+   "nome": "Taxa de ligante na pintura de ligação",
+   "grupo": "Revestimento asfáltico",
+   "camada": "pintura de ligação",
+   "unidade": "l/m²",
+   "norma_metodo": {
+    "codigo": "",
+    "titulo": "",
+    "orgao": "",
+    "fonte": ""
+   },
+   "norma_especificacao": {
+    "codigo": "",
+    "titulo": "",
+    "orgao": "",
+    "fonte": ""
+   },
+   "criterio": "",
+   "limite_min": null,
+   "limite_max": null,
+   "frequencia": "",
+   "por_km": null,
+   "confirmado": false,
+   "observacao": ""
+  },
+  {
+   "cod": "TEOR-LIGANTE",
+   "nome": "Teor de ligante da mistura",
+   "grupo": "Revestimento asfáltico",
+   "camada": "CBUQ",
+   "unidade": "%",
+   "norma_metodo": {
+    "codigo": "",
+    "titulo": "",
+    "orgao": "",
+    "fonte": ""
+   },
+   "norma_especificacao": {
+    "codigo": "",
+    "titulo": "",
+    "orgao": "",
+    "fonte": ""
+   },
+   "criterio": "",
+   "limite_min": null,
+   "limite_max": null,
+   "frequencia": "",
+   "por_km": null,
+   "confirmado": false,
+   "observacao": ""
+  },
+  {
+   "cod": "GC-CBUQ",
+   "nome": "Grau de compactação do revestimento",
+   "grupo": "Revestimento asfáltico",
+   "camada": "CBUQ",
+   "unidade": "%",
+   "norma_metodo": {
+    "codigo": "",
+    "titulo": "",
+    "orgao": "",
+    "fonte": ""
+   },
+   "norma_especificacao": {
+    "codigo": "",
+    "titulo": "",
+    "orgao": "",
+    "fonte": ""
+   },
+   "criterio": "",
+   "limite_min": null,
+   "limite_max": null,
+   "frequencia": "",
+   "por_km": null,
+   "confirmado": false,
+   "observacao": ""
+  },
+  {
+   "cod": "ESTABILIDADE-MARSHALL",
+   "nome": "Estabilidade Marshall",
+   "grupo": "Revestimento asfáltico",
+   "camada": "CBUQ",
+   "unidade": "N",
+   "norma_metodo": {
+    "codigo": "",
+    "titulo": "",
+    "orgao": "",
+    "fonte": ""
+   },
+   "norma_especificacao": {
+    "codigo": "",
+    "titulo": "",
+    "orgao": "",
+    "fonte": ""
+   },
+   "criterio": "",
+   "limite_min": null,
+   "limite_max": null,
+   "frequencia": "",
+   "por_km": null,
+   "confirmado": false,
+   "observacao": ""
+  },
+  {
+   "cod": "ESPESSURA-CBUQ",
+   "nome": "Espessura do revestimento",
+   "grupo": "Revestimento asfáltico",
+   "camada": "CBUQ",
+   "unidade": "cm",
+   "norma_metodo": {
+    "codigo": "",
+    "titulo": "",
+    "orgao": "",
+    "fonte": ""
+   },
+   "norma_especificacao": {
+    "codigo": "",
+    "titulo": "",
+    "orgao": "",
+    "fonte": ""
+   },
+   "criterio": "",
+   "limite_min": null,
+   "limite_max": null,
+   "frequencia": "",
+   "por_km": null,
+   "confirmado": false,
+   "observacao": ""
+  },
+  {
+   "cod": "TEMPERATURA-APLICACAO",
+   "nome": "Temperatura de aplicação da mistura",
+   "grupo": "Revestimento asfáltico",
+   "camada": "CBUQ",
+   "unidade": "°C",
+   "norma_metodo": {
+    "codigo": "",
+    "titulo": "",
+    "orgao": "",
+    "fonte": ""
+   },
+   "norma_especificacao": {
+    "codigo": "",
+    "titulo": "",
+    "orgao": "",
+    "fonte": ""
+   },
+   "criterio": "",
+   "limite_min": null,
+   "limite_max": null,
+   "frequencia": "",
+   "por_km": null,
+   "confirmado": false,
+   "observacao": ""
+  },
+  {
+   "cod": "IRI",
+   "nome": "Irregularidade longitudinal",
+   "grupo": "Geometria",
+   "camada": "revestimento",
+   "unidade": "m/km",
+   "norma_metodo": {
+    "codigo": "",
+    "titulo": "",
+    "orgao": "",
+    "fonte": ""
+   },
+   "norma_especificacao": {
+    "codigo": "",
+    "titulo": "",
+    "orgao": "",
+    "fonte": ""
+   },
+   "criterio": "",
+   "limite_min": null,
+   "limite_max": null,
+   "frequencia": "",
+   "por_km": null,
+   "confirmado": false,
+   "observacao": ""
+  },
+  {
+   "cod": "LARGURA",
+   "nome": "Largura da plataforma",
+   "grupo": "Geometria",
+   "camada": "qualquer",
+   "unidade": "m",
+   "norma_metodo": {
+    "codigo": "",
+    "titulo": "",
+    "orgao": "",
+    "fonte": ""
+   },
+   "norma_especificacao": {
+    "codigo": "",
+    "titulo": "",
+    "orgao": "",
+    "fonte": ""
+   },
+   "criterio": "",
+   "limite_min": null,
+   "limite_max": null,
+   "frequencia": "",
+   "por_km": null,
+   "confirmado": false,
+   "observacao": ""
+  },
+  {
+   "cod": "FCK-CONCRETO",
+   "nome": "Resistência à compressão do concreto",
+   "grupo": "Drenagem",
+   "camada": "obra de arte corrente",
+   "unidade": "MPa",
+   "norma_metodo": {
+    "codigo": "",
+    "titulo": "",
+    "orgao": "",
+    "fonte": ""
+   },
+   "norma_especificacao": {
+    "codigo": "",
+    "titulo": "",
+    "orgao": "",
+    "fonte": ""
+   },
+   "criterio": "",
+   "limite_min": null,
+   "limite_max": null,
+   "frequencia": "",
+   "por_km": null,
+   "confirmado": false,
+   "observacao": ""
+  }
+ ],
+ "nao_confirmados": []
+}
