@@ -146,8 +146,10 @@ def main():
             e0 = ens[0]
             ok(e0["RESULTADO"] == "Não conforme", "o resultado do ensaio veio junto",
                e0["RESULTADO"])
-            ok(e0["NORMA_METODO"] == "pendente de confirmação",
-               "norma não confirmada sai declarada, e não em branco", e0["NORMA_METODO"])
+            # o ensaio do cenário tem norma conferida: o CSV leva o código, não um vazio.
+            # «pendente de confirmação» continua sendo o texto de quem não foi conferido.
+            ok(e0["NORMA_METODO"].strip() != "" and "092/94" in e0["NORMA_METODO"],
+               "a norma de referência acompanha o ensaio no CSV", e0["NORMA_METODO"])
             ok(e0["LIMITE_MIN"].replace(",", ".").startswith("95"),
                "o critério aplicado no aceite vai no registro", e0["LIMITE_MIN"])
 
@@ -156,9 +158,31 @@ def main():
         for termo, oq in (("CT-00099/2026-SEINFRA", "o contrato"),
                           ("Vincenty", "como a extensão é medida"),
                           ("Origem da quilometragem", "de onde vem o KM 0"),
-                          ("PENDENTE", "o aviso de norma pendente"),
                           ("Esri World Imagery", "o crédito da imagem")):
             ok(termo in leia, f"o LEIA-ME declara {oq}")
+
+        # o aviso de norma pendente é CONDICIONAL: tem de aparecer quando há ensaio sem
+        # norma conferida, e sumir quando não há. Provar só um lado é meia prova.
+        ok("PENDENTE" not in leia,
+           "sem ensaio de norma pendente, o LEIA-ME não avisa pendência")
+        pendente = pg.evaluate("""() => {
+            const semNorma = (S.catEns.itens || []).find(e => !e.confirmado);
+            if (!semNorma) return null;
+            const e = S.ens.find(x => x.cod === semNorma.cod); if (e) e.on = true;
+            const r = novoRegistro(5, semNorma.cod);
+            r.valor = 20; r.resp = 'Fiscal do DMOB';
+            S.reg.push(r); render();
+            return semNorma.cod;
+        }""")
+        if pendente:
+            pg.wait_for_timeout(600)
+            texto = pg.evaluate("leiaMe()")
+            ok("PENDENTE" in texto,
+               "com ensaio de norma não conferida, o LEIA-ME avisa", pendente)
+            pg.evaluate("() => { S.reg.pop(); render(); }")
+            pg.wait_for_timeout(400)
+        else:
+            print("         (todos os ensaios do catálogo estão conferidos: nada a avisar)")
 
         print("\n7. O PACOTE REABRE NA PLATAFORMA")
         pg.evaluate("document.querySelector('#btNovo').click()")

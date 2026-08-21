@@ -234,8 +234,10 @@ def main():
         ok("Controle tecnológico" in rel, "o relatório tem a seção de controle tecnológico")
         ok("Não conforme" in rel, "o resultado do ensaio aparece no relatório")
         ok("Fiscal do DMOB" in rel, "o responsável aparece no relatório")
-        ok("pendente" in rel.lower() and "norma" in rel.lower(),
-           "o relatório avisa que a norma está pendente de confirmação")
+        # GC-BASE passou a ter norma conferida: o relatório tem de mostrar o CÓDIGO. O aviso
+        # de pendência continua provado, mais abaixo, com um ensaio ainda não conferido.
+        ok("DNER-ME 092/94" in rel or "DNIT 141/2022-ES" in rel,
+           "o relatório mostra a norma de referência do ensaio conferido")
         ok("Conformidade" in rel, "o relatório traz o indicador de conformidade")
         secoes = pg.evaluate("[...document.querySelectorAll('#vRel h2')].map(e => e.textContent)")
         ok(len(secoes) == 6 and secoes[-1].strip().startswith("6."),
