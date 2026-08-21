@@ -54,10 +54,10 @@ for (const f of ['00-estado.js', '01-motor.js', '04-mapa.js', '06-matriz.js']) {
 // undefined. Um script extra, rodado no MESMO contexto, ve esses bindings e os
 // copia para fora. (Mesmo detalhe que me pegou no Divisor de Descontos.)
 vm.runInContext(
-  'globalThis.__X = {S, segmentar, estacaDe, dentroTrecho, segsNoTrecho,' +
-  ' resumoLinha, chave, EST_M, geod, extKm};', ctx, { filename: 'ponte.js' });
-const { S, segmentar, estacaDe, dentroTrecho, segsNoTrecho, resumoLinha,
-        chave, EST_M, geod, extKm } = ctx.__X;
+  'globalThis.__X = {S, segmentar, estacaDe, dentroTrecho, kmNoTrecho,' +
+  ' segsNoTrecho, resumoLinha, chave, EST_M, geod, extKm};', ctx, { filename: 'ponte.js' });
+const { S, segmentar, estacaDe, dentroTrecho, kmNoTrecho, segsNoTrecho,
+        resumoLinha, chave, EST_M, geod, extKm } = ctx.__X;
 
 /* ---- eixo sintético: reta no equador, comprimento controlado ----------- */
 // 1 grau de longitude no equador ~ 111,3195 km. Uma reta em lat 0 dá o
@@ -133,7 +133,9 @@ console.log('\n3. RECORTE DE TRECHO — o que entra na conta');
   S.kmIni = 12.5; S.kmFim = 18.3;
   const quebrado = segsNoTrecho();
   const kmDeclarado = S.kmFim - S.kmIni;
-  const kmContado = quebrado.reduce((a, s) => a + s.ext, 0);
+  // a régua é a extensão RECORTADA: depois da correção, o quilômetro da ponta entra
+  // pelo pedaço que está no trecho, e a extensão cheia dele não representa a obra
+  const kmContado = quebrado.reduce((a, s) => a + kmNoTrecho(s), 0);
   nota(`obra declarada de KM ${S.kmIni} a ${S.kmFim} = ${kmDeclarado.toFixed(2)} km`);
   nota(`segmentos que entram na matriz: ${quebrado.length}` +
        (quebrado.length ? ` (de KM ${quebrado[0].ini} a KM ${quebrado[quebrado.length - 1].fim})` : ''));
@@ -141,8 +143,7 @@ console.log('\n3. RECORTE DE TRECHO — o que entra na conta');
   const perda = kmDeclarado - kmContado;
   if (Math.abs(perda) > 0.05) {
     erro(`o recorte perde ${perda.toFixed(2)} km da obra declarada`,
-         'segmento parcialmente dentro do trecho é EXCLUÍDO por inteiro ' +
-         '(dentroTrecho exige sg.ini >= kmIni e sg.fim <= kmFim)');
+         'a extensão medida não fecha com o trecho declarado');
     nota('consequência: quem digita KM 12,5–18,3 mede 5 km, não 5,8 km. A ponta');
     nota('de cada extremo fica fora da matriz e não pode ser lançada.');
   } else {
@@ -164,13 +165,13 @@ console.log('\n4. O PERCENTUAL CONTA CÉLULA OU QUILÔMETRO?');
   S.dados[chave(linha, ult.id)] = 'C';
 
   const r = resumoLinha(linha);
-  const pctCelula = r.val ? (100 * r.C / r.val) : 0;
+  const pctCelula = r.pct == null ? 0 : 100 * r.pct;   // o que a plataforma mostra
   const kmFeito = ult.ext;
   const kmTotal = segs.reduce((a, s) => a + s.ext, 0);
   const pctKm = 100 * kmFeito / kmTotal;
 
   nota(`marcado apenas o último segmento, de ${ult.ext.toFixed(3)} km`);
-  nota(`percentual por célula (o que a plataforma mostra): ${pctCelula.toFixed(1)}%`);
+  nota(`percentual que a plataforma mostra:              ${pctCelula.toFixed(1)}%`);
   nota(`percentual por quilômetro (o avanço real):         ${pctKm.toFixed(1)}%`);
   const dif = pctCelula - pctKm;
   if (Math.abs(dif) > 1) {

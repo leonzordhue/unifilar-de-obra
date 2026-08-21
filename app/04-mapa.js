@@ -15,7 +15,14 @@ function iniMapa(){
   S.camadas = L.layerGroup().addTo(S.mapa);
   ctrlCriterio();
 }
-const dentroTrecho = sg => sg.ini >= S.kmIni - 1e-9 && sg.fim <= S.kmFim + 1e-9;
+// Sobreposição, e não continência: o quilômetro entra no trecho se qualquer parte dele
+// está dentro. Exigir o quilômetro inteiro fazia quem digita KM 12,5–18,3 perder as duas
+// pontas da obra — 5 km medidos onde havia 5,8, e as pontas sem poder receber lançamento.
+// Com trecho em número inteiro o resultado é o mesmo de antes.
+const dentroTrecho = sg => sg.fim > S.kmIni + 1e-9 && sg.ini < S.kmFim - 1e-9;
+// Quanto do quilômetro está DENTRO do trecho. É esta a extensão que se mede e se fatura:
+// no segmento 12–13 de um trecho que começa em 12,5, meio quilômetro é obra e meio não é.
+const kmNoTrecho = sg => Math.max(0, Math.min(sg.fim, S.kmFim) - Math.max(sg.ini, S.kmIni));
 function pctSeg(id){
   const linhas = linhasMatriz();
   if (!linhas.length) return null;

@@ -19,15 +19,23 @@ function linhasMatriz(){
   return out;
 }
 const segsNoTrecho = () => S.segs.filter(dentroTrecho);
+// Contagem e extensão andam juntas, e não são a mesma coisa: o relatório fala de
+// «posições de controle», que se contam, e de avanço físico, que se mede em quilômetro.
+// O último quilômetro de um eixo costuma ter menos de 1 km, e num trecho curto de obra
+// contar célula em vez de extensão distorce o avanço em pontos percentuais inteiros.
 function resumoLinha(l){
-  const r = {C: 0, E: 0, S: 0, NA: 0, P: 0, val: 0, total: 0};
+  const r = {C: 0, E: 0, S: 0, NA: 0, P: 0, val: 0, total: 0,
+             kmC: 0, kmVal: 0, kmTotal: 0};
   segsNoTrecho().forEach(sg => {
     const v = S.dados[chave(l, sg.id)] || '';
-    r.total++;
+    const km = kmNoTrecho(sg);
+    r.total++; r.kmTotal += km;
     if (v === 'NA'){ r.NA++; return; }
-    r.val++;
-    if (v === 'C') r.C++; else if (v === 'E') r.E++; else if (v === 'S') r.S++; else r.P++;
+    r.val++; r.kmVal += km;
+    if (v === 'C'){ r.C++; r.kmC += km; }
+    else if (v === 'E') r.E++; else if (v === 'S') r.S++; else r.P++;
   });
+  r.pct = r.kmVal > 0 ? r.kmC / r.kmVal : null;
   return r;
 }
 function pintaMatriz(){
@@ -56,7 +64,7 @@ function pintaMatriz(){
     const r = resumoLinha(l);
     h += `<tr><th class="sv"><span class="lado">${esc(l.lado)}</span>${esc(l.svc)}</th>`
       + `<td>${r.C || ''}</td><td>${r.E || ''}</td><td>${r.S || ''}</td><td>${r.NA || ''}</td>`
-      + `<td><b>${r.val ? fmt(100 * r.C / r.val, 0) + '%' : '—'}</b></td>`;
+      + `<td><b>${r.pct == null ? '—' : fmt(100 * r.pct, 0) + '%'}</b></td>`;
     segs.forEach(sg => {
       if (!dentroTrecho(sg)){ h += '<td class="fora"></td>'; return; }
       const v = S.dados[chave(l, sg.id)] || '';
@@ -101,12 +109,14 @@ function marcaColuna(id){
 const card = (rot, val, sub) =>
   `<div class="card"><div class="rot">${rot}</div><div class="val">${val}</div><div class="sub">${sub || ''}</div></div>`;
 function totais(){
-  const t = {C: 0, E: 0, S: 0, NA: 0, P: 0, val: 0};
+  const t = {C: 0, E: 0, S: 0, NA: 0, P: 0, val: 0, kmC: 0, kmVal: 0};
   linhasMatriz().forEach(l => {
     const r = resumoLinha(l);
     t.C += r.C; t.E += r.E; t.S += r.S; t.NA += r.NA; t.P += r.P; t.val += r.val;
+    t.kmC += r.kmC; t.kmVal += r.kmVal;
   });
-  t.pct = t.val ? t.C / t.val : 0;
+  // avanço físico é medido em quilômetro, não em número de células
+  t.pct = t.kmVal > 0 ? t.kmC / t.kmVal : 0;
   return t;
 }
 function pintaResumo(){
@@ -116,7 +126,8 @@ function pintaResumo(){
     return;
   }
   const segs = segsNoTrecho(), t = totais();
-  const kmTr = segs.reduce((a, s) => a + s.ext, 0);
+  // recortada: o quilômetro da ponta entra pelo pedaço que está no trecho
+  const kmTr = segs.reduce((a, s) => a + kmNoTrecho(s), 0);
   const tipo = S.eixo.tipo === 'rodovia' ? 'Rodovia estadual'
     : (S.eixo.tipo === 'ramal' ? 'Ramal' : 'Traçado carregado');
   alvo.innerHTML = `<div class="cards">
@@ -131,10 +142,10 @@ function pintaResumo(){
       <th>Em andam.</th><th>Sem plan.</th><th>Previsto</th><th>N/A</th><th>% exec.</th>
       <th style="width:130px">Avanço</th></tr></thead><tbody>${
       linhas.map(l => {
-        const r = resumoLinha(l), p = r.val ? r.C / r.val : 0;
+        const r = resumoLinha(l), p = r.pct == null ? 0 : r.pct;
         return `<tr><td>${esc(l.svc)}</td><td>${esc(l.lado)}</td><td>${r.C}</td><td>${r.E}</td>
           <td>${r.S}</td><td>${r.P}</td><td>${r.NA}</td>
-          <td><b>${r.val ? fmt(p * 100, 1) + '%' : '—'}</b></td>
+          <td><b>${r.pct == null ? '—' : fmt(p * 100, 1) + '%'}</b></td>
           <td><div class="barra"><i style="width:${(p * 100).toFixed(1)}%"></i></div></td></tr>`;
       }).join('')}</tbody>
       <tfoot><tr><td>TOTAL</td><td>—</td><td>${t.C}</td><td>${t.E}</td><td>${t.S}</td>

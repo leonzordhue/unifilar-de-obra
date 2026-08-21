@@ -35,16 +35,23 @@ function faixasPainel(km){
 }
 
 /** Avanço físico dos serviços nestes quilômetros: só «Concluído» conta, «N/A» sai do
-    denominador — a mesma conta do resumo, aplicada a um recorte de segmentos. */
+    denominador — a mesma conta do `resumoLinha`, aplicada a um recorte de segmentos.
+
+    Ponderado por EXTENSÃO, não por contagem de célula: o último segmento do eixo pode ter
+    0,4 km e não pode pesar como um quilômetro inteiro. Usa `kmNoTrecho`, que também recorta
+    o segmento parcial nas pontas do trecho em obra — a mesma base do resumo e do relatório,
+    para a plataforma não apresentar dois avanços diferentes da mesma obra. */
 function avancoEm(ids){
-  const set = new Set(ids), r = {C: 0, val: 0};
-  linhasMatriz().forEach(l => set.forEach(id => {
-    const v = S.dados[chave(l, id)] || '';
+  const set = new Set(ids), r = {C: 0, val: 0, kmC: 0, kmVal: 0};
+  const segs = S.segs.filter(sg => set.has(sg.id));
+  linhasMatriz().forEach(l => segs.forEach(sg => {
+    const v = S.dados[chave(l, sg.id)] || '';
     if (v === 'NA') return;
-    r.val++;
-    if (v === 'C') r.C++;
+    const km = kmNoTrecho(sg);
+    r.val++; r.kmVal += km;
+    if (v === 'C'){ r.C++; r.kmC += km; }
   }));
-  r.pct = r.val ? r.C / r.val : null;
+  r.pct = r.kmVal > 0 ? r.kmC / r.kmVal : null;
   return r;
 }
 
@@ -81,14 +88,15 @@ function pintaPainel(){
     return;
   }
   const segs = segsNoTrecho(), ids = segs.map(s => s.id);
-  const kmTr = segs.reduce((a, s) => a + s.ext, 0);
+  // recortada: o quilômetro da ponta entra pelo pedaço que está no trecho
+  const kmTr = segs.reduce((a, s) => a + kmNoTrecho(s), 0);
   const av = avancoEm(ids), en = resumoEnsaios(ids), abertas = naoConformidadesAbertas(ids);
   const semCatalogo = !catalogoEnsaios().length;
 
   alvo.innerHTML = `
     <div class="cards">
       ${card('Avanço físico', pct(av.pct),
-             `${av.C} de ${av.val} posições concluídas · ${fmt(kmTr, 1)} km`)}
+             `${av.C} de ${av.val} posições · ponderado por extensão · ${fmt(kmTr, 1)} km`)}
       ${card('Conformidade', pct(en.pctConformidade),
              en.pctConformidade == null ? 'nenhum ensaio com critério julgado'
                : `${en.conformes} conforme(s) de ${en.conformes + en.naoConformes} julgado(s)`)}

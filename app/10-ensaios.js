@@ -61,7 +61,8 @@ const corConforme = r => ({true: '#2E9E5B', false: '#D9534F'})[conforme(r)] || '
     calcular percentual, que é diferente de zero por cento. */
 function previstosEm(ids){
   const segs = S.segs.filter(s => ids.includes(s.id));
-  const km = segs.reduce((a, s) => a + s.ext, 0);
+  // extensão recortada pelo trecho: a frequência de ensaio se aplica ao que é obra
+  const km = segs.reduce((a, s) => a + kmNoTrecho(s), 0);
   const comFreq = catalogoEnsaios().filter(e => e.por_km != null && isFinite(e.por_km));
   if (!comFreq.length) return null;
   return comFreq.reduce((a, e) => a + e.por_km * km, 0);

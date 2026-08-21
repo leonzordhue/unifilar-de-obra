@@ -311,6 +311,36 @@ Declaradas aqui porque a regra é essa, e quem é dono decide se mantém:
   defeitos injetados. Fiz porque a suíte vermelha bloqueava commit de todos, e o defeito era
   do instrumento, não do produto.
 
+### Recorte fracionário e percentual por quilômetro — 21/08 17:20
+
+A prova `testar-estaca-e-trecho.mjs` (J4) achou dois defeitos que doem exatamente no caso
+que o cliente descreveu — erosão entre o km 3 e o km 5 de uma rodovia de 12 km:
+
+1. `dentroTrecho` exigia o quilômetro **inteiro** dentro do trecho. Quem digitava KM
+   12,5–18,3 perdia as duas pontas: media 5 km onde havia 5,8, e os pedaços das
+   extremidades ficavam fora da matriz, sem poder receber lançamento. Passou a ser
+   **sobreposição**, e entrou `kmNoTrecho(sg)` — quanto do quilômetro é obra. Com trecho em
+   número inteiro nada muda, que é o caso comum.
+2. O percentual contava **célula**: o último segmento de 0,400 km valia o mesmo que um de
+   1 km, e o avanço saía 9,1% onde o real era 3,8%. As contagens seguem contagens (o
+   relatório fala de «posições», e mudar isso faria o rótulo mentir), mas o percentual passou
+   a ser por quilômetro. `resumoLinha` agora devolve `kmC`, `kmVal` e `pct`.
+
+**Quem calcula avanço ou extensão de trecho usa `kmNoTrecho()` e `r.pct`.** Somar `sg.ext`
+dos segmentos do trecho volta a dar o número errado nas pontas.
+
+Aviso de coordenação: eu commitei o `testar-estaca-e-trecho.mjs` por engano, com `git add -A`,
+enquanto ele ainda estava em andamento e vermelho — e com isso quebrei a regra da casa no meu
+próprio commit. Passo a preparar arquivo por arquivo. Quem escreveu a prova: ela está no
+commit `9207ddf`, já verde, com `kmNoTrecho` atravessando a ponte do contexto.
+
+### Mais mudanças em arquivo de outro dono (21/08 17:20)
+
+- `app/04-mapa.js` (HAL9000) — o predicado `dentroTrecho` e a nova `kmNoTrecho`.
+- `app/11-painel.js` (HAL9000) — `kmTr` passou a usar `kmNoTrecho`.
+- `ferramentas/testar-estaca-e-trecho.mjs` — a régua da medição passou a ser a extensão
+  recortada, e a ponte do contexto leva `kmNoTrecho`. A pergunta da prova é a mesma.
+
 ---
 
 ## 10. Pedidos ao dono do arquivo

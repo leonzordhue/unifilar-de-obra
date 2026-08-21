@@ -18,7 +18,8 @@ function pintaRel(){
     return;
   }
   const segs = segsNoTrecho(), t = totais();
-  const kmTr = segs.reduce((a, s) => a + s.ext, 0);
+  // recortada: o quilômetro da ponta entra pelo pedaço que está no trecho
+  const kmTr = segs.reduce((a, s) => a + kmNoTrecho(s), 0);
   const geoTot = S.segs.reduce((a, s) => a + s.ext, 0);
   const saltos = (S.eixo.meta && S.eixo.meta.saltos_km) || [];
   alvo.innerHTML = `<div class="rel">
@@ -50,7 +51,7 @@ function pintaRel(){
       linhas.map(l => {const r = resumoLinha(l);
         return `<tr><td>${esc(l.svc)}</td><td>${esc(l.lado)}</td><td>${r.C}</td><td>${r.E}</td>
           <td>${r.S}</td><td>${r.P}</td><td>${r.NA}</td>
-          <td>${r.val ? fmt(100 * r.C / r.val, 1) + '%' : '—'}</td></tr>`;}).join('')}
+          <td>${r.pct == null ? '—' : fmt(100 * r.pct, 1) + '%'}</td></tr>`;}).join('')}
     </tbody></table>
 
     <h2>${S.croqui ? '4' : '3'}. Detalhamento por faixa</h2>
