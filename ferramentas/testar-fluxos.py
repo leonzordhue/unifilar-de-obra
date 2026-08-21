@@ -284,6 +284,30 @@ def main():
         ok(pg.evaluate("S.kmFim") <= 84, "KM final além do eixo é limitado à extensão",
            str(pg.evaluate("S.kmFim")))
 
+        print("\n9b. TRECHO FRACIONÁRIO")
+        # a plataforma passou a medir o pedaço do quilômetro que é obra; o campo tinha
+        # step="1" e recusava a fração, então o caso nunca era exercitado de verdade
+        pg.evaluate("""() => {
+            const a = document.querySelector('#kmIni'), b = document.querySelector('#kmFim');
+            a.value = 12.5; a.dispatchEvent(new Event('input'));
+            b.value = 18.3; b.dispatchEvent(new Event('input'));
+        }""")
+        pg.wait_for_timeout(1400)
+        faixa = pg.evaluate("[S.kmIni, S.kmFim]")
+        ok(faixa == [12.5, 18.3], "o campo aceita KM com fração", str(faixa))
+        med = pg.evaluate("segsNoTrecho().reduce((a, s) => a + kmNoTrecho(s), 0)")
+        ok(abs(med - 5.8) < 0.02, "a extensão medida é a do trecho declarado",
+           f"{med:.3f} km de 5,800 declarados")
+        pontas = pg.evaluate("""() => {
+            const s = segsNoTrecho();
+            return [kmNoTrecho(s[0]), kmNoTrecho(s[s.length - 1])];
+        }""")
+        ok(abs(pontas[0] - 0.5) < 0.02 and abs(pontas[1] - 0.3) < 0.02,
+           "o quilômetro da ponta entra pelo pedaço que é obra",
+           f"{pontas[0]:.3f} km na primeira ponta · {pontas[1]:.3f} km na última")
+        val = pg.evaluate("document.querySelector('#kmIni').validity.valid")
+        ok(val, "o navegador não reprova a fração no campo")
+
         print("\n10. NENHUM SERVIÇO MARCADO")
         pg.evaluate("document.querySelector('#btNenhum').click()")
         pg.wait_for_timeout(1000)
