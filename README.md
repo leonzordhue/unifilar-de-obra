@@ -10,6 +10,8 @@ KMZ/KML próprio), a plataforma divide o traçado do KM 0 até a extensão final
 passa a ser lançado por quilômetro e por lado da pista — a mesma lógica da planilha
 `SEINFRA_CONTROLE AM-010`, sem planilha.
 
+**No ar em https://leonzordhue.github.io/unifilar-de-obra/**
+
 Página única, sem etapa de compilação e sem servidor de aplicação: abre no navegador e lê os
 dados da pasta `dados/`. Nada é enviado para fora da máquina — o KMZ do usuário é lido pelo
 próprio navegador e o projeto fica no `localStorage` até ser salvo em arquivo.
@@ -38,7 +40,8 @@ Rode um servidor local na raiz do projeto:
 python -m http.server 8000
 ```
 
-e abra `http://localhost:8000`. Publicada no GitHub Pages, abre direto pela URL.
+e abra `http://localhost:8000`. Pela internet, abre direto em
+https://leonzordhue.github.io/unifilar-de-obra/ — mesma plataforma, sem instalar nada.
 
 ## Estrutura
 
