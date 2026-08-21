@@ -90,7 +90,7 @@ agentes salvando o mesmo arquivo se sobrescrevem em silêncio.
 |---|---|---|
 | Casca, estado, abas, ficha técnica, persistência | **Cortanna** | `index.html`, `app/00-estado.js`, `app/09-app.js`, `app/08-persistencia.js`, `app/10-ensaios.js`, `app/13-faixa.js`, `app/14-obras.js`, `app/15-contrato.js`, `app/05-croqui.js`, `app/07-relatorio.js`, `ferramentas/testar-obra.py` |
 | Painel, gráfico, mapa por critério, impressão e desempenho | **HAL9000** | `app/11-painel.js`, `app/04-mapa.js`, `app/06-matriz.js`, `estilo/impressao.css`, `ferramentas/testar-painel.py`, `ferramentas/testar-impressao.py`, `ferramentas/testar-desempenho.py` |
-| Catálogo de ensaios, pacote CDE, acervo local | **jarvisIV** | `dados/catalogo-ensaios.json`, `app/12-cde.js`, `app/03-acervo.js`, `ferramentas/testar-cde.py` |
+| Catálogo de ensaios | **jarvisIV** | `dados/catalogo-ensaios.json` — só este |
 | Conferência de acervo e cadastro | quem criou | as próprias ferramentas de conferência |
 
 **Precisa mexer em arquivo que não é seu?** Escreva o pedido em *Pedidos ao dono do arquivo*,
@@ -295,8 +295,10 @@ Atualize a sua linha no mesmo commit do código. Data no formato dd/mm hh:mm.
 | Desempenho da matriz (`app/06-matriz.js` passa a ser dele) | HAL9000 | **disparada** — medir antes de corrigir | 21/08 18:40 |
 | Contrato, quantidade contratada e quadro por serviço | Cortanna | **pronto e provado** (`testar-obra.py`, bloco 5a) | 21/08 18:40 |
 | Conferência contra a planilha viva do DMOB | Cortanna | **pronta** — `importar-camada-de-km.py` é ferramenta de conferência, não fluxo de uso | 21/08 18:40 |
-| Catálogo de ensaios com normas | jarvisIV | **prioridade 1, despachada em 21/08 19h00** — 20 itens, zero confirmados; é o único gargalo que ninguém pode fazer no lugar dele | 21/08 19:00 |
-| Pacote CDE e acervo local | jarvisIV | **prioridade 2, despachada** — agora tem contrato, quadro por serviço e ensaios para entrar no pacote | 21/08 19:00 |
+| Catálogo de ensaios com normas | jarvisIV | **ÚNICA frente aberta do projeto** — 20 itens, zero confirmados. Ordem em fatia fina no canal dele, 21/08 20h30 | 21/08 20:30 |
+| Pacote CDE e acervo local | **Cortanna** (assumido) | **pronto e provado** (`testar-cde.py`): zip com GeoJSON, KML, dois CSV, fotos, croqui e projeto; «Abrir» aceita o zip; quarta origem de traçado no navegador | 21/08 20:30 |
+| Painel, gráfico e mapa por critério | HAL9000 | **pronto e provado** | 21/08 20:30 |
+| Impressão do relatório | HAL9000 | **pronta e provada** (`testar-impressao.py`) | 21/08 20:30 |
 | 72,6 km de estrada implantada sem geometria (17 km em Tefé) | jarvisIV | **prioridade 3, despachada** — declarar na tela e no relatório; não reconstruir traçado | 21/08 19:00 |
 | Trecho fracionário aceito no campo de KM | Cortanna | **corrigido e provado** (`testar-fluxos.py`, bloco 9b) — achado do jarvisIV | 21/08 19:00 |
 | Nome definitivo da plataforma | Cortanna | «SICOR» recusado; opções levadas ao Paulo | 21/08 16:40 |
