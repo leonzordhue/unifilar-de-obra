@@ -183,14 +183,24 @@ table.res tfoot td{background:#F1F4F7;font-weight:700}
    Em divisa de marco (a que leva rótulo) a linha engrossa, para a escala se ler de longe. */
 .faixaTrilho .km{position:relative;flex:1 1 0;min-width:4px;
   border-right:1px solid #14202B;transition:box-shadow .08s}
-.faixaTrilho .km.marco{border-right-width:2px}
+/* A célula de marco sobe na pilha: o rótulo transborda para a célula seguinte, e sem isto
+   o fundo dela — pintado depois, por ser irmã posterior — cobre o número. */
+.faixaTrilho .km.marco{border-right-width:2px;z-index:3}
+/* Rodovia longa: 269 divisas de 1px em célula de 5px viram um pente preto, e a régua deixa
+   de informar. Acima de 60 quilômetros a divisa fica só no marco — a escala continua legível
+   e a divisão entre os quilômetros do marco é o que o olho usa para contar. */
+.faixaTrilho.densa .km{border-right-color:transparent}
+.faixaTrilho.densa .km.marco{border-right-color:#14202B}
 .faixaTrilho .km:first-child{border-left:1px solid #14202B}
 .faixaTrilho .km:last-child{border-right:1px solid #14202B}
 .faixaTrilho .km.fora{background-image:repeating-linear-gradient(45deg,#fff 0 4px,#E3E9EF 4px 8px)}
-.faixaTrilho .km.sel{box-shadow:inset 0 0 0 2px var(--navy);z-index:2}
-.faixaTrilho .rot{position:absolute;bottom:1px;left:50%;transform:translateX(-50%);
-  font-size:9.5px;color:#3A4A5A;background:rgba(255,255,255,.82);padding:0 2px;border-radius:2px;
+.faixaTrilho .km.sel{box-shadow:inset 0 0 0 2px var(--navy);z-index:4}
+/* O rótulo marca o INÍCIO do quilômetro: fica encostado na divisa da esquerda, e não
+   centrado — centrado, a divisa cortava o número em dois. */
+.faixaTrilho .rot{position:absolute;bottom:1px;left:3px;
+  font-size:9.5px;color:#3A4A5A;background:rgba(255,255,255,.86);padding:0 2px;border-radius:2px;
   pointer-events:none;white-space:nowrap}
+.faixaTrilho .km:last-child .rot{left:auto;right:3px}
 #barraLanca{display:flex;align-items:end;gap:9px;margin-top:8px;flex-wrap:wrap}
 #barraLanca label{display:flex;flex-direction:column;gap:3px;font-size:10px;text-transform:uppercase;
   letter-spacing:.06em;color:var(--texto2)}

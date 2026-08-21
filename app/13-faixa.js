@@ -72,7 +72,7 @@ function pintaFaixa(){
       <button class="mini" id="btSelTrecho">Selecionar o trecho</button>
       <button class="mini" id="btSelLimpa">Limpar</button>
     </div>
-    <div class="faixaTrilho" id="faixaTrilho">${celulas}</div>`;
+    <div class="faixaTrilho${S.segs.length > 60 ? ' densa' : ''}" id="faixaTrilho">${celulas}</div>`;
   ligaFaixa();
   atualizaSelecao();
 }
