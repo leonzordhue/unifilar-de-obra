@@ -70,8 +70,23 @@ function pintaRel(){
       pode ter extensão inferior a 1 km, correspondente ao resto do traçado.</div>
     ${S.eixo.km_cadastro ? `<div class="meta"><b>Extensão cadastrada:</b> ${fmt(S.eixo.km_cadastro, 3)} km ·
       <b>apurada na geometria:</b> ${fmt(geoTot, 3)} km.</div>` : ''}
+    <div class="meta"><b>Catálogo de serviços:</b> ${esc(conjuntoAtual().nome)} — ${
+      esc(conjuntoAtual().descricao)}</div>
     <div class="meta"><b>Origem da quilometragem:</b> ${textoSentido(S.eixo)
       .replace(/<b>|<\/b>/g, '')}</div>
+    ${(() => {
+      // Trecho planejado dentro do recorte: quem le o relatorio precisa saber que naqueles
+      // quilometros nao ha pista implantada no cadastro — la nao se mede recuperacao.
+      const pl = (S.eixo.faixas || []).filter(f => f.situacao === 'PLANEJADA')
+        .map(f => ({ini: Math.max(f.km_ini, S.kmIni), fim: Math.min(f.km_fim, S.kmFim)}))
+        .filter(f => f.fim - f.ini > 0.05);
+      if (!pl.length) return '';
+      const som = pl.reduce((a, f) => a + f.fim - f.ini, 0);
+      return `<div class="meta"><b>Trecho planejado:</b> ${fmt(som, 1)} km do recorte estão em
+        trecho que o cadastro registra como <b>planejado</b> (${pl.map(f =>
+        `KM ${fmt(f.ini, 0)} ao KM ${fmt(f.fim, 0)}`).join(', ')}). Nesses quilômetros não há
+        pista implantada: o serviço lançado ali é de implantação, não de recuperação.</div>`;
+    })()}
     ${saltos.length ? `<div class="meta"><b>Descontinuidade no traçado:</b> o acervo registra
       ${saltos.length} interrupção(ões) neste eixo (${saltos.map(s => fmt(s, 1) + ' km').join(', ')}).
       A quilometragem é contada sobre o traçado existente, sem somar os vazios, e o segmento em
