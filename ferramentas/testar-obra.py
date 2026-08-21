@@ -74,10 +74,15 @@ def main():
 
         print("\n2. SELEÇÃO DE QUILÔMETROS, INCLUSIVE DESCONTÍNUA")
         pg.evaluate("""() => {
+            // Ponteiro, e não mouse: a faixa atende dedo, caneta e mouse pelo mesmo caminho.
+            // As coordenadas são reais porque o alvo vem de `elementFromPoint`.
             const clique = id => {
                 const e = document.querySelector(`#faixaTrilho .km[data-id="${id}"]`);
-                e.dispatchEvent(new MouseEvent('mousedown', {bubbles: true}));
-                document.dispatchEvent(new MouseEvent('mouseup', {bubbles: true}));
+                const r = e.getBoundingClientRect();
+                const p = {bubbles: true, clientX: r.left + r.width / 2,
+                           clientY: r.top + r.height / 2, pointerId: 1, isPrimary: true};
+                e.dispatchEvent(new PointerEvent('pointerdown', p));
+                document.dispatchEvent(new PointerEvent('pointerup', p));
             };
             [3, 4, 9].forEach(clique);
         }""")
