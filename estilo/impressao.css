@@ -103,8 +103,15 @@
 /* `position: fixed` é o único jeito, no Chromium, de repetir um elemento em todas as páginas
    impressas. O texto institucional é fixo; contrato, obra e número de página dependem de
    elemento no HTML (ver o cabeçalho deste arquivo). */
+/* `content` de pseudo-elemento se repete em toda página impressa; um `div` aninhado no
+   fragmento paginado, não — foi o que esta prova mediu (o rodapé faltava nas seis primeiras
+   páginas). Por isso o dono do relatório passa o texto como propriedade `--rodape-obra`, e o
+   valor institucional fica como reserva para quando não houver obra identificada. */
 .rel::after {
-  content: "SICOR — Sistema de Controle de Obras Rodoviárias · SEINFRA/AM — Departamento de Mobilidade";
+  /* os dois: identificação da obra (dado, vindo do relatório) e a do sistema (fixa).
+     Folha solta de processo tem de dizer de que obra é E de onde saiu. */
+  content: var(--rodape-obra, "documento sem obra identificada")
+           " · SICOR — SEINFRA/AM — Departamento de Mobilidade";
   position: fixed;
   bottom: 2mm;
   left: 0;

@@ -315,6 +315,37 @@ def main():
             pg.evaluate("""() => { S.kmIni = 0;
                 S.kmFim = S.segs[S.segs.length - 1].fim; render(); }""")
 
+            print("")
+            print("10. QUADRO DA OBRA E AVANÇO SOBRE O CONTRATADO")
+            pg.click("#abas button[data-v='painel']")
+            pg.wait_for_timeout(900)
+            # innerText devolve o texto RENDERIZADO: `.grEns` é uppercase por CSS, então a
+            # comparação tem de ser insensível a caixa — do contrário a prova reprovaria por
+            # causa de folha de estilo, não de conteúdo.
+            ok("QUADRO DA OBRA" in pg.inner_text("#vPainel").upper(),
+               "o quadro por serviço abre o painel")
+            # sem quantidade contratada informada, nao existe «% do contrato» — e o grafico
+            # do contratado nao pode aparecer zerado: ausencia de base nao e zero por cento
+            svgs = pg.eval_on_selector_all("#vPainel svg text",
+                "es => es.map(e => e.textContent).filter(t => t.indexOf('contratado') >= 0)")
+            ok(not svgs, "sem contratado informado, o gráfico do contratado não aparece")
+            # a quantidade contratada mora no proprio servico (`km_contratado`), que e' de
+            # onde `kmContratado()` a le — nao num saco separado de dados do contrato
+            n = pg.evaluate("""() => {
+                const q = quadroObra();
+                if (!q.length) return null;
+                S.svc[0].km_contratado = 20;              // 20 km contratados
+                render();
+                return {svc: S.svc[0].nome, tem: quadroObra()[0].pctContrato}; }""")
+            pg.wait_for_timeout(700)
+            t = pg.inner_text("#vPainel")
+            ok(n is not None and n["tem"] is not None,
+               "informar o contratado produz «% do contrato»",
+               f"{n['svc']}: {n['tem']:.3f}" if n and n["tem"] is not None else "sem quadro")
+            ok("AVANÇO SOBRE O CONTRATADO" in t.upper(),
+               "e o gráfico do contratado passa a existir")
+            ok("% DO CONTRATO" in t.upper(), "a coluna «% do contrato» entra no quadro")
+
         print(f"\nERROS DE CONSOLE: {len(console)}")
         for c in console[:6]:
             print("  ", c)

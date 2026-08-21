@@ -127,14 +127,43 @@ linha reta, dividido em quilômetro (ou em estaca), com divisa preta entre eles.
 5. **Aplicar à seleção**. Os quilômetros ficam pintados com a cor do serviço, na faixa e no
    mapa. Quando há mais de um serviço no mesmo quilômetro, a célula aparece em listras.
 
-**Duplo clique** num quilômetro abre a ficha técnica dele (item 6).
+**Duplo clique** num quilômetro abre a ficha técnica dele (item 7).
 
 O trecho em obra aceita valor quebrado: KM 12,5 a 18,3 mede 5,8 km, e o quilômetro da ponta
 entra pelo pedaço que é obra — não pelo quilômetro cheio.
 
 ---
 
-## 6. Ficha técnica do quilômetro
+## 6. Contrato e quantidade contratada
+
+Bloco **4 — Contrato**. É o que faz a obra ser rastreável ao processo, e é assim que o
+relatório abre.
+
+- **Objeto**, como está no contrato.
+- **Valor**.
+- **Vigência do contrato** e **vigência de execução** — as duas, porque não coincidem.
+- **Quantidade contratada por serviço**, em quilômetros: quanto de cada serviço o contrato
+  prevê.
+
+A quantidade contratada muda o que o avanço significa. Um serviço com 175 km contratados numa
+obra de 250 km, com 175 km executados, está **100% entregue** — e 70% do trecho. O relatório
+mostra as duas colunas, porque medem coisas diferentes:
+
+| Coluna | O que responde |
+|---|---|
+| **% do trecho** | onde a obra está, ao longo do eixo |
+| **% do contrato** | quanto falta entregar do que foi contratado |
+
+Serviço sem quantidade informada aparece com traço na coluna do contrato — nunca com zero.
+Zero significaria «nada executado», e o que existe é «não informado».
+
+O **quadro de avanço por serviço** sai no relatório em quilômetros, e um quilômetro conta uma
+vez por serviço, pelo estado mais avançado entre os lados: somar faixa direita e esquerda
+dobraria a extensão da obra.
+
+---
+
+## 7. Ficha técnica do quilômetro
 
 Duplo clique num quilômetro da faixa, ou no mapa. A ficha traz:
 
@@ -143,7 +172,7 @@ Duplo clique num quilômetro da faixa, ou no mapa. A ficha traz:
 - **Serviços** lançados ali, com a situação de cada um.
 - **Ensaios de controle tecnológico**: ensaio, norma de referência, medição, critério
   aplicado, resultado, data, responsável e foto.
-- **Lançar ensaio**: escolha o ensaio (dos marcados no bloco *Ensaios* da lateral), informe a
+- **Lançar ensaio**: escolha o ensaio (dos marcados no bloco **5 — Ensaios** da lateral), informe a
   medição, confira o critério — vem do catálogo e é editável —, o responsável e, se quiser,
   a foto. A foto é reduzida antes de ser guardada.
 
@@ -159,7 +188,7 @@ Os botões *anterior* e *próximo* passam de quilômetro em quilômetro sem fech
 
 ---
 
-## 7. Obras guardadas por contrato
+## 8. Obras guardadas por contrato
 
 O contrato é a identidade da obra. Preencha o **Nº do contrato** no cabeçalho e use
 **Guardar obra**: o projeto fica guardado sob aquele número. Depois, **Obras** abre a lista,
@@ -172,7 +201,7 @@ apaga a lista.
 
 ---
 
-## 8. Matriz de controle
+## 9. Matriz de controle
 
 ![Matriz de controle](imagens/02-matriz-de-controle.png)
 
@@ -197,7 +226,7 @@ correspondente na matriz.
 
 ---
 
-## 9. Croqui do trecho
+## 10. Croqui do trecho
 
 ![Croqui sobre satélite](imagens/03-croqui-do-trecho.png)
 
@@ -214,14 +243,15 @@ Se não houver internet, o croqui sai com fundo neutro: perde a foto de satélit
 
 ---
 
-## 10. Resumo e relatório
+## 11. Resumo e relatório
 
 ![Resumo](imagens/04-resumo.png)
 
 Aba **Resumo** — cartões com eixo, trecho, número de linhas, avanço físico e a contagem de
 posições por status.
 
-Aba **Relatório** — o documento fechado, em cinco seções: *Localização do trecho* (o croqui),
+Aba **Relatório** — o documento fechado, aberto pela identificação do contrato, em
+seções: *Localização do trecho* (o croqui),
 *Avanço geral*, *Situação por serviço*, *Detalhamento por faixa* (cada serviço e lado com as
 faixas contínuas de mesma situação), *Controle tecnológico* — quadro por tipo de controle e a
 relação dos ensaios com norma, critério, resultado, responsável e foto — e *Notas técnicas*,
@@ -231,13 +261,16 @@ lançado.
 
 ![Relatório](imagens/05-relatorio.png)
 
-- **Imprimir** — abre o diálogo do navegador; escolha «Salvar como PDF» para gerar o arquivo.
+- **Imprimir** — abre o diálogo do navegador; escolha «Salvar como PDF» para gerar o
+  arquivo. O documento sai em A4 paisagem, com cada seção em página nova, o cabeçalho de cada
+  tabela repetido nas páginas seguintes e um rodapé com contrato, obra e data de emissão em
+  toda folha — folha solta continua rastreável ao contrato.
 - **Exportar CSV** — a matriz inteira, uma linha por serviço e lado, uma coluna por quilômetro,
   para abrir no LibreOffice ou no Excel.
 
 ---
 
-## 11. Salvar e retomar
+## 12. Salvar e retomar
 
 - **Salvar** — grava um arquivo `.json` com o eixo, o trecho, os serviços e todos os
   lançamentos. É esse arquivo que se anexa ao processo ou se envia a um colega.

@@ -117,6 +117,11 @@ function pintaPainel(){
       registro(s) sem critério numérico não entram na conformidade — ficam declarados como
       «sem critério» na ficha do quilômetro.</div>` : ''}
 
+    ${typeof tabelaQuadroObra === 'function' && tabelaQuadroObra()
+      ? `<div style="padding:0 14px 16px">
+          <div class="grEns" style="margin-top:0">Quadro da obra — por serviço, em quilômetro</div>
+          ${tabelaQuadroObra()}</div>`
+      : ''}
     <div style="padding:0 14px 12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
       <span class="rot" style="font-size:11px;text-transform:uppercase;letter-spacing:.1em">
         Faixa da tabela</span>
@@ -124,6 +129,7 @@ function pintaPainel(){
         data-faixa="${k}" style="${k === faixaKm ? 'font-weight:700' : ''}">${k} km</button>`).join('')}
     </div>
     ${tabelaFaixas()}
+    ${graficoContrato()}
     ${graficoGrupos(ids)}`;
 
   $$('#vPainel button[data-faixa]').forEach(b => b.onclick = () => {
@@ -159,6 +165,42 @@ function tabelaFaixas(){
 /* ---------------------------------------------------------------- gráfico */
 /** Barras por tipo de controle, em SVG escrito à mão — sem biblioteca de gráfico: a
     plataforma serve tudo da própria pasta e abre sem internet. */
+/** Avanço por serviço contra o contratado, quando a quantidade contratada foi informada.
+    `pctContrato` vem de `quadroObra()` e é `null` quando ninguém informou o contratado —
+    nesse caso o serviço simplesmente não entra neste gráfico, em vez de aparecer zerado. */
+function graficoContrato(){
+  if (typeof quadroObra !== 'function') return '';
+  const q = quadroObra().filter(x => x.pctContrato != null);
+  if (!q.length) return '';
+  const L = 200, W = 620, H = 22, GAP = 8, TOPO = 34;
+  const larg = W - L - 92;
+  const alt = TOPO + q.length * (H + GAP) + 14;
+  const barras = q.map((x, i) => {
+    const y = TOPO + i * (H + GAP);
+    const p = Math.max(0, Math.min(1, x.pctContrato));
+    // acima de 100% do contratado a barra satura, e o número ao lado conta a verdade: o
+    // escritório reporta execução além da quantidade contratada, e esconder isso seria
+    // apagar justamente o que precisa de aditivo ou de explicação na medição.
+    return `
+      <text x="${L - 8}" y="${y + 15}" text-anchor="end" font-size="11" fill="#3A4A5A">${esc(x.svc)}</text>
+      <rect x="${L}" y="${y}" width="${larg}" height="${H}" rx="3" fill="#EEF2F6"/>
+      <rect x="${L}" y="${y}" width="${(p * larg).toFixed(1)}" height="${H}" rx="3"
+            fill="${x.pctContrato > 1.001 ? '#8C6D3F' : (x.cor || '#1F4E79')}"/>
+      <text x="${L + larg + 8}" y="${y + 15}" font-size="11" fill="#1F2933">${
+        fmt(x.pctContrato * 100, 1)}%</text>
+      <title>${esc(x.svc)}: ${fmt(x.C, 1)} km concluídos de ${fmt(x.contratado, 1)} km contratados</title>`;
+  }).join('');
+  return `<div style="padding:0 14px 18px">
+    <svg viewBox="0 0 ${W} ${alt}" width="100%" height="${alt}" role="img"
+         aria-label="Avanço por serviço sobre a quantidade contratada">
+      <text x="14" y="18" font-size="13" font-weight="700" fill="#1F4E79">Avanço sobre o contratado</text>
+      <line x1="${L}" y1="${TOPO - 6}" x2="${W - 92}" y2="${TOPO - 6}" stroke="#D4DBE2"/>
+      ${barras}
+    </svg>
+    <div class="dica">Quilômetros concluídos ÷ quantidade contratada do serviço. Serviço sem
+      quantidade contratada informada não entra aqui — é ausência de base, não zero.</div>
+  </div>`;
+}
 function graficoGrupos(ids){
   const gs = resumoPorGrupo(ids).filter(g => g.executados || g.previstos);
   if (!gs.length) return '';

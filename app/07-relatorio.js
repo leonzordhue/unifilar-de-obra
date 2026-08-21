@@ -30,7 +30,15 @@ function pintaRel(){
                      esc((S.obra || S.eixo.nome || '').slice(0, 80)),
                      'emitido em ' + new Date().toLocaleDateString('pt-BR')]
     .filter(Boolean).join(' · ');
-  alvo.innerHTML = `<div class="rel">
+  // O texto vai TAMBÉM como propriedade CSS: um `div` com `position:fixed` aninhado no
+  // fragmento paginado do Chromium não se repete em toda página (medido pela prova de
+  // impressão do HAL9000: faltava nas seis primeiras), mas conteúdo gerado se repete — é
+  // como o rodapé institucional dele já funciona. A folha de impressão lê `--rodape-obra`.
+  // Apóstrofo, aspas e barra invertida sairiam do valor CSS e quebrariam o atributo;
+  // trocados por espaço sem regex, que é o que já me mordeu ao escrever este arquivo.
+  const rodapeCss = [34, 39, 92].reduce(
+    (t, c) => t.split(String.fromCharCode(c)).join(' '), rodapeImp);
+  alvo.innerHTML = `<div class="rel" style="--rodape-obra:'${rodapeCss}'">
     <div id="rodapeImpressao">${rodapeImp}</div>
     <h1>Relatório de controle de obra — unifilar</h1>
     <div class="meta"><b>Obra:</b> ${esc(S.obra || S.eixo.nome)}</div>
@@ -70,14 +78,7 @@ function pintaRel(){
     </tbody></table>
 
     <h2>${S.croqui ? '4' : '3'}. Detalhamento por faixa</h2>
-    ${linhas.map(l => `<table><thead>
-        <tr><th colspan="3">${esc(l.svc)} — ${esc(l.lado)}</th></tr>
-        <tr><th>Faixa</th><th>Extensão</th><th>Situação</th></tr></thead><tbody>${
-        faixasDe(l).map(f => `<tr><td>${S.ref === 'est'
-            ? `E ${fmt(estacaDe(f.ini), 0)} a E ${fmt(estacaDe(f.fim), 0)}`
-            : `KM ${fmt(f.ini, 0)} ao KM ${fmt(f.fim, 0)}`}</td>
-          <td>${fmt(f.fim - f.ini, 3)} km</td><td>${nomeStatus(f.v)}</td></tr>`).join('')
-        }</tbody></table>`).join('')}
+    ${secaoFaixas(linhas)}
 
     ${secaoEnsaios(segs)}
 
@@ -213,4 +214,51 @@ function secaoEnsaios(segs){
     <div class="meta">O critério de aceitação registrado é o que vigorava no aceite de cada
       ensaio, copiado para dentro do registro: alteração posterior do catálogo não reprova,
       retroativamente, ensaio já aceito.</div>`;
+}
+
+
+/* ---------------------------------------------------------------- detalhamento por faixa */
+const LIMITE_FAIXAS = 40;      // por serviço e lado; acima disto o corte é declarado
+
+/** Detalhamento por faixa, enxugado sem esconder nada.
+
+    Na AM-010 importada, o relatório saía com 48 páginas: cada serviço rendia uma tabela com
+    uma linha por faixa contígua, e com as frentes alternando quilômetro a quilômetro isso dá
+    centenas de linhas. Relatório que ninguém imprime não é relatório. */
+function secaoFaixas(linhas){
+  const blocos = [];
+  let totalFaixas = 0, semVariacao = 0, cortadas = 0;
+  linhas.forEach(l => {
+    const fx = faixasDe(l);
+    totalFaixas += fx.length;
+    // serviço inteiro numa só situação: o quadro por serviço já diz isso, e a tabela de uma
+    // linha só ocupa página sem informar
+    if (fx.length <= 1){ semVariacao++; return; }
+    const mostra = fx.slice(0, LIMITE_FAIXAS);
+    const resto = fx.length - mostra.length;
+    if (resto > 0) cortadas += resto;
+    blocos.push(`<table><thead>
+        <tr><th colspan="3" class="t">${esc(l.svc)} — ${esc(l.lado)}
+          <span style="font-weight:400">· ${fx.length} faixa(s)</span></th></tr>
+        <tr><th class="t">Faixa</th><th>Extensão</th><th class="t">Situação</th></tr></thead>
+      <tbody>${mostra.map(f => `<tr><td class="t">${S.ref === 'est'
+            ? `E ${fmt(estacaDe(f.ini), 0)} a E ${fmt(estacaDe(f.fim), 0)}`
+            : `KM ${fmt(f.ini, 0)} ao KM ${fmt(f.fim, 0)}`}</td>
+          <td>${fmt(f.fim - f.ini, 3)} km</td>
+          <td class="t">${nomeStatus(f.v)}</td></tr>`).join('')}
+        ${resto > 0 ? `<tr><td colspan="3" class="t"><b>Mais ${resto} faixa(s)</b> deste
+          serviço não estão listadas aqui, a partir do KM ${fmt(mostra[mostra.length - 1].fim, 0)}.
+          A relação completa está no CSV exportado.</td></tr>` : ''}
+      </tbody></table>`);
+  });
+  const nota = [];
+  nota.push(`${totalFaixas} faixa(s) contígua(s) no trecho`);
+  if (semVariacao) nota.push(`${semVariacao} linha(s) de controle sem variação de situação, `
+    + 'omitida(s) — o quadro por serviço acima já as resume');
+  if (cortadas) nota.push(`${cortadas} faixa(s) além do limite de ${LIMITE_FAIXAS} por `
+    + 'serviço, declaradas em cada tabela');
+  return (blocos.length
+    ? `<div class="meta">${nota.join(' · ')}.</div>` + blocos.join('')
+    : '<div class="meta">Nenhum serviço tem variação de situação ao longo do trecho: o '
+      + 'quadro por serviço acima já traz o quadro completo.</div>');
 }
