@@ -1,0 +1,16 @@
+/* Folha de estilo do USO EM CAMPO. Dono: HAL9000.
+
+   Carregada com `media="screen and (max-width: 1100px)"`: nada aqui afeta a tela grande, e a
+   tela grande não precisa ser consultada para mexer aqui.
+
+   O motivo é concreto: quem lança serviço é o fiscal em campo, e em campo não há monitor de
+   27 polegadas. Hoje a lateral tem largura fixa, a faixa unifilar divide espaço com o mapa e
+   a matriz tem 269 colunas — num tablet de 10 polegadas, em retrato, nada disso cabe.
+
+   O que este arquivo resolve está detalhado em `_canal/HAL9000.md`, 21/08 21h40. Prova
+   esperada: `ferramentas/testar-campo.py`, em três tamanhos de tela.
+
+   Cuidado com o que NÃO é estilo: a faixa unifilar seleciona por `mousedown`/`mousemove`, e
+   toque não dispara isso do mesmo jeito. Se for defeito de comportamento, o conserto é da
+   Cortanna, em `app/13-faixa.js` — reporte em vez de contornar por CSS.
+*/

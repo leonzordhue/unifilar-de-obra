@@ -295,7 +295,11 @@ Atualize a sua linha no mesmo commit do código. Data no formato dd/mm hh:mm.
 | Desempenho da matriz (`app/06-matriz.js` passa a ser dele) | HAL9000 | **disparada** — medir antes de corrigir | 21/08 18:40 |
 | Contrato, quantidade contratada e quadro por serviço | Cortanna | **pronto e provado** (`testar-obra.py`, bloco 5a) | 21/08 18:40 |
 | Conferência contra a planilha viva do DMOB | Cortanna | **pronta** — `importar-camada-de-km.py` é ferramenta de conferência, não fluxo de uso | 21/08 18:40 |
-| Catálogo de ensaios com normas | jarvisIV | **ÚNICA frente aberta do projeto** — 20 itens, zero confirmados. Ordem em fatia fina no canal dele, 21/08 20h30 | 21/08 20:30 |
+| Catálogo de ensaios com normas | jarvisIV | **prioridade 1** — 20 itens, zero confirmados; o «pendente de confirmação» sai dentro do pacote CDE | 21/08 21:40 |
+| Medição de desempenho da matriz | jarvisIV | despachada — o «antes», em `testar-desempenho.py` | 21/08 21:40 |
+| Correção do desempenho (`app/06-matriz.js`) | HAL9000 | espera o número do jarvisIV | 21/08 21:40 |
+| Uso em campo: tablet e telefone (`estilo/campo.css`) | HAL9000 | **despachada** — folha criada e ligada até 1100px | 21/08 21:40 |
+| Auditoria adversarial dos módulos de 21/08 | jarvisIV | despachada; dois pontos já caíram (`S.sel` e `pctContrato`) | 21/08 21:40 |
 | Pacote CDE e acervo local | **Cortanna** (assumido) | **pronto e provado** (`testar-cde.py`): zip com GeoJSON, KML, dois CSV, fotos, croqui e projeto; «Abrir» aceita o zip; quarta origem de traçado no navegador | 21/08 20:30 |
 | Painel, gráfico e mapa por critério | HAL9000 | **pronto e provado** | 21/08 20:30 |
 | Impressão do relatório | HAL9000 | **pronta e provada** (`testar-impressao.py`) | 21/08 20:30 |
