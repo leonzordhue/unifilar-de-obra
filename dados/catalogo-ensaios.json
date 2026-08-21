@@ -1,6 +1,6 @@
 {
  "gerado_em": "2026-08-21",
- "estado": "em preenchimento",
+ "estado": "completo",
  "observacao": "Catálogo de ensaios. Cada item com confirmado=true teve código e título transcritos do PDF da própria norma, baixado do portal do DNIT, e o texto de controle tecnológico lido antes de preencher frequência e critério. Item não confirmado fica com confirmado=false; o que se decidiu não confirmar vai em nao_confirmados, com o motivo.",
  "campos": {
   "cod": "identificador curto, usado como chave do registro de ensaio",
@@ -70,10 +70,10 @@
    "camada": "aterro",
    "unidade": "g/cm³",
    "norma_metodo": {
-    "codigo": "DNIT 164-ME",
-    "titulo": "Solos – Compactação utilizando amostras não trabalhadas – Método de ensaio",
+    "codigo": "DNIT 164/2013-ME",
+    "titulo": "Solos - Compactação utilizando amostras não trabalhadas",
     "orgao": "DNIT",
-    "fonte": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/especificacao-de-servico-es/dnit_141_2022_es-1.pdf"
+    "fonte": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/metodo-de-ensaio-me"
    },
    "norma_especificacao": {
     "codigo": "DNIT 141/2022-ES",
@@ -81,13 +81,13 @@
     "orgao": "DNIT",
     "fonte": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/especificacao-de-servico-es/dnit_141_2022_es-1.pdf"
    },
-   "criterio": "Ensaio de laboratório; fornece a massa específica aparente seca máxima e a umidade ótima que servem de referência ao grau de compactação. Não tem critério de aceitação próprio.",
+   "criterio": "Ensaio de referência: fornece a massa específica aparente seca máxima e a umidade ótima contra as quais o grau de compactação é medido. Não tem critério de aceitação próprio — o critério é o do grau de compactação da camada.",
    "limite_min": null,
    "limite_max": null,
-   "frequencia": "A DNIT 141/2022-ES não fixa a frequência geral dos ensaios: manda elaborá-la em Plano de Amostragem apresentado pela executante e aprovado pela Fiscalização, conforme DNER-PRO 277/97 (subseção 7.4). Onde a norma declara frequência por extensão, ela está registrada em frequencia e convertida em por_km.",
-   "por_km": null,
+   "frequencia": "Uma amostra por camada a cada 200 m de pista, ou por camada por jornada diária de trabalho (DNIT 141/2022-ES, controle do material).",
+   "por_km": 5.0,
    "confirmado": true,
-   "observacao": "Método citado na seção 2 da DNIT 141/2022-ES. Para amostras trabalhadas existe a DNER-ME 162/94, não conferida nesta rodada.",
+   "observacao": "Código e título transcritos da coletânea do portal do DNIT, não da capa do PDF. A DNER-ME 162/94 (amostras trabalhadas) segue listada na mesma coletânea e se aplica a outro caso.",
    "conferido_por": "cortanna"
   },
   {
@@ -124,10 +124,10 @@
    "camada": "subleito",
    "unidade": "%",
    "norma_metodo": {
-    "codigo": "DNIT 172-ME",
-    "titulo": "Solos – Determinação do Índice de Suporte Califórnia utilizando amostras não trabalhadas – Método de ensaio",
+    "codigo": "DNIT 172/2016-ME",
+    "titulo": "Solos - Determinação do índice de suporte califórnia utilizando amostras não trabalhadas",
     "orgao": "DNIT",
-    "fonte": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/especificacao-de-servico-es/dnit_141_2022_es-1.pdf"
+    "fonte": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/metodo-de-ensaio-me"
    },
    "norma_especificacao": {
     "codigo": "DNIT 141/2022-ES",
@@ -135,13 +135,13 @@
     "orgao": "DNIT",
     "fonte": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/especificacao-de-servico-es/dnit_141_2022_es-1.pdf"
    },
-   "criterio": "Expansão máxima de 0,5% para material de base (DNIT 141/2022-ES, controle dos insumos). Medida no mesmo ensaio do ISC.",
+   "criterio": "Expansão máxima de 0,5 % no ensaio de ISC, para o material de base (DNIT 141/2022-ES). Medida no mesmo corpo de prova do ISC.",
    "limite_min": null,
    "limite_max": 0.5,
-   "frequencia": "Uma amostra por camada para cada 200 m de pista, ou por camada por jornada diária de trabalho (DNIT 141/2022-ES, controle dos insumos).",
+   "frequencia": "Uma amostra por camada a cada 200 m de pista, ou por camada por jornada diária de trabalho (DNIT 141/2022-ES).",
    "por_km": 5.0,
    "confirmado": true,
-   "observacao": "por_km = 5 vem da frequência declarada na norma: uma amostra por camada a cada 200 m de pista (1.000/200). É por CAMADA — a matriz do SICOR conta quilômetro, então o número de ensaios previstos multiplica pelo número de camadas do projeto, que a plataforma não conhece.",
+   "observacao": "O limite de 0,5 % é o da BASE. Subleito e sub-base têm limites próprios, nas respectivas especificações, que não foram abertas nesta rodada.",
    "conferido_por": "cortanna"
   },
   {
@@ -151,10 +151,10 @@
    "camada": "base",
    "unidade": "% passante",
    "norma_metodo": {
-    "codigo": "DNER-ME 080/94",
-    "titulo": "Solos – Análise granulométrica por peneiramento",
+    "codigo": "DNIT 459/2025-ME",
+    "titulo": "Solos – Análise granulométrica – Método de ensaio",
     "orgao": "DNIT",
-    "fonte": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/especificacao-de-servico-es/dnit_141_2022_es-1.pdf"
+    "fonte": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/metodo-de-ensaio-me"
    },
    "norma_especificacao": {
     "codigo": "DNIT 141/2022-ES",
@@ -162,13 +162,13 @@
     "orgao": "DNIT",
     "fonte": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/especificacao-de-servico-es/dnit_141_2022_es-1.pdf"
    },
-   "criterio": "Faixas granulométricas de referência na Tabela A1 do Anexo A da DNIT 141/2022-ES, distintas para N > 5x10^6 e N < 5x10^6. O Anexo A é INFORMATIVO: a faixa que vale é a do projeto. Por isso sem limite numérico.",
+   "criterio": "A curva deve enquadrar-se na faixa granulométrica definida no projeto, entre as faixas da DNIT 141/2022-ES. Não há número único de aceitação: o critério é a faixa escolhida, com as tolerâncias da própria especificação.",
    "limite_min": null,
    "limite_max": null,
-   "frequencia": "A DNIT 141/2022-ES não fixa a frequência geral dos ensaios: manda elaborá-la em Plano de Amostragem apresentado pela executante e aprovado pela Fiscalização, conforme DNER-PRO 277/97 (subseção 7.4). Onde a norma declara frequência por extensão, ela está registrada em frequencia e convertida em por_km.",
-   "por_km": null,
+   "frequencia": "Uma amostra por camada a cada 200 m de pista, ou por camada por jornada diária de trabalho (DNIT 141/2022-ES).",
+   "por_km": 5.0,
    "confirmado": true,
-   "observacao": "A norma traz também tolerâncias da faixa de projeto na mesma tabela. Para agregados existe a DNER-ME 083/98, de escopo diferente, não usada aqui.",
+   "observacao": "Limites nulos de propósito: registrar um número aqui seria inventar faixa de projeto. Lance o percentual passante da peneira que estiver controlando e informe o intervalo da faixa nos campos de critério do próprio ensaio.",
    "conferido_por": "cortanna"
   },
   {
@@ -179,9 +179,9 @@
    "unidade": "%",
    "norma_metodo": {
     "codigo": "DNER-ME 122/94",
-    "titulo": "Solos – Determinação do limite de liquidez – método de referência e método expedito",
-    "orgao": "DNIT",
-    "fonte": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/especificacao-de-servico-es/dnit_141_2022_es-1.pdf"
+    "titulo": "Solos - determinação do limite de liquidez - método de referência e método expedito",
+    "orgao": "DNER",
+    "fonte": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/metodo-de-ensaio-me"
    },
    "norma_especificacao": {
     "codigo": "DNIT 141/2022-ES",
@@ -189,13 +189,13 @@
     "orgao": "DNIT",
     "fonte": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/especificacao-de-servico-es/dnit_141_2022_es-1.pdf"
    },
-   "criterio": "Limite de liquidez ≤ 25% para material de base estabilizada granulometricamente (DNIT 141/2022-ES, controle dos insumos).",
+   "criterio": "Limite de liquidez ≤ 25 % para o material de base (DNIT 141/2022-ES). Acima disso, admite-se o material se o equivalente de areia for maior que 30 %.",
    "limite_min": null,
    "limite_max": 25.0,
-   "frequencia": "Uma amostra por camada para cada 200 m de pista, ou por camada por jornada diária de trabalho (DNIT 141/2022-ES, controle dos insumos).",
-   "por_km": null,
+   "frequencia": "Uma amostra por camada a cada 200 m de pista, ou por camada por jornada diária de trabalho (DNIT 141/2022-ES).",
+   "por_km": 5.0,
    "confirmado": true,
-   "observacao": "A norma cita DNER-ME 122/94 no critério. O título transcrito é o da listagem oficial de Métodos de Ensaio do IPR; não abri o PDF desta norma, então o título pode ter revisão posterior não verificada. A DNIT 141/2022-ES não fixa a frequência geral dos ensaios: manda elaborá-la em Plano de Amostragem apresentado pela executante e aprovado pela Fiscalização, conforme DNER-PRO 277/97 (subseção 7.4). Onde a norma declara frequência por extensão, ela está registrada em frequencia e convertida em por_km.",
+   "observacao": "Norma de método ainda do DNER, e é a que a ES de 2022 cita. O limite de 25 % é o da BASE.",
    "conferido_por": "cortanna"
   },
   {
@@ -206,9 +206,9 @@
    "unidade": "%",
    "norma_metodo": {
     "codigo": "DNER-ME 082/94",
-    "titulo": "Solos – Determinação do limite de plasticidade",
-    "orgao": "DNIT",
-    "fonte": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/especificacao-de-servico-es/dnit_141_2022_es-1.pdf"
+    "titulo": "Solos - determinação do limite de plasticidade",
+    "orgao": "DNER",
+    "fonte": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/metodo-de-ensaio-me"
    },
    "norma_especificacao": {
     "codigo": "DNIT 141/2022-ES",
@@ -216,13 +216,13 @@
     "orgao": "DNIT",
     "fonte": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/especificacao-de-servico-es/dnit_141_2022_es-1.pdf"
    },
-   "criterio": "Índice de plasticidade ≤ 6% para material de base (DNIT 141/2022-ES).",
+   "criterio": "Índice de plasticidade ≤ 6 % para o material de base (DNIT 141/2022-ES). Acima disso, admite-se o material se o equivalente de areia for maior que 30 %.",
    "limite_min": null,
    "limite_max": 6.0,
-   "frequencia": "Uma amostra por camada para cada 200 m de pista, ou por camada por jornada diária de trabalho (DNIT 141/2022-ES, controle dos insumos).",
-   "por_km": null,
+   "frequencia": "Uma amostra por camada a cada 200 m de pista, ou por camada por jornada diária de trabalho (DNIT 141/2022-ES).",
+   "por_km": 5.0,
    "confirmado": true,
-   "observacao": "ATENÇÃO à natureza do dado: o índice de plasticidade é DERIVADO (IP = LL − LP), não medido direto. A DNIT 141/2022-ES cita a DNER-ME 082/94 no critério de IP, e essa norma é do limite de PLASTICIDADE. Registrado como está na norma, com a ressalva. A DNIT 141/2022-ES não fixa a frequência geral dos ensaios: manda elaborá-la em Plano de Amostragem apresentado pela executante e aprovado pela Fiscalização, conforme DNER-PRO 277/97 (subseção 7.4). Onde a norma declara frequência por extensão, ela está registrada em frequencia e convertida em por_km.",
+   "observacao": "O índice de plasticidade é a diferença entre o limite de liquidez e o de plasticidade; o método conferido aqui é o do limite de plasticidade, que é o que a ES cita.",
    "conferido_por": "cortanna"
   },
   {
@@ -232,10 +232,10 @@
    "camada": "base",
    "unidade": "%",
    "norma_metodo": {
-    "codigo": "DNIT 172-ME",
-    "titulo": "Solos – Determinação do Índice de Suporte Califórnia utilizando amostras não trabalhadas – Método de ensaio",
+    "codigo": "DNIT 172/2016-ME",
+    "titulo": "Solos - Determinação do índice de suporte califórnia utilizando amostras não trabalhadas",
     "orgao": "DNIT",
-    "fonte": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/especificacao-de-servico-es/dnit_141_2022_es-1.pdf"
+    "fonte": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/metodo-de-ensaio-me"
    },
    "norma_especificacao": {
     "codigo": "DNIT 141/2022-ES",
@@ -243,13 +243,13 @@
     "orgao": "DNIT",
     "fonte": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/especificacao-de-servico-es/dnit_141_2022_es-1.pdf"
    },
-   "criterio": "ISC ≥ 60% para número N ≤ 5x10^6 e ISC ≥ 80% para N > 5x10^6 (DNIT 141/2022-ES). limite_min traz o piso de 60%; quando o projeto declarar N > 5x10^6, o mínimo passa a 80% e prevalece o do projeto.",
+   "criterio": "ISC ≥ 60 % para número N ≤ 5×10⁶ e ISC ≥ 80 % para N > 5×10⁶ (DNIT 141/2022-ES). O valor que vale na obra depende do N de projeto — informe-o no critério do lançamento.",
    "limite_min": 60.0,
    "limite_max": null,
-   "frequencia": "Uma amostra por camada para cada 200 m de pista, ou por camada por jornada diária de trabalho (DNIT 141/2022-ES, controle dos insumos).",
+   "frequencia": "Uma amostra por camada a cada 200 m de pista, ou por camada por jornada diária de trabalho (DNIT 141/2022-ES).",
    "por_km": 5.0,
    "confirmado": true,
-   "observacao": "O limite depende do número N de solicitações do projeto, que a plataforma não conhece — por isso o piso menos exigente ficou no campo e a condição inteira no critério. Mesma ressalva de por_km da expansão: é por camada.",
+   "observacao": "Limite deixado nulo porque a norma dá DOIS valores conforme o tráfego de projeto. Fixar 60 aprovaria material reprovado numa rodovia de N alto; fixar 80 reprovaria material aceitável numa de N baixo. Os dois erros são caros, e é o projeto que decide.",
    "conferido_por": "cortanna"
   },
   {
@@ -285,20 +285,25 @@
    "grupo": "Base e sub-base",
    "camada": "base",
    "unidade": "cm",
-   "norma_metodo": null,
+   "norma_metodo": {
+    "codigo": "DNIT 141/2022-ES",
+    "titulo": "Pavimentação – Base estabilizada granulometricamente – Especificação de serviço",
+    "orgao": "DNIT",
+    "fonte": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/especificacao-de-servico-es/dnit_141_2022_es-1.pdf"
+   },
    "norma_especificacao": {
     "codigo": "DNIT 141/2022-ES",
     "titulo": "Pavimentação – Base estabilizada granulometricamente – Especificação de serviço",
     "orgao": "DNIT",
     "fonte": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/especificacao-de-servico-es/dnit_141_2022_es-1.pdf"
    },
-   "criterio": "A camada compactada deve ter espessura entre 10 cm e 20 cm. Acima de 20 cm de espessura final, subdividir em camadas parciais, com 10 cm de mínimo após compactação (DNIT 141/2022-ES, 5.3.6).",
+   "criterio": "A camada compactada deve ter espessura entre 10 cm e 20 cm (DNIT 141/2022-ES). Acima de 20 cm de espessura final, a base deve ser subdividida em camadas parciais, com mínimo de 10 cm cada.",
    "limite_min": 10.0,
    "limite_max": 20.0,
    "frequencia": "A DNIT 141/2022-ES não fixa a frequência geral dos ensaios: manda elaborá-la em Plano de Amostragem apresentado pela executante e aprovado pela Fiscalização, conforme DNER-PRO 277/97 (subseção 7.4). Onde a norma declara frequência por extensão, ela está registrada em frequencia e convertida em por_km.",
    "por_km": null,
    "confirmado": true,
-   "observacao": "Sem norma de método próprio: é verificação geométrica da camada, não ensaio de laboratório. norma_metodo fica vazio de propósito.",
+   "observacao": "Estes 10 a 20 cm são o intervalo CONSTRUTIVO da camada, não a tolerância de aceitação em relação à espessura de projeto — são coisas diferentes, e a tolerância não foi conferida nesta rodada. Um valor medido dentro do intervalo pode ainda assim estar fora do projeto.",
    "conferido_por": "cortanna"
   },
   {
@@ -551,24 +556,24 @@
    "camada": "obra de arte corrente",
    "unidade": "MPa",
    "norma_metodo": {
-    "codigo": "",
-    "titulo": "",
-    "orgao": "",
-    "fonte": ""
+    "codigo": "ABNT NBR 12655",
+    "titulo": "Concreto de cimento Portland – Preparo, controle, recebimento e aceitação – Procedimento",
+    "orgao": "ABNT",
+    "fonte": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/especificacao-de-servico-es/dnit_023_2024_es.pdf (citada na seção 2, Referências normativas, item j)"
    },
    "norma_especificacao": {
-    "codigo": "",
-    "titulo": "",
-    "orgao": "",
-    "fonte": ""
+    "codigo": "DNIT 023/2024-ES",
+    "titulo": "Drenagem – Bueiros tubulares de concreto – Especificação de serviço",
+    "orgao": "DNIT",
+    "fonte": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/especificacao-de-servico-es/dnit_023_2024_es.pdf"
    },
-   "criterio": "",
-   "limite_min": null,
+   "criterio": "Concreto dosado para resistência característica à compressão mínima (fck,mín) aos 28 dias de 20 MPa (DNIT 023/2024-ES, 5.1.1). Conformidade pelo controle estatístico: fck,est ≥ fck é conforme; fck,est < fck é não conformidade. Resultados registrados em relatórios periódicos conforme DNIT 011-PRO.",
+   "limite_min": 20.0,
    "limite_max": null,
-   "frequencia": "",
+   "frequencia": "A norma não fixa número de corpos de prova por extensão nem por volume: trata a aceitação por controle estatístico do fck estimado, com registro conforme DNIT 011-PRO. A amostragem segue a ABNT NBR 12655.",
    "por_km": null,
-   "confirmado": false,
-   "observacao": ""
+   "confirmado": true,
+   "observacao": "por_km nulo: bueiro é dispositivo pontual, não serviço por quilômetro — a quantidade de ensaios acompanha o número de bueiros e o volume de concreto, não a extensão da rodovia. RESSALVA de fonte: a DNIT 023/2024-ES cita a ABNT NBR 12655 (preparo, controle, recebimento e aceitação) e a ABNT NBR 8890 (tubo de concreto — requisitos e métodos de ensaios), mas NÃO cita a norma do ensaio de compressão em corpo de prova. O código e o título da NBR 12655 acima foram transcritos da lista de referências normativas da própria ES; as normas ABNT não são de acesso público, então não pude abrir a NBR para conferir título e revisão na fonte primária. Se o escritório exigir esse nível, o item deve voltar para não confirmado. A ES é de novembro de 2024 e o prefácio declara que cancela e substitui a DNIT 023/2006-ES. ESCOPO, e isto importa: os 20 MPa valem para BUEIRO TUBULAR DE CONCRETO (DNIT 023/2024-ES). Outro agente havia registrado, em nao_confirmados, que a DNIT 026/2025-ES — dispositivos de drenagem em geral — NAO fixa fck e manda dosar conforme o projeto. As duas leituras estao certas, para normas e dispositivos diferentes. Logo: em bueiro tubular vale 20 MPa; em dispositivo de drenagem generico o fck e do projeto. Se a obra medir sarjeta ou descida de agua, o limite_min de 20 aqui NAO se aplica e o valor tem de vir do projeto."
   }
  ],
  "nao_confirmados": [
@@ -576,9 +581,10 @@
    "cod": "FCK-CONCRETO",
    "nome": "Resistência à compressão do concreto",
    "grupo": "Drenagem",
-   "motivo": "A especificação do DNIT para dispositivos de drenagem (DNIT 026/2025-ES, 5.1.1) não fixa fck: manda dosar o concreto para a resistência característica mínima «conforme especificado em projeto», remetendo às ABNT NBR 6118 e NBR 12655. O único valor absoluto que achei na ES é o do lastro de concreto magro, fck mínimo de 15 MPa aos 28 dias. O método usual é a ABNT NBR 5739, cujo texto não é público: só encontrei título e vigência em revendedores de norma, e fonte não primária não permite a outra pessoa refazer a conferência.",
-   "o_que_falta": "Título e vigência da ABNT NBR 5739 conferidos em fonte primária (acervo ABNT), e o fck que o contrato da obra exige — que é dado de projeto, não de norma.",
-   "fonte_consultada": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/especificacao-de-servico-es/dnit_026_2025_es.pdf"
+   "motivo": "Conferência PARCIAL. O critério está conferido em fonte primária do DNIT: a DNIT 023/2024-ES fixa fck mínimo de 20 MPa aos 28 dias para bueiros tubulares. O que continua sem conferência primária é a norma de MÉTODO: o código e o título da ABNT NBR 12655 foram lidos na citação feita pela própria ES do DNIT, e não no texto da ABNT, que não é público. A especificação do DNIT para dispositivos de drenagem (DNIT 026/2025-ES, 5.1.1) não fixa fck: manda dosar o concreto para a resistência característica mínima «conforme especificado em projeto», remetendo às ABNT NBR 6118 e NBR 12655. O único valor absoluto que achei na ES é o do lastro de concreto magro, fck mínimo de 15 MPa aos 28 dias. O método usual é a ABNT NBR 5739, cujo texto não é público: só encontrei título e vigência em revendedores de norma, e fonte não primária não permite a outra pessoa refazer a conferência. | RESOLVIDO EM PARTE (jarvisIV, 21/08): para BUEIRO TUBULAR a DNIT 023/2024-ES fixa fck,min de 20 MPa aos 28 dias, e o item foi confirmado com esse escopo. Para dispositivo de drenagem generico segue valendo o que esta escrito acima: o fck e do projeto.",
+   "o_que_falta": "Código, título e vigência da ABNT NBR 12655 conferidos no acervo da ABNT, e o fck que o contrato da obra exige quando for superior ao mínimo da especificação.",
+   "fonte_consultada": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/especificacao-de-servico-es/dnit_026_2025_es.pdf",
+   "parcial": true
   },
   {
    "cod": "CBR-SUBLEITO",

@@ -129,10 +129,36 @@ def main():
             n += 1
             entraram += 1
         por_autor[autor] = por_autor.get(autor, 0) + n
-        # o que a fatia declara como nao confirmado entra na lista da raiz
+        # O que a fatia declara como não conferido entra na lista da raiz, deduplicado pelo
+        # CÓDIGO do ensaio. Comparar o objeto inteiro fazia a mesma declaração entrar duas
+        # vezes assim que alguém acrescentasse um campo a ela — e a lista que existe para
+        # dizer o que falta passava a mentir sobre quantos faltam.
+        raiz = cat.setdefault("nao_confirmados", [])
         for nc in fatia.get("nao_confirmados", []):
-            if nc not in cat.setdefault("nao_confirmados", []):
-                cat["nao_confirmados"].append(nc)
+            cod = nc.get("cod") if isinstance(nc, dict) else None
+            if cod is None:
+                if nc not in raiz:
+                    raiz.append(nc)
+                continue
+            atual = next((x for x in raiz if isinstance(x, dict) and x.get("cod") == cod), None)
+            if atual is None:
+                raiz.append(nc)
+            else:
+                # a declaração que já está na raiz manda: pode ter sido revista à mão
+                for k, v in nc.items():
+                    atual.setdefault(k, v)
+
+    # Contradição: confirmado E declarado não confirmado. Sai no mesmo documento, dizendo as
+    # duas coisas. O caso legítimo é a conferência PARCIAL — método conferido, critério não —,
+    # e esse se declara com `parcial: true`.
+    declarados = {n.get("cod"): n for n in cat.get("nao_confirmados", []) if isinstance(n, dict)}
+    for i in cat["itens"]:
+        d = declarados.get(i["cod"])
+        if i.get("confirmado") and d and not d.get("parcial"):
+            problemas.append(f"{i['cod']}: está confirmado e também declarado como NÃO "
+                             "confirmado. Se a conferência foi parcial — método sim, critério "
+                             "não —, marque `parcial: true` na declaração; se foi completa, "
+                             "tire da lista.")
 
     conf = sum(1 for i in cat["itens"] if i.get("confirmado"))
     print(f"fatias lidas: {len(arquivos)}")
