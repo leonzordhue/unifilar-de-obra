@@ -1,13 +1,19 @@
 /* Montagem da interface, eventos e inicializacao. */
 /* ---------------------------------------------------------------- render */
+// As vistas fixas da página convivem com as registradas por módulo: esconder por varredura
+// evita que cada aba nova exija uma linha aqui — e uma linha esquecida deixaria duas vistas
+// visíveis ao mesmo tempo.
+const VISTAS_FIXAS = {mapa: '#vMapa', matriz: '#vMatriz', croqui: '#vCroqui',
+                      resumo: '#vResumo', rel: '#vRel'};
 function mostra(v){
   S.vista = v;
-  $$('.abas button[data-v]').forEach(b => b.classList.toggle('on', b.dataset.v === v));
-  $('#vMapa').classList.toggle('hidden', v !== 'mapa');
-  $('#vMatriz').classList.toggle('hidden', v !== 'matriz');
-  $('#vCroqui').classList.toggle('hidden', v !== 'croqui');
-  $('#vResumo').classList.toggle('hidden', v !== 'resumo');
-  $('#vRel').classList.toggle('hidden', v !== 'rel');
+  $$('#abas button[data-v]').forEach(b => b.classList.toggle('on', b.dataset.v === v));
+  Object.entries(VISTAS_FIXAS).forEach(([id, sel]) =>
+    $(sel).classList.toggle('hidden', v !== id));
+  ABAS.forEach(a => {
+    const el = $('#' + idVista(a.id));
+    if (el) el.classList.toggle('hidden', v !== a.id);
+  });
   if (v === 'mapa' && S.mapa) setTimeout(() => S.mapa.invalidateSize(), 60);
   render();
 }
@@ -23,7 +29,11 @@ function render(){
   else if (S.vista === 'matriz') pintaMatriz();
   else if (S.vista === 'resumo') pintaResumo();
   else if (S.vista === 'rel') pintaRel();
-  else if (S.vista === 'mapa') desenhaMapa();
+  else if (S.vista === 'mapa'){ desenhaMapa(); pintaFaixa(); pintaBarraLanca(); }
+  else {
+    const a = ABAS.find(x => x.id === S.vista);
+    if (a && a.pinta) a.pinta();
+  }
 }
 
 /* ---------------------------------------------------------------- eventos */
@@ -83,6 +93,26 @@ function liga(){
     if (+$('#estOff').value < 0) $('#estOff').value = 0;
     render(); salvaLocal();
   };
+  $('#btTodosEns').onclick = () => { S.ens.forEach(e => e.on = true); pintaEns(); render(); salvaLocal(); };
+  $('#btNenhumEns').onclick = () => { S.ens.forEach(e => e.on = false); pintaEns(); render(); salvaLocal(); };
+  $('#btFechaFicha').onclick = fechaFicha;
+  $('#btObras').onclick = abreObras;
+  $('#btFechaObras').onclick = fechaObras;
+  $('#buscaObra').oninput = pintaObras;
+  $('#obras').onclick = ev => { if (ev.target.id === 'obras') fechaObras(); };
+  $('#btGuardar').onclick = () => { if (guardaObra()) abreObras(); };
+  $('#contrato').oninput = () => { S.contrato = $('#contrato').value; salvaLocal(); };
+  $('#ficha').onclick = ev => { if (ev.target.id === 'ficha') fechaFicha(); };
+  document.addEventListener('keydown', ev => {
+    if (ev.key === 'Escape' && !$('#ficha').classList.contains('hidden')) fechaFicha();
+  });
+  const passaFicha = d => () => {
+    const i = S.segs.findIndex(s => s.id === S.fichaSeg);
+    const j = Math.min(Math.max(i + d, 0), S.segs.length - 1);
+    if (j !== i) abreFicha(S.segs[j].id);
+  };
+  $('#btFichaAnt').onclick = passaFicha(-1);
+  $('#btFichaProx').onclick = passaFicha(1);
   $('#btTodos').onclick = () => { S.svc.forEach(s => s.on = true); pintaSvc(); render(); salvaLocal(); };
   $('#btNenhum').onclick = () => { S.svc.forEach(s => s.on = false); pintaSvc(); render(); salvaLocal(); };
   $('#btAddSvc').onclick = () => {
@@ -153,7 +183,11 @@ function liga(){
   // conferencia externa da extensao: opcional, e a plataforma abre sem ela
   try { S.conf = await carregaJSON('dados/conferencia-extensao.json'); }
   catch (e){ S.conf = null; }
-  montaSvc(); pintaCat(); pintaSvc(); pintaLegenda(); liga(); iniMapa();
+  // catalogo de ensaios: a plataforma abre sem ele, so nao controla ensaio
+  try { S.catEns = await carregaJSON('dados/catalogo-ensaios.json'); }
+  catch (e){ S.catEns = {itens: [], grupos: []}; }
+  montaSvc(); montaEns(); carregaFotos();
+  pintaCat(); pintaSvc(); pintaEns(); pintaLegenda(); montaAbas(); liga(); iniMapa();
   await pintaAcervo();
   const salvo = localStorage.getItem(CHAVE_LOCAL);
   if (salvo){

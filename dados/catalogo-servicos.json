@@ -1,62 +1,313 @@
 {
  "gerado_em": "2026-08-21",
  "fonte": "SEINFRA_CONTROLE AM-010_REV 100_29.07.2026.xlsx — abas AM-010 (recuperação) e Planilha1/Plan1 (AM-070, implantação)",
- "observacao": "Dois conjuntos de serviços, conferidos linha a linha na planilha em 21/08/2026. O campo lados define quantas linhas o serviço ocupa na matriz: U = pista única, LD/LE = faixa direita e esquerda, AD/AE = acostamento direito e esquerdo. Duas grafias da planilha foram corrigidas e ficam registradas aqui: '3ºs FAIXAS' (a planilha usa o masculino) e 'PINTURA LIGAÇÃO'.",
+ "observacao": "Dois conjuntos de serviços, conferidos linha a linha na planilha em 21/08/2026. O campo lados define quantas linhas o serviço ocupa na matriz: U = pista única, LD/LE = faixa direita e esquerda, AD/AE = acostamento direito e esquerdo. Duas grafias da planilha foram corrigidas e ficam registradas aqui: '3ºs FAIXAS' (a planilha usa o masculino) e 'PINTURA LIGAÇÃO'. Os conjuntos são MODELOS de lista de serviços, e não obras cadastradas: servem para o usuário partir de uma lista pronta ao criar um projeto novo. A obra é criada pelo usuário a partir de uma rodovia do acervo ou de um KMZ.",
  "status": [
-  {"cod": "P",  "nome": "Previsto",          "cor": "#E8EDF2", "texto": "#1F2933", "descricao": "Serviço planejado para o quilômetro, ainda não iniciado."},
-  {"cod": "E",  "nome": "Em andamento",      "cor": "#F0A32B", "texto": "#3A2A00", "descricao": "Serviço em execução no quilômetro. É o «atacado» da planilha da AM-070."},
-  {"cod": "C",  "nome": "Concluído",         "cor": "#2E9E5B", "texto": "#FFFFFF", "descricao": "Serviço concluído e conferido no quilômetro."},
-  {"cod": "S",  "nome": "Sem planejamento",  "cor": "#D9534F", "texto": "#FFFFFF", "descricao": "Quilômetro sem planejamento para o serviço no período."},
-  {"cod": "NA", "nome": "Não se aplica",     "cor": "#8E9AA6", "texto": "#FFFFFF", "descricao": "Serviço não aplicável ao quilômetro."}
+  {
+   "cod": "P",
+   "nome": "Previsto",
+   "cor": "#E8EDF2",
+   "texto": "#1F2933",
+   "descricao": "Serviço planejado para o quilômetro, ainda não iniciado."
+  },
+  {
+   "cod": "E",
+   "nome": "Em andamento",
+   "cor": "#F0A32B",
+   "texto": "#3A2A00",
+   "descricao": "Serviço em execução no quilômetro. É o «atacado» da planilha da AM-070."
+  },
+  {
+   "cod": "PA",
+   "nome": "Paralisado",
+   "cor": "#B0413E",
+   "texto": "#FFFFFF",
+   "descricao": "Serviço iniciado e interrompido no quilômetro."
+  },
+  {
+   "cod": "C",
+   "nome": "Concluído",
+   "cor": "#2E9E5B",
+   "texto": "#FFFFFF",
+   "descricao": "Serviço concluído e conferido no quilômetro."
+  },
+  {
+   "cod": "S",
+   "nome": "Sem planejamento",
+   "cor": "#D9534F",
+   "texto": "#FFFFFF",
+   "descricao": "Quilômetro sem planejamento para o serviço no período."
+  },
+  {
+   "cod": "NA",
+   "nome": "Não se aplica",
+   "cor": "#8E9AA6",
+   "texto": "#FFFFFF",
+   "descricao": "Serviço não aplicável ao quilômetro."
+  }
  ],
  "grupos": [
-  {"nome": "Terraplenagem e limpeza", "cor": "#8C6D3F"},
-  {"nome": "Pavimentação",            "cor": "#1F4E79"},
-  {"nome": "Drenagem e contenção",    "cor": "#2E7D6F"},
-  {"nome": "Sinalização e acabamento","cor": "#6B3FA0"}
+  {
+   "nome": "Terraplenagem e limpeza",
+   "cor": "#8C6D3F"
+  },
+  {
+   "nome": "Pavimentação",
+   "cor": "#1F4E79"
+  },
+  {
+   "nome": "Drenagem e contenção",
+   "cor": "#2E7D6F"
+  },
+  {
+   "nome": "Sinalização e acabamento",
+   "cor": "#6B3FA0"
+  }
  ],
  "conjuntos": [
   {
    "id": "recuperacao",
-   "nome": "Recuperação (padrão AM-010)",
+   "nome": "Modelo — Recuperação de rodovia pavimentada",
    "descricao": "Restauração de rodovia pavimentada: remendo, reciclagem, capa e sinalização. Ordem da aba AM-010 da planilha de controle.",
    "servicos": [
-    {"nome": "REMENDO PROFUNDO",                   "grupo": "Pavimentação",             "lados": ["U"],        "unidade": "m²"},
-    {"nome": "LIMPEZA LATERAL",                    "grupo": "Terraplenagem e limpeza",  "lados": ["AD", "AE"], "unidade": "m²"},
-    {"nome": "TERRAPLENAGEM DOS ACOSTAMENTOS",     "grupo": "Terraplenagem e limpeza",  "lados": ["AD", "AE"], "unidade": "m³"},
-    {"nome": "RECICLAGEM / SUB-BASE",              "grupo": "Pavimentação",             "lados": ["LD", "LE"], "unidade": "m²"},
-    {"nome": "BASE",                               "grupo": "Pavimentação",             "lados": ["LD", "LE"], "unidade": "m²"},
-    {"nome": "IMPRIMAÇÃO",                         "grupo": "Pavimentação",             "lados": ["LD", "LE"], "unidade": "m²"},
-    {"nome": "TSD / BINDER e = 4 cm",              "grupo": "Pavimentação",             "lados": ["LD", "LE"], "unidade": "m²"},
-    {"nome": "CONCRETO ASFÁLTICO (CA) e = 3,5 cm", "grupo": "Pavimentação",             "lados": ["LD", "LE"], "unidade": "m²"},
-    {"nome": "SINALIZAÇÃO",                        "grupo": "Sinalização e acabamento", "lados": ["LD", "LE"], "unidade": "m"},
-    {"nome": "DRENAGEM SUPERFICIAL",               "grupo": "Drenagem e contenção",     "lados": ["LD", "LE"], "unidade": "m"},
-    {"nome": "EROSÕES",                            "grupo": "Drenagem e contenção",     "lados": ["U"],        "unidade": "un"},
-    {"nome": "3ªS FAIXAS",                         "grupo": "Pavimentação",             "lados": ["LD", "LE"], "unidade": "m²"}
+    {
+     "nome": "REMENDO PROFUNDO",
+     "grupo": "Pavimentação",
+     "lados": [
+      "U"
+     ],
+     "unidade": "m²",
+     "cor": "#1F4E79"
+    },
+    {
+     "nome": "LIMPEZA LATERAL",
+     "grupo": "Terraplenagem e limpeza",
+     "lados": [
+      "AD",
+      "AE"
+     ],
+     "unidade": "m²",
+     "cor": "#8C6D3F"
+    },
+    {
+     "nome": "TERRAPLENAGEM DOS ACOSTAMENTOS",
+     "grupo": "Terraplenagem e limpeza",
+     "lados": [
+      "AD",
+      "AE"
+     ],
+     "unidade": "m³",
+     "cor": "#A98545"
+    },
+    {
+     "nome": "RECICLAGEM / SUB-BASE",
+     "grupo": "Pavimentação",
+     "lados": [
+      "LD",
+      "LE"
+     ],
+     "unidade": "m²",
+     "cor": "#2E6DA4"
+    },
+    {
+     "nome": "BASE",
+     "grupo": "Pavimentação",
+     "lados": [
+      "LD",
+      "LE"
+     ],
+     "unidade": "m²",
+     "cor": "#3D85C6"
+    },
+    {
+     "nome": "IMPRIMAÇÃO",
+     "grupo": "Pavimentação",
+     "lados": [
+      "LD",
+      "LE"
+     ],
+     "unidade": "m²",
+     "cor": "#5B9BD5"
+    },
+    {
+     "nome": "TSD / BINDER e = 4 cm",
+     "grupo": "Pavimentação",
+     "lados": [
+      "LD",
+      "LE"
+     ],
+     "unidade": "m²",
+     "cor": "#2C4C6B"
+    },
+    {
+     "nome": "CONCRETO ASFÁLTICO (CA) e = 3,5 cm",
+     "grupo": "Pavimentação",
+     "lados": [
+      "LD",
+      "LE"
+     ],
+     "unidade": "m²",
+     "cor": "#16324F"
+    },
+    {
+     "nome": "SINALIZAÇÃO",
+     "grupo": "Sinalização e acabamento",
+     "lados": [
+      "LD",
+      "LE"
+     ],
+     "unidade": "m",
+     "cor": "#6B3FA0"
+    },
+    {
+     "nome": "DRENAGEM SUPERFICIAL",
+     "grupo": "Drenagem e contenção",
+     "lados": [
+      "LD",
+      "LE"
+     ],
+     "unidade": "m",
+     "cor": "#2E7D6F"
+    },
+    {
+     "nome": "EROSÕES",
+     "grupo": "Drenagem e contenção",
+     "lados": [
+      "U"
+     ],
+     "unidade": "un",
+     "cor": "#8E44AD"
+    },
+    {
+     "nome": "3ªS FAIXAS",
+     "grupo": "Pavimentação",
+     "lados": [
+      "LD",
+      "LE"
+     ],
+     "unidade": "m²",
+     "cor": "#7FA9D4"
+    }
    ]
   },
   {
    "id": "implantacao",
-   "nome": "Implantação (padrão AM-070)",
+   "nome": "Modelo — Implantação de pavimento",
    "descricao": "Pavimentação nova, do sub-leito ao CBUQ, com obra de arte corrente. Ordem da aba Planilha1 da planilha de controle, onde a AM-070 é acompanhada por estaca.",
    "servicos": [
-    {"nome": "O.A.C. (obra de arte corrente)",     "grupo": "Drenagem e contenção",     "lados": ["LD", "LE"], "unidade": "un"},
-    {"nome": "TERRAPLENAGEM",                      "grupo": "Terraplenagem e limpeza",  "lados": ["LD", "LE"], "unidade": "m³"},
-    {"nome": "SUB-LEITO",                          "grupo": "Terraplenagem e limpeza",  "lados": ["LD", "LE"], "unidade": "m²"},
-    {"nome": "SUB-BASE",                           "grupo": "Pavimentação",             "lados": ["LD", "LE"], "unidade": "m²"},
-    {"nome": "BASE",                               "grupo": "Pavimentação",             "lados": ["LD", "LE"], "unidade": "m²"},
-    {"nome": "IMPRIMAÇÃO",                         "grupo": "Pavimentação",             "lados": ["LD", "LE"], "unidade": "m²"},
-    {"nome": "RECICLAGEM",                         "grupo": "Pavimentação",             "lados": ["LD", "LE"], "unidade": "m²"},
-    {"nome": "PINTURA DE LIGAÇÃO",                 "grupo": "Pavimentação",             "lados": ["LD", "LE"], "unidade": "m²"},
-    {"nome": "CBUQ",                               "grupo": "Pavimentação",             "lados": ["LD", "LE"], "unidade": "m²"}
+    {
+     "nome": "O.A.C. (obra de arte corrente)",
+     "grupo": "Drenagem e contenção",
+     "lados": [
+      "LD",
+      "LE"
+     ],
+     "unidade": "un",
+     "cor": "#25867A"
+    },
+    {
+     "nome": "TERRAPLENAGEM",
+     "grupo": "Terraplenagem e limpeza",
+     "lados": [
+      "LD",
+      "LE"
+     ],
+     "unidade": "m³",
+     "cor": "#8C6D3F"
+    },
+    {
+     "nome": "SUB-LEITO",
+     "grupo": "Terraplenagem e limpeza",
+     "lados": [
+      "LD",
+      "LE"
+     ],
+     "unidade": "m²",
+     "cor": "#B08A50"
+    },
+    {
+     "nome": "SUB-BASE",
+     "grupo": "Pavimentação",
+     "lados": [
+      "LD",
+      "LE"
+     ],
+     "unidade": "m²",
+     "cor": "#2E6DA4"
+    },
+    {
+     "nome": "BASE",
+     "grupo": "Pavimentação",
+     "lados": [
+      "LD",
+      "LE"
+     ],
+     "unidade": "m²",
+     "cor": "#3D85C6"
+    },
+    {
+     "nome": "IMPRIMAÇÃO",
+     "grupo": "Pavimentação",
+     "lados": [
+      "LD",
+      "LE"
+     ],
+     "unidade": "m²",
+     "cor": "#5B9BD5"
+    },
+    {
+     "nome": "RECICLAGEM",
+     "grupo": "Pavimentação",
+     "lados": [
+      "LD",
+      "LE"
+     ],
+     "unidade": "m²",
+     "cor": "#3D85C6"
+    },
+    {
+     "nome": "PINTURA DE LIGAÇÃO",
+     "grupo": "Pavimentação",
+     "lados": [
+      "LD",
+      "LE"
+     ],
+     "unidade": "m²",
+     "cor": "#4A90C2"
+    },
+    {
+     "nome": "CBUQ",
+     "grupo": "Pavimentação",
+     "lados": [
+      "LD",
+      "LE"
+     ],
+     "unidade": "m²",
+     "cor": "#16324F"
+    }
    ]
   }
  ],
  "lados": [
-  {"cod": "U",  "nome": "Pista única"},
-  {"cod": "LD", "nome": "Faixa direita"},
-  {"cod": "LE", "nome": "Faixa esquerda"},
-  {"cod": "AD", "nome": "Acostamento direito"},
-  {"cod": "AE", "nome": "Acostamento esquerdo"}
+  {
+   "cod": "U",
+   "nome": "Pista única"
+  },
+  {
+   "cod": "LD",
+   "nome": "Faixa direita"
+  },
+  {
+   "cod": "LE",
+   "nome": "Faixa esquerda"
+  },
+  {
+   "cod": "AD",
+   "nome": "Acostamento direito"
+  },
+  {
+   "cod": "AE",
+   "nome": "Acostamento esquerdo"
+  }
  ]
 }

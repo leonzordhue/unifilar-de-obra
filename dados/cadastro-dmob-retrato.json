@@ -1,0 +1,509 @@
+{
+ "gerado_em": "2026-08-21",
+ "origem": "\\\\seinfra-fs01\\ASPLAN\\8.Departamento Rodoviário\\9-BANCO DE DADOS\\1-PLANILHA GERAL DEPARTAMENTO\\PLANILHA GERAL DEPARTAMENTO RODOVIÁRIO.xlsx",
+ "procedencia": "leitura ao vivo da rede",
+ "lido_em": null,
+ "observacao": "Retrato do cadastro do Departamento Rodoviario, usado como SEGUNDA fonte independente do acervo do Trena. Nao editar a mao: regerar com ferramentas/_cache_cadastro.py quando a rede voltar.",
+ "trechos": [
+  {
+   "cod": "010EAM0239",
+   "rodovia": "AM-010",
+   "km_i": 0.0,
+   "km_f": 2.39,
+   "ext": 2.39,
+   "local_i": "Praça Nossa Senhora de Nazaré - Manaus",
+   "local_f": "KM 2,39 da AM-010",
+   "situacao": "PAV"
+  },
+  {
+   "cod": "010EAM1412",
+   "rodovia": "AM-010",
+   "km_i": 2.39,
+   "km_f": 16.51,
+   "ext": 14.12,
+   "local_i": "KM 2,39 da AM-010",
+   "local_f": "Entr.BR-174",
+   "situacao": "DUP"
+  },
+  {
+   "cod": "010EAM0009",
+   "rodovia": "AM-010",
+   "km_i": 16.51,
+   "km_f": 17.5,
+   "ext": 0.99,
+   "local_i": "Entr.BR-174",
+   "local_f": "Barreira",
+   "situacao": "DUP"
+  },
+  {
+   "cod": "010EAM2507",
+   "rodovia": "AM-010",
+   "km_i": 17.5,
+   "km_f": 268.24,
+   "ext": 250.74,
+   "local_i": "Barreira",
+   "local_f": "Sede do Município de Itacoatiara",
+   "situacao": "PAV"
+  },
+  {
+   "cod": "020EAM1245",
+   "rodovia": "AM-020",
+   "km_i": 0.0,
+   "km_f": 12.45,
+   "ext": 12.45,
+   "local_i": "Aleixo - SEFAZ",
+   "local_f": "KM 12,50 da AM-020",
+   "situacao": "DUP"
+  },
+  {
+   "cod": "020EAM0464",
+   "rodovia": "AM-020",
+   "km_i": 12.45,
+   "km_f": 17.09,
+   "ext": 4.64,
+   "local_i": "KM 12,50 da AM-020",
+   "local_f": "Bairro Puraquequara Manaus",
+   "situacao": "PAV"
+  },
+  {
+   "cod": "070EAM8347",
+   "rodovia": "AM-070",
+   "km_i": 0.0,
+   "km_f": 83.47,
+   "ext": 83.47,
+   "local_i": "Porto do Cacau Pirêra",
+   "local_f": "Sede do Município de Manacapuru",
+   "situacao": "DUP"
+  },
+  {
+   "cod": "151EAM1256",
+   "rodovia": "AM-151",
+   "km_i": 0.0,
+   "km_f": 12.56,
+   "ext": 12.56,
+   "local_i": "KM 10 da AM-070 Estrada Carlos Braga",
+   "local_f": "Sede do Município de Iranduba",
+   "situacao": "PAV"
+  },
+  {
+   "cod": "170EAM9318",
+   "rodovia": "AM-170",
+   "km_i": 0.0,
+   "km_f": 93.18,
+   "ext": 93.18,
+   "local_i": "Flor Nascente do Amazonas - BR 210 - KM 237,95",
+   "local_f": "Município de Santa Isabel do Rio Negro",
+   "situacao": "PLA"
+  },
+  {
+   "cod": "175EAM1033",
+   "rodovia": "AM-175",
+   "km_i": 0.0,
+   "km_f": 103.31,
+   "ext": 103.31,
+   "local_i": "BR-317 (KM 340)",
+   "local_f": "Pauini",
+   "situacao": "PLA"
+  },
+  {
+   "cod": "239EAM1450",
+   "rodovia": "AM-239",
+   "km_i": 0.0,
+   "km_f": 14.5,
+   "ext": 14.5,
+   "local_i": "KM 1334 da BR-307 \"Estrada Camanaus\"",
+   "local_f": "Porto Hidroviário de São Gabriel da Cachoeira",
+   "situacao": "PAV"
+  },
+  {
+   "cod": "240EAM7948",
+   "rodovia": "AM-240",
+   "km_i": 0.0,
+   "km_f": 79.48,
+   "ext": 79.48,
+   "local_i": "BR-174 (KM 103)",
+   "local_f": "Vila de Balbina",
+   "situacao": "PAV"
+  },
+  {
+   "cod": "249EAM1481",
+   "rodovia": "AM-249",
+   "km_i": 0.0,
+   "km_f": 14.81,
+   "ext": 14.81,
+   "local_i": "Sede do Município de Uarini",
+   "local_f": "Vila do Copacá",
+   "situacao": "PAV"
+  },
+  {
+   "cod": "254EAM9381",
+   "rodovia": "AM-254",
+   "km_i": 0.0,
+   "km_f": 93.81,
+   "ext": 93.81,
+   "local_i": "BR-319 (KM 26)",
+   "local_f": "Lago do Pantaleão",
+   "situacao": "PAV"
+  },
+  {
+   "cod": "254EAM0887",
+   "rodovia": "AM-254",
+   "km_i": 93.81,
+   "km_f": 102.68,
+   "ext": 8.87,
+   "local_i": "AM-254 (KM 93) \"Trecho de Lago\"",
+   "local_f": "AM-254 (KM 102,77) \"Trecho de Lago\"",
+   "situacao": "TRV"
+  },
+  {
+   "cod": "254EAM1337",
+   "rodovia": "AM-254",
+   "km_i": 102.68,
+   "km_f": 116.05,
+   "ext": 13.37,
+   "local_i": "AM-254 (KM 102,77) \"Estrada do Rosarinho\"",
+   "local_f": "AM-254 (KM 116,07) \"Lago do Sampaio\"",
+   "situacao": "PAV"
+  },
+  {
+   "cod": "254EAM2648",
+   "rodovia": "AM-254",
+   "km_i": 116.05,
+   "km_f": 142.53,
+   "ext": 26.48,
+   "local_i": "AM-254 (KM 116,07) \"Trecho de Lago\"",
+   "local_f": "AM-254 (KM 142,57) \"Trecho de Lago\"",
+   "situacao": "TRV"
+  },
+  {
+   "cod": "254EAM2401",
+   "rodovia": "AM-254",
+   "km_i": 142.53,
+   "km_f": 166.54,
+   "ext": 24.01,
+   "local_i": "AM-254 (142,57) Nova Olinda do Norte",
+   "local_f": "AM-254 (KM 174,7)",
+   "situacao": "PAV"
+  },
+  {
+   "cod": "254EAM1409",
+   "rodovia": "AM-254",
+   "km_i": 166.54,
+   "km_f": 307.52,
+   "ext": 140.98,
+   "local_i": "AM-254 (KM 166,57)",
+   "local_f": "Maués",
+   "situacao": "PLA"
+  },
+  {
+   "cod": "280EAM1317",
+   "rodovia": "AM-280",
+   "km_i": 0.0,
+   "km_f": 131.7,
+   "ext": 131.71,
+   "local_i": "BR-307 (KM 114,5)",
+   "local_f": "Ipixuna",
+   "situacao": "PLA"
+  },
+  {
+   "cod": "326EAM2784",
+   "rodovia": "AM-326",
+   "km_i": 0.0,
+   "km_f": 27.84,
+   "ext": 27.84,
+   "local_i": "AM 363 (KM 181)",
+   "local_f": "Sede do município de Urucará",
+   "situacao": "LEN"
+  },
+  {
+   "cod": "328EAM0234",
+   "rodovia": "AM-328",
+   "km_i": 0.0,
+   "km_f": 2.34,
+   "ext": 2.34,
+   "local_i": "AM 363 (KM 110)",
+   "local_f": "Porto de Itapiranga",
+   "situacao": "PAV"
+  },
+  {
+   "cod": "329EAM5896",
+   "rodovia": "AM-329",
+   "km_i": 0.0,
+   "km_f": 58.96,
+   "ext": 58.96,
+   "local_i": "Envira",
+   "local_f": "Feijó (AC)",
+   "situacao": "PLA"
+  },
+  {
+   "cod": "330EAM1533",
+   "rodovia": "AM-330",
+   "km_i": 0.0,
+   "km_f": 15.33,
+   "ext": 15.33,
+   "local_i": "Silves",
+   "local_f": "AM-363 (KM 91)",
+   "situacao": "PAV"
+  },
+  {
+   "cod": "336EAM3391",
+   "rodovia": "AM-336",
+   "km_i": 0.0,
+   "km_f": 339.14,
+   "ext": 339.14,
+   "local_i": "Reserva Uacari (BR-230) - KM 1269,5",
+   "local_f": "Carauarí/Tefé/Juruá",
+   "situacao": "PLA"
+  },
+  {
+   "cod": "343EAM9737",
+   "rodovia": "AM-343",
+   "km_i": 0.0,
+   "km_f": 97.37,
+   "ext": 97.37,
+   "local_i": "AM-366 (KM 354)",
+   "local_f": "Sede do Município de Coari",
+   "situacao": "PLA"
+  },
+  {
+   "cod": "351EAM1986",
+   "rodovia": "AM-351",
+   "km_i": 0.0,
+   "km_f": 19.86,
+   "ext": 19.86,
+   "local_i": "AM-010 (KM 128) Ramal do Banco",
+   "local_f": "Rio Urubu",
+   "situacao": "PAV"
+  },
+  {
+   "cod": "352EAM9846",
+   "rodovia": "AM-352",
+   "km_i": 0.0,
+   "km_f": 98.46,
+   "ext": 98.46,
+   "local_i": "AM 070 (KM 79,5)",
+   "local_f": "Sede do Município de Novo Airão",
+   "situacao": "PAV"
+  },
+  {
+   "cod": "354EAM4280",
+   "rodovia": "AM-354",
+   "km_i": 0.0,
+   "km_f": 42.8,
+   "ext": 42.8,
+   "local_i": "BR-319 (KM 90,4)",
+   "local_f": "Sede do Município de Manaquiri",
+   "situacao": "PAV"
+  },
+  {
+   "cod": "356EAM1451",
+   "rodovia": "AM-356",
+   "km_i": 0.0,
+   "km_f": 145.13,
+   "ext": 145.13,
+   "local_i": "BR-319 (KM 181)",
+   "local_f": "Sede do Município de Borba",
+   "situacao": "PLA"
+  },
+  {
+   "cod": "360EAM1029",
+   "rodovia": "AM-360",
+   "km_i": 0.0,
+   "km_f": 102.9,
+   "ext": 102.9,
+   "local_i": "BR-319 - (KM 214)",
+   "local_f": "Sede do Município de Novo Aripuanã",
+   "situacao": "PLA"
+  },
+  {
+   "cod": "362EAM1400",
+   "rodovia": "AM-362",
+   "km_i": 0.0,
+   "km_f": 14.0,
+   "ext": 14.0,
+   "local_i": "Lago de Tefé \"Estrada do Nogueira\"",
+   "local_f": "Sede do Município de Alvarães",
+   "situacao": "PAV"
+  },
+  {
+   "cod": "363EAM1098",
+   "rodovia": "AM-363",
+   "km_i": 0.0,
+   "km_f": 109.89,
+   "ext": 109.89,
+   "local_i": "AM-010 (KM 227)",
+   "local_f": "AM-328 Itapiranga",
+   "situacao": "PAV"
+  },
+  {
+   "cod": "363EAM1079",
+   "rodovia": "AM-363",
+   "km_i": 109.89,
+   "km_f": 120.68,
+   "ext": 10.79,
+   "local_i": "AM-363 (KM 110)",
+   "local_f": "AM-363 (KM 120,08)",
+   "situacao": "LEN"
+  },
+  {
+   "cod": "363EAM1834",
+   "rodovia": "AM-363",
+   "km_i": 120.68,
+   "km_f": 139.02,
+   "ext": 18.34,
+   "local_i": "AM-363 (KM 120,08)",
+   "local_f": "AM-363 (KM 138,38)",
+   "situacao": "PLA"
+  },
+  {
+   "cod": "363EAM2652",
+   "rodovia": "AM-363",
+   "km_i": 139.02,
+   "km_f": 165.54,
+   "ext": 26.52,
+   "local_i": "AM-363 (KM 138,38)",
+   "local_f": "AM-363 (KM 164,88)",
+   "situacao": "LEN"
+  },
+  {
+   "cod": "363EAM1679",
+   "rodovia": "AM-363",
+   "km_i": 165.54,
+   "km_f": 333.48,
+   "ext": 167.94,
+   "local_i": "AM-363 (KM 164,88)",
+   "local_f": "AM-363 (KM 332,88)",
+   "situacao": "PLA"
+  },
+  {
+   "cod": "364EAM8474",
+   "rodovia": "AM-364",
+   "km_i": 0.0,
+   "km_f": 84.74,
+   "ext": 84.74,
+   "local_i": "BR 319 - KM 327",
+   "local_f": "Vila da Democraria/Manicoré",
+   "situacao": "IMP"
+  },
+  {
+   "cod": "366EAM1498",
+   "rodovia": "AM-366",
+   "km_i": 0.0,
+   "km_f": 149.84,
+   "ext": 149.85,
+   "local_i": "Juruá",
+   "local_f": "Tefé",
+   "situacao": "PLA"
+  },
+  {
+   "cod": "366EAM1700",
+   "rodovia": "AM-366",
+   "km_i": 149.85,
+   "km_f": 166.85,
+   "ext": 17.0,
+   "local_i": "Tefé",
+   "local_f": "Trecho da AM-366 (KM 166,84)",
+   "situacao": "PAV"
+  },
+  {
+   "cod": "366EAM1869",
+   "rodovia": "AM-366",
+   "km_i": 166.85,
+   "km_f": 353.74,
+   "ext": 186.89,
+   "local_i": "AM-366 (KM 166,84)",
+   "local_f": "Entrocamento AM-343",
+   "situacao": "PLA"
+  },
+  {
+   "cod": "366EAM1918",
+   "rodovia": "AM-366",
+   "km_i": 353.74,
+   "km_f": 545.57,
+   "ext": 191.83,
+   "local_i": "Entroncamento AM-343",
+   "local_f": "BR-319 (KM 466)",
+   "situacao": "PLA"
+  },
+  {
+   "cod": "374EAM9827",
+   "rodovia": "AM-374",
+   "km_i": 0.0,
+   "km_f": 98.27,
+   "ext": 98.27,
+   "local_i": "BR-307 (KM 797)",
+   "local_f": "Santo Antônio do Iça",
+   "situacao": "PLA"
+  },
+  {
+   "cod": "378EAM3027",
+   "rodovia": "AM-378",
+   "km_i": 0.0,
+   "km_f": 30.27,
+   "ext": 30.27,
+   "local_i": "BR-307 (KM 704)",
+   "local_f": "São Paulo de Olivença",
+   "situacao": "PLA"
+  },
+  {
+   "cod": "449EAM4470",
+   "rodovia": "AM-449",
+   "km_i": 0.0,
+   "km_f": 44.7,
+   "ext": 44.7,
+   "local_i": "AM-010 (KM 55)",
+   "local_f": "Puraquequara",
+   "situacao": "IMP"
+  },
+  {
+   "cod": "450EAM2549",
+   "rodovia": "AM-450",
+   "km_i": 0.0,
+   "km_f": 25.49,
+   "ext": 25.49,
+   "local_i": "AM-010 (KM 14)",
+   "local_f": "Constantino Nery",
+   "situacao": "DUP"
+  },
+  {
+   "cod": "451EAM0470",
+   "rodovia": "AM-451",
+   "km_i": 0.0,
+   "km_f": 4.7,
+   "ext": 4.7,
+   "local_i": "AM-010 (KM 04)",
+   "local_f": "Aeroporto de Itacoatiara",
+   "situacao": "LEN"
+  },
+  {
+   "cod": "452EAM1003",
+   "rodovia": "AM-452",
+   "km_i": 0.0,
+   "km_f": 7.89,
+   "ext": 10.03,
+   "local_i": "AM-070 (KM 12,6)",
+   "local_f": "Comunidade do Caldeirão",
+   "situacao": "PAV"
+  },
+  {
+   "cod": "453EAM0800",
+   "rodovia": "AM-453",
+   "km_i": 0.0,
+   "km_f": 8.0,
+   "ext": 8.0,
+   "local_i": "AM-070 (KM 58)",
+   "local_f": "Colônia Bela Vista",
+   "situacao": "PAV"
+  },
+  {
+   "cod": "466EAM1044",
+   "rodovia": "AM-466",
+   "km_i": 0.0,
+   "km_f": 104.46,
+   "ext": 104.46,
+   "local_i": "BR-230 - KM 760,98",
+   "local_f": "Canutama",
+   "situacao": "PLA"
+  }
+ ]
+}

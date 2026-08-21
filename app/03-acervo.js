@@ -50,7 +50,7 @@ const conjuntoAtual = () => S.cat.conjuntos.find(c => c.id === S.catId) || S.cat
 function montaSvc(){
   S.catId = conjuntoAtual().id;
   S.svc = conjuntoAtual().servicos.map(s => ({nome: s.nome, grupo: s.grupo, lados: s.lados.slice(),
-                                              unidade: s.unidade, on: true}));
+                                              unidade: s.unidade, cor: s.cor || '', on: true}));
 }
 function pintaCat(){
   $('#selCat').innerHTML = S.cat.conjuntos.map(c =>
@@ -134,12 +134,28 @@ function textoExtensao(eixo){
                  'independente: o cadastro do Departamento Rodoviário não foi consultado ' +
                  'para este eixo.</div>';
   if (c.situacao !== 'diverge') return '';
-  return `<div class="aviso" style="margin-top:6px"><b>Extensão divergente do cadastro.</b> ` +
-         `O Departamento Rodoviário registra <b>${fmt(c.km_cadastro, 2)} km</b> e a geometria ` +
-         `mede <b>${fmt(S.segs.reduce((a, sg) => a + sg.ext, 0), 2)} km</b> ` +
-         `(${fmt(c.dif_pct, 1)}% de diferença).` +
-         (c.nota ? ' ' + esc(c.nota) + '.' : '') +
-         ' Confira antes de medir obra neste eixo.</div>';
+  const cx = t => `<div class="aviso" style="margin-top:6px">${t}${
+    c.nota ? ` <span class="dica">${esc(c.nota)}.</span>` : ''}</div>`;
+  // Divergencia no trecho IMPLANTADO nao aparece no total: a AM-366 fecha o total em 0,01%
+  // e mesmo assim tem 17 km de pista existente que a geometria nao traz. Falar de km total
+  // aqui daria uma manchete tranquilizadora sobre um defeito grave.
+  if (c.estado === 'TRAÇADO FALTANDO')
+    return cx(`<b>Falta traçado no acervo.</b> O cadastro registra ` +
+      `<b>${fmt(c.implantado_cadastro, 2)} km implantados</b>` +
+      (c.local_f_cadastro ? ` até ${esc(c.local_f_cadastro)}` : '') +
+      `, e a geometria não tem esse trecho — o que ela traz são ` +
+      `${fmt(c.total_trena, 1)} km de diretriz planejada. Obra executada nesses ` +
+      'quilômetros não tem onde ser lançada aqui.');
+  if (c.estado === 'IMPLANTADO DIVERGE')
+    return cx(`<b>Trecho implantado divergente.</b> O cadastro registra ` +
+      `<b>${fmt(c.implantado_cadastro, 2)} km implantados</b> e o acervo classifica ` +
+      `<b>${fmt(c.implantado_trena, 2)} km</b> — ` +
+      `${fmt(Math.abs(c.implantado_cadastro - c.implantado_trena), 2)} km de diferença. ` +
+      'O traçado está no acervo; o que difere é a situação física declarada.');
+  return cx(`<b>Extensão divergente do cadastro.</b> O Departamento Rodoviário registra ` +
+    `<b>${fmt(c.km_cadastro, 2)} km</b> e a geometria mede ` +
+    `<b>${fmt(S.segs.reduce((a, sg) => a + sg.ext, 0), 2)} km</b> ` +
+    `(${fmt(c.dif_pct, 1)}% de diferença). Confira antes de medir obra neste eixo.`);
 }
 let tmCroqui = null;
 // A imagem custa dezenas de tiles: refazer a cada dígito do campo de KM seria pedir a

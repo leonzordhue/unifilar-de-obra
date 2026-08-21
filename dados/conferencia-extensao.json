@@ -1,6 +1,534 @@
 {
- "gerado_em": null,
- "fonte": "ainda não gerado — rode: python ferramentas/conferir-acervo-vs-cadastro.py --gravar",
- "observacao": "Conferência da extensão de cada eixo contra a Planilha Geral do Departamento Rodoviário, que é fonte independente da geometria. Enquanto «eixos» estiver vazio, a plataforma diz, em cada eixo, que a extensão não tem conferência independente — o que é verdade. Não preencher à mão: este arquivo é saída de ferramenta.",
- "eixos": {}
+ "gerado_em": "2026-08-21",
+ "fonte_cadastro": "\\\\seinfra-fs01\\ASPLAN\\8.Departamento Rodoviário\\9-BANCO DE DADOS\\1-PLANILHA GERAL DEPARTAMENTO\\PLANILHA GERAL DEPARTAMENTO RODOVIÁRIO.xlsx",
+ "procedencia": "leitura ao vivo da rede",
+ "criterio": "Comparação implantado x implantado. Tolerância de 2% ou 500 m, o que for maior. \"TRAÇADO FALTANDO\" significa que o cadastro registra estrada implantada que o acervo não tem — falta geometria, não sobra número.",
+ "eixos": {
+  "AM-010": {
+   "situacao": "confere",
+   "km_cadastro": 268.24,
+   "dif_pct": -0.06,
+   "nota": "",
+   "implantado_trena": 268.068,
+   "implantado_cadastro": 268.24,
+   "total_trena": 268.068,
+   "estado": "confere",
+   "local_i_cadastro": "Praça Nossa Senhora de Nazaré - Manaus",
+   "local_f_cadastro": "Sede do Município de Itacoatiara",
+   "codigos_cadastro": [
+    "010EAM0239",
+    "010EAM1412",
+    "010EAM0009",
+    "010EAM2507"
+   ]
+  },
+  "AM-020": {
+   "situacao": "confere",
+   "km_cadastro": 17.09,
+   "dif_pct": -0.19,
+   "nota": "",
+   "implantado_trena": 17.057,
+   "implantado_cadastro": 17.09,
+   "total_trena": 17.057,
+   "estado": "confere",
+   "local_i_cadastro": "Aleixo - SEFAZ",
+   "local_f_cadastro": "Bairro Puraquequara Manaus",
+   "codigos_cadastro": [
+    "020EAM1245",
+    "020EAM0464"
+   ]
+  },
+  "AM-070": {
+   "situacao": "confere",
+   "km_cadastro": 83.47,
+   "dif_pct": -0.05,
+   "nota": "",
+   "implantado_trena": 83.432,
+   "implantado_cadastro": 83.47,
+   "total_trena": 83.432,
+   "estado": "confere",
+   "local_i_cadastro": "Porto do Cacau Pirêra",
+   "local_f_cadastro": "Sede do Município de Manacapuru",
+   "codigos_cadastro": [
+    "070EAM8347"
+   ]
+  },
+  "AM-151": {
+   "situacao": "confere",
+   "km_cadastro": 12.56,
+   "dif_pct": -0.28,
+   "nota": "",
+   "implantado_trena": 12.525,
+   "implantado_cadastro": 12.56,
+   "total_trena": 12.525,
+   "estado": "confere",
+   "local_i_cadastro": "KM 10 da AM-070 Estrada Carlos Braga",
+   "local_f_cadastro": "Sede do Município de Iranduba",
+   "codigos_cadastro": [
+    "151EAM1256"
+   ]
+  },
+  "AM-170": {
+   "situacao": "confere",
+   "km_cadastro": 93.18,
+   "dif_pct": -0.04,
+   "nota": "",
+   "implantado_trena": 0.0,
+   "implantado_cadastro": 0.0,
+   "total_trena": 93.146,
+   "estado": "confere",
+   "local_i_cadastro": "Flor Nascente do Amazonas - BR 210 - KM 237,95",
+   "local_f_cadastro": "Município de Santa Isabel do Rio Negro",
+   "codigos_cadastro": [
+    "170EAM9318"
+   ]
+  },
+  "AM-175": {
+   "situacao": "confere",
+   "km_cadastro": 103.31,
+   "dif_pct": 0.0,
+   "nota": "",
+   "implantado_trena": 0.0,
+   "implantado_cadastro": 0.0,
+   "total_trena": 103.311,
+   "estado": "confere",
+   "local_i_cadastro": "BR-317 (KM 340)",
+   "local_f_cadastro": "Pauini",
+   "codigos_cadastro": [
+    "175EAM1033"
+   ]
+  },
+  "AM-239": {
+   "situacao": "confere",
+   "km_cadastro": 14.5,
+   "dif_pct": -0.3,
+   "nota": "",
+   "implantado_trena": 14.456,
+   "implantado_cadastro": 14.5,
+   "total_trena": 14.456,
+   "estado": "confere",
+   "local_i_cadastro": "KM 1334 da BR-307 \"Estrada Camanaus\"",
+   "local_f_cadastro": "Porto Hidroviário de São Gabriel da Cachoeira",
+   "codigos_cadastro": [
+    "239EAM1450"
+   ]
+  },
+  "AM-240": {
+   "situacao": "confere",
+   "km_cadastro": 79.48,
+   "dif_pct": -0.05,
+   "nota": "",
+   "implantado_trena": 79.438,
+   "implantado_cadastro": 79.48,
+   "total_trena": 79.438,
+   "estado": "confere",
+   "local_i_cadastro": "BR-174 (KM 103)",
+   "local_f_cadastro": "Vila de Balbina",
+   "codigos_cadastro": [
+    "240EAM7948"
+   ]
+  },
+  "AM-249": {
+   "situacao": "confere",
+   "km_cadastro": 14.81,
+   "dif_pct": -0.2,
+   "nota": "",
+   "implantado_trena": 14.781,
+   "implantado_cadastro": 14.81,
+   "total_trena": 14.781,
+   "estado": "confere",
+   "local_i_cadastro": "Sede do Município de Uarini",
+   "local_f_cadastro": "Vila do Copacá",
+   "codigos_cadastro": [
+    "249EAM1481"
+   ]
+  },
+  "AM-254": {
+   "situacao": "confere",
+   "km_cadastro": 307.52,
+   "dif_pct": -0.02,
+   "nota": "",
+   "implantado_trena": 166.493,
+   "implantado_cadastro": 166.54,
+   "total_trena": 307.473,
+   "estado": "confere",
+   "local_i_cadastro": "BR-319 (KM 26)",
+   "local_f_cadastro": "Maués",
+   "codigos_cadastro": [
+    "254EAM9381",
+    "254EAM0887",
+    "254EAM1337",
+    "254EAM2648",
+    "254EAM2401",
+    "254EAM1409"
+   ]
+  },
+  "AM-280": {
+   "situacao": "confere",
+   "km_cadastro": 131.71,
+   "dif_pct": -0.08,
+   "nota": "",
+   "implantado_trena": 0.0,
+   "implantado_cadastro": 0.0,
+   "total_trena": 131.601,
+   "estado": "confere",
+   "local_i_cadastro": "BR-307 (KM 114,5)",
+   "local_f_cadastro": "Ipixuna",
+   "codigos_cadastro": [
+    "280EAM1317"
+   ]
+  },
+  "AM-326": {
+   "situacao": "diverge",
+   "km_cadastro": 27.84,
+   "dif_pct": 281.49,
+   "nota": "O cadastro registra 27.84 km de estrada implantada (326EAM2784) que não existe na geometria do acervo — falta traçado, não sobra número. O que o acervo traz é a diretriz planejada até Sede do Município de Urucurituba",
+   "implantado_trena": 0.0,
+   "implantado_cadastro": 27.84,
+   "total_trena": 106.208,
+   "estado": "TRAÇADO FALTANDO",
+   "local_i_cadastro": "AM 363 (KM 181)",
+   "local_f_cadastro": "Sede do município de Urucará",
+   "codigos_cadastro": [
+    "326EAM2784"
+   ]
+  },
+  "AM-328": {
+   "situacao": "confere",
+   "km_cadastro": 2.34,
+   "dif_pct": -0.56,
+   "nota": "",
+   "implantado_trena": 2.327,
+   "implantado_cadastro": 2.34,
+   "total_trena": 2.327,
+   "estado": "confere",
+   "local_i_cadastro": "AM 363 (KM 110)",
+   "local_f_cadastro": "Porto de Itapiranga",
+   "codigos_cadastro": [
+    "328EAM0234"
+   ]
+  },
+  "AM-329": {
+   "situacao": "confere",
+   "km_cadastro": 58.96,
+   "dif_pct": 0.28,
+   "nota": "",
+   "implantado_trena": 0.0,
+   "implantado_cadastro": 0.0,
+   "total_trena": 59.125,
+   "estado": "confere",
+   "local_i_cadastro": "Envira",
+   "local_f_cadastro": "Feijó (AC)",
+   "codigos_cadastro": [
+    "329EAM5896"
+   ]
+  },
+  "AM-330": {
+   "situacao": "confere",
+   "km_cadastro": 15.33,
+   "dif_pct": -0.35,
+   "nota": "",
+   "implantado_trena": 15.276,
+   "implantado_cadastro": 15.33,
+   "total_trena": 15.276,
+   "estado": "confere",
+   "local_i_cadastro": "Silves",
+   "local_f_cadastro": "AM-363 (KM 91)",
+   "codigos_cadastro": [
+    "330EAM1533"
+   ]
+  },
+  "AM-336": {
+   "situacao": "confere",
+   "km_cadastro": 339.14,
+   "dif_pct": -0.01,
+   "nota": "",
+   "implantado_trena": 0.0,
+   "implantado_cadastro": 0.0,
+   "total_trena": 339.093,
+   "estado": "confere",
+   "local_i_cadastro": "Reserva Uacari (BR-230) - KM 1269,5",
+   "local_f_cadastro": "Carauarí/Tefé/Juruá",
+   "codigos_cadastro": [
+    "336EAM3391"
+   ]
+  },
+  "AM-343": {
+   "situacao": "confere",
+   "km_cadastro": 97.37,
+   "dif_pct": -0.05,
+   "nota": "",
+   "implantado_trena": 0.0,
+   "implantado_cadastro": 0.0,
+   "total_trena": 97.326,
+   "estado": "confere",
+   "local_i_cadastro": "AM-366 (KM 354)",
+   "local_f_cadastro": "Sede do Município de Coari",
+   "codigos_cadastro": [
+    "343EAM9737"
+   ]
+  },
+  "AM-351": {
+   "situacao": "confere",
+   "km_cadastro": 19.86,
+   "dif_pct": -0.88,
+   "nota": "",
+   "implantado_trena": 19.686,
+   "implantado_cadastro": 19.86,
+   "total_trena": 19.686,
+   "estado": "confere",
+   "local_i_cadastro": "AM-010 (KM 128) Ramal do Banco",
+   "local_f_cadastro": "Rio Urubu",
+   "codigos_cadastro": [
+    "351EAM1986"
+   ]
+  },
+  "AM-352": {
+   "situacao": "confere",
+   "km_cadastro": 98.46,
+   "dif_pct": -0.13,
+   "nota": "",
+   "implantado_trena": 98.329,
+   "implantado_cadastro": 98.46,
+   "total_trena": 98.329,
+   "estado": "confere",
+   "local_i_cadastro": "AM 070 (KM 79,5)",
+   "local_f_cadastro": "Sede do Município de Novo Airão",
+   "codigos_cadastro": [
+    "352EAM9846"
+   ]
+  },
+  "AM-354": {
+   "situacao": "confere",
+   "km_cadastro": 42.8,
+   "dif_pct": -0.05,
+   "nota": "",
+   "implantado_trena": 42.778,
+   "implantado_cadastro": 42.8,
+   "total_trena": 42.778,
+   "estado": "confere",
+   "local_i_cadastro": "BR-319 (KM 90,4)",
+   "local_f_cadastro": "Sede do Município de Manaquiri",
+   "codigos_cadastro": [
+    "354EAM4280"
+   ]
+  },
+  "AM-356": {
+   "situacao": "confere",
+   "km_cadastro": 145.13,
+   "dif_pct": -0.0,
+   "nota": "",
+   "implantado_trena": 0.0,
+   "implantado_cadastro": 0.0,
+   "total_trena": 145.126,
+   "estado": "confere",
+   "local_i_cadastro": "BR-319 (KM 181)",
+   "local_f_cadastro": "Sede do Município de Borba",
+   "codigos_cadastro": [
+    "356EAM1451"
+   ]
+  },
+  "AM-360": {
+   "situacao": "confere",
+   "km_cadastro": 102.9,
+   "dif_pct": 0.0,
+   "nota": "",
+   "implantado_trena": 0.0,
+   "implantado_cadastro": 0.0,
+   "total_trena": 102.901,
+   "estado": "confere",
+   "local_i_cadastro": "BR-319 - (KM 214)",
+   "local_f_cadastro": "Sede do Município de Novo Aripuanã",
+   "codigos_cadastro": [
+    "360EAM1029"
+   ]
+  },
+  "AM-362": {
+   "situacao": "confere",
+   "km_cadastro": 14.0,
+   "dif_pct": -0.23,
+   "nota": "",
+   "implantado_trena": 13.968,
+   "implantado_cadastro": 14.0,
+   "total_trena": 13.968,
+   "estado": "confere",
+   "local_i_cadastro": "Lago de Tefé \"Estrada do Nogueira\"",
+   "local_f_cadastro": "Sede do Município de Alvarães",
+   "codigos_cadastro": [
+    "362EAM1400"
+   ]
+  },
+  "AM-363": {
+   "situacao": "diverge",
+   "km_cadastro": 333.48,
+   "dif_pct": -0.03,
+   "nota": "Implantado no cadastro: 147.20 km; no acervo: 120.56 km. A diferença está na classificação de situação física dos trechos",
+   "implantado_trena": 120.565,
+   "implantado_cadastro": 147.2,
+   "total_trena": 333.373,
+   "estado": "IMPLANTADO DIVERGE",
+   "local_i_cadastro": "AM-010 (KM 227)",
+   "local_f_cadastro": "AM-363 (KM 332,88)",
+   "codigos_cadastro": [
+    "363EAM1098",
+    "363EAM1079",
+    "363EAM1834",
+    "363EAM2652",
+    "363EAM1679"
+   ]
+  },
+  "AM-364": {
+   "situacao": "confere",
+   "km_cadastro": 84.74,
+   "dif_pct": -0.0,
+   "nota": "",
+   "implantado_trena": 84.738,
+   "implantado_cadastro": 84.74,
+   "total_trena": 84.738,
+   "estado": "confere",
+   "local_i_cadastro": "BR 319 - KM 327",
+   "local_f_cadastro": "Vila da Democraria/Manicoré",
+   "codigos_cadastro": [
+    "364EAM8474"
+   ]
+  },
+  "AM-366": {
+   "situacao": "diverge",
+   "km_cadastro": 545.57,
+   "dif_pct": -0.01,
+   "nota": "O cadastro registra 17.00 km de estrada implantada (366EAM1700) que não existe na geometria do acervo — falta traçado, não sobra número. O que o acervo traz é a diretriz planejada até Juruá",
+   "implantado_trena": 0.0,
+   "implantado_cadastro": 17.0,
+   "total_trena": 545.499,
+   "estado": "TRAÇADO FALTANDO",
+   "local_i_cadastro": "Juruá",
+   "local_f_cadastro": "BR-319 (KM 466)",
+   "codigos_cadastro": [
+    "366EAM1498",
+    "366EAM1700",
+    "366EAM1869",
+    "366EAM1918"
+   ]
+  },
+  "AM-374": {
+   "situacao": "confere",
+   "km_cadastro": 98.27,
+   "dif_pct": -0.09,
+   "nota": "",
+   "implantado_trena": 0.0,
+   "implantado_cadastro": 0.0,
+   "total_trena": 98.182,
+   "estado": "confere",
+   "local_i_cadastro": "BR-307 (KM 797)",
+   "local_f_cadastro": "Santo Antônio do Iça",
+   "codigos_cadastro": [
+    "374EAM9827"
+   ]
+  },
+  "AM-378": {
+   "situacao": "confere",
+   "km_cadastro": 30.27,
+   "dif_pct": 0.01,
+   "nota": "",
+   "implantado_trena": 0.0,
+   "implantado_cadastro": 0.0,
+   "total_trena": 30.274,
+   "estado": "confere",
+   "local_i_cadastro": "BR-307 (KM 704)",
+   "local_f_cadastro": "São Paulo de Olivença",
+   "codigos_cadastro": [
+    "378EAM3027"
+   ]
+  },
+  "AM-449": {
+   "situacao": "confere",
+   "km_cadastro": 44.7,
+   "dif_pct": -0.21,
+   "nota": "",
+   "implantado_trena": 44.608,
+   "implantado_cadastro": 44.7,
+   "total_trena": 44.608,
+   "estado": "confere",
+   "local_i_cadastro": "AM-010 (KM 55)",
+   "local_f_cadastro": "Puraquequara",
+   "codigos_cadastro": [
+    "449EAM4470"
+   ]
+  },
+  "AM-450": {
+   "situacao": "confere",
+   "km_cadastro": 25.49,
+   "dif_pct": -0.2,
+   "nota": "",
+   "implantado_trena": 25.438,
+   "implantado_cadastro": 25.49,
+   "total_trena": 25.438,
+   "estado": "confere",
+   "local_i_cadastro": "AM-010 (KM 14)",
+   "local_f_cadastro": "Constantino Nery",
+   "codigos_cadastro": [
+    "450EAM2549"
+   ]
+  },
+  "AM-451": {
+   "situacao": "confere",
+   "km_cadastro": 4.7,
+   "dif_pct": -0.11,
+   "nota": "",
+   "implantado_trena": 4.695,
+   "implantado_cadastro": 4.7,
+   "total_trena": 4.695,
+   "estado": "confere",
+   "local_i_cadastro": "AM-010 (KM 04)",
+   "local_f_cadastro": "Aeroporto de Itacoatiara",
+   "codigos_cadastro": [
+    "451EAM0470"
+   ]
+  },
+  "AM-452": {
+   "situacao": "confere",
+   "km_cadastro": 10.03,
+   "dif_pct": -0.69,
+   "nota": "",
+   "implantado_trena": 9.961,
+   "implantado_cadastro": 10.03,
+   "total_trena": 9.961,
+   "estado": "confere",
+   "local_i_cadastro": "AM-070 (KM 12,6)",
+   "local_f_cadastro": "Comunidade do Caldeirão",
+   "codigos_cadastro": [
+    "452EAM1003"
+   ]
+  },
+  "AM-453": {
+   "situacao": "confere",
+   "km_cadastro": 8.0,
+   "dif_pct": -0.15,
+   "nota": "",
+   "implantado_trena": 7.988,
+   "implantado_cadastro": 8.0,
+   "total_trena": 7.988,
+   "estado": "confere",
+   "local_i_cadastro": "AM-070 (KM 58)",
+   "local_f_cadastro": "Colônia Bela Vista",
+   "codigos_cadastro": [
+    "453EAM0800"
+   ]
+  },
+  "AM-466": {
+   "situacao": "confere",
+   "km_cadastro": 104.46,
+   "dif_pct": 0.0,
+   "nota": "",
+   "implantado_trena": 0.0,
+   "implantado_cadastro": 0.0,
+   "total_trena": 104.465,
+   "estado": "confere",
+   "local_i_cadastro": "BR-230 - KM 760,98",
+   "local_f_cadastro": "Canutama",
+   "codigos_cadastro": [
+    "466EAM1044"
+   ]
+  }
+ }
 }

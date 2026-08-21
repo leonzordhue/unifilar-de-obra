@@ -2,7 +2,8 @@
 /* ---------------------------------------------------------------- persistência */
 function projetoAtual(){
   return {
-    versao: 1, obra: $('#nomeObra').value, ref: S.ref, fonte: S.fonte, catId: S.catId,
+    versao: 1, obra: $('#nomeObra').value, contrato: chaveContrato($('#contrato').value),
+    ref: S.ref, fonte: S.fonte, catId: S.catId,
     kmIni: S.kmIni, kmFim: S.kmFim, estOff: +$('#estOff').value || 0,
     invertido: S.invertido,
     eixo: S.eixo ? {nome: S.eixo.nome, tipo: S.eixo.tipo, linhas: S.eixo.linhas,
@@ -10,7 +11,10 @@ function projetoAtual(){
                     km_implantado: S.eixo.km_implantado, faixas: S.eixo.faixas || [],
                     inicio: S.eixo.inicio || '', fim: S.eixo.fim || '',
                     sentido: S.eixo.sentido || {}, meta: S.eixo.meta || null} : null,
-    svc: S.svc, dados: S.dados
+    svc: S.svc, dados: S.dados,
+    // controle tecnologico: ensaios contratados, registros e as fotos deles
+    ens: S.ens, reg: S.reg, seqReg: S.seqReg,
+    fotos: S.reg.reduce((a, r) => (r.foto && S.fotos[r.foto] ? (a[r.foto] = S.fotos[r.foto], a) : a), {})
   };
 }
 function salvaLocal(){
@@ -26,6 +30,19 @@ function migraChaves(dados, catId){
 function aplicaProjeto(p){
   if (!p || p.versao !== 1) throw new Error('arquivo de projeto não reconhecido.');
   $('#nomeObra').value = p.obra || '';
+  $('#contrato').value = p.contrato || '';
+  S.contrato = p.contrato || '';
+  // ensaios: o projeto reaberto tem de trazer de volta o que foi medido, e a foto junto
+  S.reg = Array.isArray(p.reg) ? p.reg : [];
+  S.seqReg = p.seqReg || S.reg.length;
+  if (p.fotos) { Object.assign(S.fotos, p.fotos); salvaFotos(); }
+  montaEns();
+  if (Array.isArray(p.ens)) p.ens.forEach(e => {
+    const x = S.ens.find(y => y.cod === e.cod);
+    if (x) x.on = e.on;
+  });
+  pintaEns();
+  S.sel = new Set();
   S.ref = p.ref || 'km'; S.fonte = p.fonte || 'rodovia';
   S.catId = p.catId || S.cat.conjuntos[0].id;
   pintaCat();

@@ -69,7 +69,7 @@ section.painel{flex:1;display:flex;flex-direction:column;min-width:0}
 .abas .info{font-size:11.5px;color:var(--texto2);padding-right:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:46vw}
 .conteudo{flex:1;min-height:0;position:relative;overflow:auto}
 #vMapa{position:absolute;inset:0}
-#mapa{position:absolute;inset:0}
+
 .vazio{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--texto2);text-align:center;padding:30px;background:var(--fundo);z-index:500}
 .vazio b{color:var(--navy);font-size:16px}
 
@@ -125,6 +125,97 @@ table.res tfoot td{background:#F1F4F7;font-weight:700}
   .rel{max-width:none;padding:0}
   @page{size:A4 landscape;margin:10mm}
 }
+
+/* ---- ensaios e ficha técnica ---- */
+.grEns{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--texto2);margin:10px 0 4px;padding-left:7px;border-left:3px solid #ccc}
+.svc em{font-style:normal;font-size:10.5px;color:var(--texto2);white-space:nowrap}
+#ficha{position:fixed;inset:0;background:rgba(15,26,38,.55);z-index:900;display:flex;
+  align-items:center;justify-content:center;padding:24px}
+#ficha.hidden{display:none}
+.fichaCaixa{background:#fff;border-radius:12px;max-width:1120px;width:100%;max-height:92vh;
+  display:flex;flex-direction:column;box-shadow:0 18px 50px rgba(0,0,0,.32)}
+.fichaTopo{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--linha)}
+.fichaTopo b{font-size:14px;color:var(--navy)}
+.fichaTopo .sep{flex:1}
+#fichaCorpo{overflow:auto;padding:16px 18px 22px}
+.fichaCab{display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap}
+.fichaCab h3{font-size:16px;color:var(--navy);margin:0 0 3px}
+.fichaInd{display:flex;gap:10px;margin-left:auto}
+.fichaInd div{background:var(--fundo);border:1px solid var(--linha);border-radius:8px;
+  padding:7px 13px;text-align:center;font-size:10.5px;color:var(--texto2);text-transform:uppercase;
+  letter-spacing:.06em}
+.fichaInd span{display:block;font-size:19px;font-weight:700;color:var(--navy);letter-spacing:0;
+  text-transform:none}
+#fichaCorpo h4{font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--texto2);
+  margin:20px 0 7px}
+.tab{width:100%;border-collapse:collapse;font-size:12.5px}
+.tab th{background:var(--fundo);text-align:left;font-size:10.5px;text-transform:uppercase;
+  letter-spacing:.06em;color:var(--texto2);padding:6px 9px;border:1px solid var(--linha)}
+.tab td{padding:6px 9px;border:1px solid var(--linha);vertical-align:top}
+.tab td.num{text-align:right;white-space:nowrap}
+.tab td.vazio{color:var(--texto2);text-align:center;padding:14px}
+.tab .min{font-size:10.5px;color:var(--texto2)}
+.pil{display:inline-block;padding:2px 8px;border-radius:11px;font-size:11px;font-weight:600}
+.mini-foto{width:54px;height:40px;object-fit:cover;border-radius:4px;cursor:zoom-in;
+  border:1px solid var(--linha)}
+.fichaForm{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;align-items:end}
+.fichaForm label{display:flex;flex-direction:column;gap:3px;font-size:10.5px;
+  text-transform:uppercase;letter-spacing:.06em;color:var(--texto2)}
+.fichaForm label.largo{grid-column:span 2}
+.fichaForm input,.fichaForm select{font:13px inherit;padding:6px 8px;border:1px solid var(--linha);
+  border-radius:6px;background:#fff;text-transform:none;letter-spacing:0;color:var(--texto)}
+.fichaForm .dica{grid-column:1/-1}
+@media print{#ficha{display:none!important}}
+
+/* ---- faixa unifilar ---- */
+#vMapa{display:flex;flex-direction:column;gap:0}
+#mapaCaixa{position:relative;flex:1;min-height:220px}
+#mapa{position:absolute;inset:0}
+#faixaBox{border-top:1px solid var(--linha);background:#fff;padding:9px 12px 11px;flex:0 0 auto}
+.faixaCab{display:flex;align-items:center;gap:9px;margin-bottom:6px;flex-wrap:wrap}
+.faixaCab b{font-size:13px;color:var(--navy)}
+.faixaCab .sep{flex:1}
+.faixaVazia{font-size:12px;color:var(--texto2);padding:10px 2px}
+.faixaTrilho{display:flex;height:40px;border:1px solid var(--linha);border-radius:5px;
+  overflow-x:auto;overflow-y:hidden;background:#F4F7FA;user-select:none;cursor:crosshair}
+.faixaTrilho .km{position:relative;flex:1 1 0;min-width:4px;border-right:1px solid rgba(255,255,255,.55);
+  transition:box-shadow .08s}
+.faixaTrilho .km:last-child{border-right:0}
+.faixaTrilho .km.fora{background-image:repeating-linear-gradient(45deg,#fff 0 4px,#E3E9EF 4px 8px)}
+.faixaTrilho .km.sel{box-shadow:inset 0 0 0 2px var(--navy);z-index:2}
+.faixaTrilho .rot{position:absolute;bottom:1px;left:50%;transform:translateX(-50%);
+  font-size:9.5px;color:#3A4A5A;background:rgba(255,255,255,.82);padding:0 2px;border-radius:2px;
+  pointer-events:none;white-space:nowrap}
+#barraLanca{display:flex;align-items:end;gap:9px;margin-top:8px;flex-wrap:wrap}
+#barraLanca label{display:flex;flex-direction:column;gap:3px;font-size:10px;text-transform:uppercase;
+  letter-spacing:.06em;color:var(--texto2)}
+#barraLanca select{font:13px inherit;padding:5px 7px;border:1px solid var(--linha);border-radius:6px;
+  background:#fff;text-transform:none;letter-spacing:0;color:var(--texto);max-width:290px}
+#barraLanca .sep{flex:1}
+#barraLanca .min{font-size:11px;color:var(--texto2)}
+#barraLanca .amostra{width:20px;height:20px;border-radius:4px;border:1px solid rgba(0,0,0,.18);
+  margin-bottom:4px}
+#barraLanca button[disabled]{opacity:.45}
+@media print{#faixaBox{display:none}}
+
+/* ---- obras por contrato ---- */
+#contrato{width:190px;flex:0 0 auto}
+#obras{position:fixed;inset:0;background:rgba(15,26,38,.55);z-index:900;display:flex;
+  align-items:center;justify-content:center;padding:24px}
+#obras.hidden{display:none}
+.obrasCaixa{background:#fff;border-radius:12px;max-width:1000px;width:100%;max-height:88vh;
+  display:flex;flex-direction:column;box-shadow:0 18px 50px rgba(0,0,0,.32)}
+.obrasTopo{display:flex;align-items:center;gap:10px;padding:12px 18px;border-bottom:1px solid var(--linha)}
+.obrasTopo b{font-size:14px;color:var(--navy)}
+.obrasTopo .sep{flex:1}
+.obrasTopo input{font:13px inherit;padding:6px 9px;border:1px solid var(--linha);border-radius:6px;
+  width:230px}
+#obrasCorpo{overflow:auto;padding:14px 18px 20px}
+#obrasCorpo .vazio{color:var(--texto2);font-size:13px;padding:22px 4px;line-height:1.6}
+.obrasNota{font-size:11.5px;color:var(--texto2);padding:10px 18px;border-top:1px solid var(--linha);
+  line-height:1.5}
+@media print{#obras{display:none!important}}
 </style>
 
 <header>
@@ -133,8 +224,11 @@ table.res tfoot td{background:#F1F4F7;font-weight:700}
     <span>Controle de obra unifilar · SEINFRA/AM — DMOB</span>
   </div>
   <input type="text" id="nomeObra" placeholder="Identificação da obra — ex.: AM-010, recuperação do KM 13 ao KM 268">
+  <input type="text" id="contrato" placeholder="Nº do contrato">
   <div class="sep"></div>
   <button class="btn" id="btNovo">Novo</button>
+  <button class="btn" id="btObras">Obras</button>
+  <button class="btn" id="btGuardar">Guardar obra</button>
   <button class="btn" id="btAbrir">Abrir</button>
   <button class="btn pri" id="btSalvar">Salvar</button>
   <input type="file" id="fileProjeto" accept=".json" class="hidden">
@@ -226,12 +320,24 @@ table.res tfoot td{background:#F1F4F7;font-weight:700}
       </div>
     </div>
 
-    <h2><i>4</i> Legenda</h2>
+    <h2><i>4</i> Ensaios</h2>
+    <div class="bloco">
+      <div class="campo">
+        <div class="linha2">
+          <button class="mini" id="btTodosEns">Marcar todos</button>
+          <button class="mini" id="btNenhumEns">Desmarcar</button>
+        </div>
+        <div id="listaEns" style="margin-top:8px"></div>
+        <div class="dica" id="dicaEns"></div>
+      </div>
+    </div>
+
+    <h2><i>5</i> Legenda</h2>
     <div class="bloco" id="legenda"></div>
   </aside>
 
   <section class="painel">
-    <div class="abas">
+    <div class="abas" id="abas">
       <button data-v="mapa" class="on">Mapa</button>
       <button data-v="matriz">Matriz de controle</button>
       <button data-v="croqui">Croqui</button>
@@ -243,7 +349,13 @@ table.res tfoot td{background:#F1F4F7;font-weight:700}
       <button class="mini" id="btImprimir">Imprimir</button>
     </div>
     <div class="conteudo" id="conteudo">
-      <div id="vMapa"><div id="mapa"></div></div>
+      <div id="vMapa">
+        <div id="mapaCaixa"><div id="mapa"></div></div>
+        <div id="faixaBox">
+          <div id="faixa"></div>
+          <div id="barraLanca"></div>
+        </div>
+      </div>
       <div id="vMatriz" class="hidden"></div>
       <div id="vCroqui" class="hidden"></div>
       <div id="vResumo" class="hidden"></div>
@@ -255,6 +367,34 @@ table.res tfoot td{background:#F1F4F7;font-weight:700}
       </div>
     </div>
   </section>
+
+  <div id="obras" class="hidden">
+    <div class="obrasCaixa">
+      <div class="obrasTopo">
+        <b>Obras guardadas</b>
+        <input type="search" id="buscaObra" placeholder="Buscar por contrato, obra ou eixo">
+        <div class="sep"></div>
+        <button class="btn" id="btFechaObras">Fechar</button>
+      </div>
+      <div id="obrasCorpo"></div>
+      <div class="obrasNota">As obras ficam guardadas neste navegador, nesta máquina. Não
+        substituem o arquivo: use <b>Salvar</b> para gerar o <code>.json</code> que se anexa
+        ao processo ou se envia a um colega. Limpar os dados de navegação apaga esta lista.</div>
+    </div>
+  </div>
+
+  <div id="ficha" class="hidden">
+    <div class="fichaCaixa">
+      <div class="fichaTopo">
+        <b>Ficha técnica do segmento</b>
+        <div class="sep"></div>
+        <button class="mini" id="btFichaAnt">← anterior</button>
+        <button class="mini" id="btFichaProx">próximo →</button>
+        <button class="btn" id="btFechaFicha">Fechar</button>
+      </div>
+      <div id="fichaCorpo"></div>
+    </div>
+  </div>
 </main>
 
 <script src="bibliotecas/leaflet-1.9.4/leaflet.js"></script>
@@ -268,4 +408,8 @@ table.res tfoot td{background:#F1F4F7;font-weight:700}
 <script src="app/06-matriz.js"></script>
 <script src="app/07-relatorio.js"></script>
 <script src="app/08-persistencia.js"></script>
-<script src="app/09-app.js"></script>
+<script src="app/10-ensaios.js"></script>
+<script src="app/11-painel.js"></script>
+<script src="app/13-faixa.js"></script>
+<script src="app/14-obras.js"></script>
+<script src="app/99-montagem.js"></script>

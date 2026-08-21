@@ -25,7 +25,12 @@ from playwright.sync_api import sync_playwright
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CAP = os.path.join(RAIZ, "documentacao", "imagens")
-PORTA = 8741
+# Porta EFEMERA, de proposito. Porta fixa + allow_reuse_address deixava duas
+# provas simultaneas subirem servidor na mesma porta, e o Chromium de uma era
+# atendido pelo servidor da outra — a prova media a copia achando que media o
+# produto. Com porta 0 o SO escolhe uma livre; a porta real sai de
+# srv.server_address[1] depois de subir.
+PORTA = 0
 VER = "--ver" in sys.argv
 
 
@@ -46,10 +51,10 @@ def ok(cond, msg, extra=""):
 def main():
     os.makedirs(CAP, exist_ok=True)
     H = functools.partial(Silencioso, directory=RAIZ)
-    socketserver.TCPServer.allow_reuse_address = True
     srv = socketserver.TCPServer(("127.0.0.1", PORTA), H)
+    porta = srv.server_address[1]
     threading.Thread(target=srv.serve_forever, daemon=True).start()
-    print(f"servidor local: http://127.0.0.1:{PORTA}\n")
+    print(f"servidor local: http://127.0.0.1:{porta}\n")
     console = []
 
     with sync_playwright() as p:
@@ -59,7 +64,7 @@ def main():
               if m.type == "error" else None)
         pg.on("pageerror", lambda e: console.append(f"[pageerror] {e}"))
         pg.on("dialog", lambda d: d.accept())
-        pg.goto(f"http://127.0.0.1:{PORTA}/index.html", wait_until="domcontentloaded")
+        pg.goto(f"http://127.0.0.1:{porta}/index.html", wait_until="domcontentloaded")
         pg.wait_for_timeout(2500)
 
         print("1. CARGA")

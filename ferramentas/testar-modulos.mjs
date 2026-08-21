@@ -232,10 +232,30 @@ if (quebrou) {
   // companhia são variáveis e parâmetros locais, e `async(` era `async (x) =>`,
   // que não é chamada nenhuma. Quinze falsos positivos num verificador é pior do
   // que verificador nenhum: ensina a ignorar a saída.
-  const limpaFonte = (t) => t
+  // Texto de template aninhado: varredura com pilha, porque expressão regular fecha no
+  // acento grave de dentro e deixa o resto do arquivo passar por código.
+  const tiraTemplates = (t) => {
+    let out = '', i = 0;
+    const p = [];                       // topo: 'T' texto · 'E' expressão ${} · 'B' bloco {}
+    const topo = () => p[p.length - 1];
+    while (i < t.length){
+      const c = t[i];
+      if (topo() === 'T'){
+        if (c === '\\'){ out += '  '; i += 2; continue; }
+        if (c === '`'){ p.pop(); out += '`'; i++; continue; }
+        if (c === '$' && t[i + 1] === '{'){ p.push('E'); out += '${'; i += 2; continue; }
+        out += (c === '\n' ? '\n' : ' '); i++; continue;
+      }
+      if (c === '`'){ p.push('T'); out += '`'; i++; continue; }
+      if ((topo() === 'E' || topo() === 'B') && c === '{'){ p.push('B'); out += c; i++; continue; }
+      if ((topo() === 'B' || topo() === 'E') && c === '}'){ p.pop(); out += c; i++; continue; }
+      out += c; i++;
+    }
+    return out;
+  };
+  const limpaFonte = (t) => tiraTemplates(t)
     .replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/\/\/[^\n]*/g, ' ')
     .replace(/'(?:\\.|[^'])*'/g, "''").replace(/"(?:\\.|[^"])*"/g, '""')
-    .replace(/`(?:\\.|[^`])*`/g, '``')
     .replace(/\/(?![*/])(?:\\.|\[(?:\\.|[^\]])*\]|[^/\n\\])+\/[gimsuy]*/g, '/RE/');
 
   const declarados = new Set(['S', '$', '$$', 'arguments', 'this']);
