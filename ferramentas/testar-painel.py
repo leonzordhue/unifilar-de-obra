@@ -267,6 +267,54 @@ def main():
                (tip or "")[:70])
             usa("servico")
 
+            print("")
+            print("8. AVANÇO PONDERADO POR EXTENSÃO, NÃO POR CONTAGEM DE CÉLULA")
+            # o ultimo segmento do eixo e' a sobra (menos de 1 km). Marcado sozinho, ele nao
+            # pode valer um quilometro inteiro: e' a diferenca entre «quantas celulas» e
+            # «quanto da obra andou», e a palavra do cartao e' AVANCO.
+            m = pg.evaluate("""() => {
+                S.dados = {};
+                document.querySelector('#kmIni').value = 0;
+                document.querySelector('#kmIni').dispatchEvent(new Event('change'));
+                document.querySelector('#kmFim').value = Math.ceil(S.segs[S.segs.length-1].fim);
+                document.querySelector('#kmFim').dispatchEvent(new Event('change'));
+                const ult = S.segs[S.segs.length - 1];
+                linhasMatriz().forEach(l => { S.dados[chave(l, ult.id)] = 'C'; });
+                render();
+                const ids = segsNoTrecho().map(s => s.id);
+                const a = avancoEm(ids);
+                const kmTot = S.segs.reduce((x, s) => x + kmNoTrecho(s), 0);
+                return {pct: a.pct, celulas: a.C / a.val, sobra: ult.ext, kmTot,
+                        esperado: ult.ext / kmTot}; }""")
+            ok(abs(m["pct"] - m["esperado"]) < 1e-6,
+               "avanço = extensão concluída ÷ extensão do trecho",
+               f"{m['pct']*100:.2f}% para sobra de {m['sobra']:.3f} km em {m['kmTot']:.2f} km")
+            ok(m["celulas"] > m["pct"] * 1.5,
+               "contar célula inflaria o número — é o viés que se está evitando",
+               f"por célula seria {m['celulas']*100:.2f}%")
+
+            print("")
+            print("9. RECORTE EM KM QUEBRADO NÃO PERDE AS PONTAS")
+            # a tela so aceita KM inteiro (`step=1`), mas o trecho tambem chega por projeto
+            # salvo e por codigo. O que se prova aqui e a conta: `kmNoTrecho` tem de recortar
+            # o segmento PARCIAL das pontas, senao a obra declarada de 5,80 km vira 5,00 km
+            # na matriz e a diferenca nao aparece em lugar nenhum.
+            q = pg.evaluate("""() => {
+                S.kmIni = 12.5; S.kmFim = 18.3; render();
+                const segs = segsNoTrecho();
+                const medido = segs.reduce((a, s) => a + kmNoTrecho(s), 0);
+                const cheios = segs.filter(s => s.ini >= S.kmIni && s.fim <= S.kmFim).length;
+                return {declarado: S.kmFim - S.kmIni, medido, colunas: segs.length,
+                        cheios: cheios}; }""")
+            ok(abs(q["declarado"] - q["medido"]) < 1e-6,
+               "a quilometragem contada é a obra declarada",
+               f"declarado {q['declarado']:.2f} km · medido {q['medido']:.2f} km")
+            ok(q["colunas"] == q["cheios"] + 2,
+               "as pontas parciais entram como coluna, além dos quilômetros cheios",
+               f"{q['colunas']} colunas · {q['cheios']} cheias")
+            pg.evaluate("""() => { S.kmIni = 0;
+                S.kmFim = S.segs[S.segs.length - 1].fim; render(); }""")
+
         print(f"\nERROS DE CONSOLE: {len(console)}")
         for c in console[:6]:
             print("  ", c)

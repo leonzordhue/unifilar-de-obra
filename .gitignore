@@ -21,3 +21,10 @@ _canal/
 
 # arquivos de trabalho dos agentes (rascunho, prefixo _)
 ferramentas/_*
+
+# Material do escritório, referência de construção — não é nosso para publicar.
+# A planilha viva da obra, o relatório do Power BI e o projeto gerado a partir deles ficam
+# só na máquina. Mesmo critério de `referencia/`: o repositório vai para o GitHub Pages, e
+# planilha interna de contrato não vai junto por descuido.
+11-CONTROLE AM-010/
+referencia/

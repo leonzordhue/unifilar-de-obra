@@ -151,7 +151,7 @@ console.log('\n3. RECORTE DE TRECHO — o que entra na conta');
   }
 }
 
-console.log('\n4. O PERCENTUAL CONTA CÉLULA OU QUILÔMETRO?');
+console.log('\n4. O AVANÇO É PONDERADO POR EXTENSÃO?');
 {
   // eixo de 10,4 km: dez de 1 km e um de 0,4. Marcando SÓ a sobra, o avanço
   // real é 0,4/10,4 = 3,8%. Se o percentual contar célula, dá 1/11 = 9,1%.
@@ -165,7 +165,9 @@ console.log('\n4. O PERCENTUAL CONTA CÉLULA OU QUILÔMETRO?');
   S.dados[chave(linha, ult.id)] = 'C';
 
   const r = resumoLinha(linha);
-  const pctCelula = r.pct == null ? 0 : 100 * r.pct;   // o que a plataforma mostra
+  // r.pct e' o numero que a plataforma mostra. Comparado com um calculo
+  // independente feito aqui, em km — nao com uma recontagem de celula.
+  const pctCelula = r.pct == null ? 0 : 100 * r.pct;
   const kmFeito = ult.ext;
   const kmTotal = segs.reduce((a, s) => a + s.ext, 0);
   const pctKm = 100 * kmFeito / kmTotal;
@@ -176,12 +178,14 @@ console.log('\n4. O PERCENTUAL CONTA CÉLULA OU QUILÔMETRO?');
   const dif = pctCelula - pctKm;
   if (Math.abs(dif) > 1) {
     erro(`o percentual difere do avanço real em ${dif.toFixed(1)} ponto(s)`,
-         'resumoLinha conta CÉLULA (r.total++), e a última célula vale ' +
-         `${ult.ext.toFixed(3)} km, não 1 km`);
-    nota('num eixo longo isso é irrelevante; num trecho curto de obra, não.');
+         'o r.pct de resumoLinha deixou de ser ponderado por extensão — voltou a ' +
+         `contar célula, e a última vale ${ult.ext.toFixed(3)} km, não 1 km`);
+    nota('num eixo longo isso é ruído; num trecho curto de obra, não.');
+    nota('o avanço da matriz e o do painel têm de sair da MESMA base, senão a');
+    nota('plataforma mostra dois avanços da mesma obra.');
   } else {
-    ok('percentual por célula equivale ao avanço por quilômetro',
-       `${pctCelula.toFixed(1)}% vs ${pctKm.toFixed(1)}%`);
+    ok('o avanço da plataforma é ponderado por extensão',
+       `${pctCelula.toFixed(1)}% da plataforma vs ${pctKm.toFixed(1)}% medido aqui`);
   }
 }
 
