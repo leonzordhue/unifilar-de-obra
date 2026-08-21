@@ -109,7 +109,70 @@ Botões **Marcar todos** e **Desmarcar** ajudam a partir do extremo mais próxim
 
 ---
 
-## 5. Lançar o andamento
+## 5. Lançar pela faixa unifilar
+
+![Faixa unifilar com o serviço lançado](imagens/06-faixa-unifilar.png)
+
+É por aqui que se trabalha no dia a dia. Embaixo do mapa, o traçado aparece esticado numa
+linha reta, dividido em quilômetro (ou em estaca), com divisa preta entre eles.
+
+1. **Selecione** os quilômetros: clique para marcar, arraste para pegar um intervalo,
+   `Shift` + clique para estender do último marcado. A seleção pode ser **descontínua** —
+   erosão acontece no KM 4 e no KM 9, e não entre eles. Clicar no mapa também marca.
+   *Selecionar o trecho* pega tudo que está dentro do trecho em obra.
+2. **Escolha o serviço** na barra abaixo. O quadradinho ao lado mostra a cor dele.
+3. **Escolha o lado**, quando o serviço tem faixa direita e esquerda ou acostamentos.
+4. **Escolha a situação**: Previsto, Em andamento, Paralisado, Concluído, Sem planejamento,
+   Não se aplica.
+5. **Aplicar à seleção**. Os quilômetros ficam pintados com a cor do serviço, na faixa e no
+   mapa. Quando há mais de um serviço no mesmo quilômetro, a célula aparece em listras.
+
+**Duplo clique** num quilômetro abre a ficha técnica dele (item 6).
+
+O trecho em obra aceita valor quebrado: KM 12,5 a 18,3 mede 5,8 km, e o quilômetro da ponta
+entra pelo pedaço que é obra — não pelo quilômetro cheio.
+
+---
+
+## 6. Ficha técnica do quilômetro
+
+Duplo clique num quilômetro da faixa, ou no mapa. A ficha traz:
+
+- **Identificação**: quilômetro ou estaca, extensão real do segmento, coordenadas de início
+  e fim, e aviso quando está fora do trecho em obra.
+- **Serviços** lançados ali, com a situação de cada um.
+- **Ensaios de controle tecnológico**: ensaio, norma de referência, medição, critério
+  aplicado, resultado, data, responsável e foto.
+- **Lançar ensaio**: escolha o ensaio (dos marcados no bloco *Ensaios* da lateral), informe a
+  medição, confira o critério — vem do catálogo e é editável —, o responsável e, se quiser,
+  a foto. A foto é reduzida antes de ser guardada.
+
+O critério é **copiado para dentro do registro** no momento do lançamento. Se o catálogo
+mudar depois, o ensaio já aceito não é reprovado retroativamente.
+
+Os botões *anterior* e *próximo* passam de quilômetro em quilômetro sem fechar a ficha.
+
+> **Norma pendente.** Onde o catálogo ainda não tem a norma conferida na fonte, a plataforma
+> escreve «norma pendente» em vez de exibir um código não verificado, e o relatório avisa
+> quantos ensaios estão nessa situação. Número de norma errado em fiscalização de contrato
+> não é detalhe.
+
+---
+
+## 7. Obras guardadas por contrato
+
+O contrato é a identidade da obra. Preencha o **Nº do contrato** no cabeçalho e use
+**Guardar obra**: o projeto fica guardado sob aquele número. Depois, **Obras** abre a lista,
+com busca por contrato, obra ou eixo, e *Abrir* devolve o perfil daquela obra — traçado,
+serviços, lançamentos e ensaios como estavam.
+
+Isso fica **no navegador desta máquina**. Não substitui o arquivo: use **Salvar** para gerar
+o `.json` que se anexa ao processo ou se envia a um colega. Limpar os dados de navegação
+apaga a lista.
+
+---
+
+## 8. Matriz de controle
 
 ![Matriz de controle](imagens/02-matriz-de-controle.png)
 
@@ -134,7 +197,7 @@ correspondente na matriz.
 
 ---
 
-## 6. Croqui do trecho
+## 9. Croqui do trecho
 
 ![Croqui sobre satélite](imagens/03-croqui-do-trecho.png)
 
@@ -151,7 +214,7 @@ Se não houver internet, o croqui sai com fundo neutro: perde a foto de satélit
 
 ---
 
-## 7. Resumo e relatório
+## 10. Resumo e relatório
 
 ![Resumo](imagens/04-resumo.png)
 
@@ -160,8 +223,11 @@ posições por status.
 
 Aba **Relatório** — o documento fechado, em cinco seções: *Localização do trecho* (o croqui),
 *Avanço geral*, *Situação por serviço*, *Detalhamento por faixa* (cada serviço e lado com as
-faixas contínuas de mesma situação) e *Notas técnicas* — onde ficam a extensão cadastrada, a
-extensão apurada na geometria, a origem da quilometragem e as descontinuidades do traçado.
+faixas contínuas de mesma situação), *Controle tecnológico* — quadro por tipo de controle e a
+relação dos ensaios com norma, critério, resultado, responsável e foto — e *Notas técnicas*,
+onde ficam a extensão cadastrada, a extensão apurada na geometria, a origem da quilometragem
+e as descontinuidades do traçado. A seção de controle tecnológico só aparece quando há ensaio
+lançado.
 
 ![Relatório](imagens/05-relatorio.png)
 
@@ -171,7 +237,7 @@ extensão apurada na geometria, a origem da quilometragem e as descontinuidades 
 
 ---
 
-## 8. Salvar e retomar
+## 11. Salvar e retomar
 
 - **Salvar** — grava um arquivo `.json` com o eixo, o trecho, os serviços e todos os
   lançamentos. É esse arquivo que se anexa ao processo ou se envia a um colega.

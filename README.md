@@ -20,6 +20,9 @@ próprio navegador e o projeto fica no `localStorage` até ser salvo em arquivo.
 
 | | |
 |---|---|
+| **Faixa unifilar** | O traçado esticado numa linha reta embaixo do mapa, dividido em quilômetro ou estaca, com divisa preta entre eles. Seleciona-se (inclusive quilômetros não vizinhos) e aplica-se o serviço em lote; a cor do serviço aparece na faixa e no mapa. |
+| **Obra por contrato** | O projeto é guardado sob o número do contrato e reaberto pela busca: traçado, serviços, lançamentos e ensaios como estavam. |
+| **Controle tecnológico** | Ficha técnica por quilômetro: ensaio, norma de referência, medição, critério aplicado, resultado, responsável e foto. O critério fica gravado dentro do registro — alteração posterior do catálogo não reprova ensaio já aceito. |
 | **Divisão por quilômetro** | Distância geodésica real (Vincenty sobre o GRS-80), não comprimento em graus. Cada segmento fecha em 1 km cheio; o último recebe a sobra. |
 | **Estaqueamento** | As colunas alternam entre KM e estaca (1 estaca = 20 m, logo o KM 1 abre na estaca 50), com estaca inicial configurável quando o projeto não começa em zero. |
 | **Trecho em obra** | A obra pode ocupar só parte do eixo. Fora do trecho a célula fica hachurada e não recebe lançamento. |
@@ -55,14 +58,19 @@ app/
   06-matriz.js                   matriz de lançamento por quilômetro e lado
   07-relatorio.js                relatório e exportação em CSV
   08-persistencia.js             salvar, reabrir e localStorage
-  09-app.js                      montagem da interface e eventos
+  10-ensaios.js                  ensaios, conformidade e ficha técnica do quilômetro
+  11-painel.js                   painel de conformidade e gráfico por tipo de controle
+  13-faixa.js                    faixa unifilar, seleção de quilômetros e lançamento em lote
+  14-obras.js                    obras guardadas e reabertas por nº de contrato
+  99-montagem.js                 montagem da interface e eventos — carrega por último
 bibliotecas/
   leaflet-1.9.4/                 mapa e croqui
   jszip-3.10.1/                  descompactação do KMZ
 dados/
   acervo-rodovias-estaduais.json 34 rodovias, traçado simplificado e sentido do eixo
   acervo-ramais.json             905 ramais
-  catalogo-servicos.json         serviços, lados e status (cores e códigos)
+  catalogo-servicos.json         modelos de lista de serviços, lados, cores e status
+  catalogo-ensaios.json          ensaios de controle tecnológico e normas de referência
 ferramentas/
   gerar-acervo.py                monta os acervos a partir das camadas do DMOB
   testar-motor.mjs               prova o cálculo fora do navegador (node)
@@ -71,6 +79,11 @@ ferramentas/
   testar-modulos.mjs             prova a carga dos dez módulos: ordem, globais e símbolos
   conferir-acervo-vs-cadastro.py compara o acervo com a Planilha Geral do Departamento
   testar-sentido-por-ramal.py    mede o KM 0 contra o KM que os ramais declaram
+  testar-obra.py                 o fluxo da obra ponta a ponta, na AM-151
+  testar-estaca-e-trecho.mjs     estaqueamento, recorte fracionário e sobra do último km
+  testar-painel.py               painel de conformidade
+  testar-prova-de-vazamento.py   lançamento não vaza entre catálogos de serviço
+  testar-o-verificador.py        autoteste: o verificador reprova defeito injetado
 documentacao/
   MANUAL-DE-USO.md               passo a passo para quem vai usar
   imagens/                       capturas da plataforma em operação
@@ -78,8 +91,10 @@ referencia/                      planilha de controle da SEINFRA que originou o 
                                  (fica só na máquina: não vai para o repositório)
 ```
 
-Os dez módulos de `app/` são carregados em ordem por `<script>` no `index.html`: não há
+Os módulos de `app/` são carregados em ordem numérica por `<script>` no `index.html`: não há
 empacotador, não há etapa de compilação, e o que está no arquivo é o que roda no navegador.
+`99-montagem.js` carrega por último, porque é ele que inicializa e precisa dos demais já
+definidos; módulo novo entra entre 10 e 98.
 
 ## Sem internet
 

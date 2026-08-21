@@ -64,7 +64,9 @@ function pintaRel(){
           <td>${fmt(f.fim - f.ini, 3)} km</td><td>${nomeStatus(f.v)}</td></tr>`).join('')
         }</tbody></table>`).join('')}
 
-    <h2>${S.croqui ? '5' : '4'}. Notas técnicas</h2>
+    ${secaoEnsaios(segs)}
+
+    <h2>${(S.croqui ? 5 : 4) + (S.reg.length ? 1 : 0)}. Notas técnicas</h2>
     <div class="meta">A extensão de cada quilômetro é apurada por cálculo geodésico sobre o
       traçado — fórmula inversa de Vincenty, elipsoide GRS-80 —, e não por comprimento planar,
       que em coordenadas geográficas não tem significado métrico. O último quilômetro do eixo
@@ -116,9 +118,84 @@ function exportaCSV(){
   linhas.forEach(l => {
     const r = resumoLinha(l);
     out.push([l.svc, l.lado, r.C, r.E, r.S, r.P, r.NA,
-      r.val ? (100 * r.C / r.val).toFixed(1).replace('.', ',') : '',
+      r.pct == null ? '' : (100 * r.pct).toFixed(1).replace('.', ','),
       ...segs.map(sg => nomeStatus(S.dados[chave(l, sg.id)] || ''))].join(sep));
   });
   const nome = `controle-obra-${(S.obra || S.eixo.nome).replace(/[^\w\-]+/g, '-').toLowerCase()}.csv`;
   baixa(new Blob(['﻿' + out.join('\r\n')], {type: 'text/csv;charset=utf-8'}), nome);
+}
+
+
+/* ---------------------------------------------------------------- controle tecnológico */
+/** Seção de ensaios do relatório. Sai vazia quando não há ensaio lançado: seção com «nenhum
+    registro» num relatório de medição só ocupa página. */
+function secaoEnsaios(segs){
+  if (!S.reg.length) return '';
+  const ids = segs.map(s => s.id);
+  const dentro = new Set(ids);
+  const rs = resumoEnsaios(ids);
+  const grupos = resumoPorGrupo(ids).filter(g => g.executados || g.previstos);
+  const regs = S.reg.filter(r => dentro.has(r.seg))
+    .sort((a, b) => a.seg - b.seg || a.cod.localeCompare(b.cod, 'pt-BR'));
+  const fora = S.reg.length - regs.length;
+  const pct = v => v == null ? '—' : fmt(100 * v, 1) + '%';
+  const seg = id => {
+    const sg = S.segs.find(x => x.id === id);
+    return sg ? rotuloSeg(sg) : '—';
+  };
+  const pendentes = [...new Set(regs.map(r => r.cod))]
+    .map(ensaioDe).filter(e => e && !e.confirmado).length;
+
+  return `
+    <h2>${S.croqui ? 5 : 4}. Controle tecnológico</h2>
+    <table><thead><tr><th>Indicador</th><th>Valor</th></tr></thead><tbody>
+      <tr><td>Ensaios lançados no trecho</td><td>${regs.length}</td></tr>
+      <tr><td>Previstos pela frequência das normas</td><td>${
+        rs.previstos == null ? 'sem base' : fmt(rs.previstos, 0)}</td></tr>
+      <tr><td>Executado sobre o previsto</td><td>${pct(rs.pctExecutado)}</td></tr>
+      <tr><td>Conformes</td><td>${rs.conformes}</td></tr>
+      <tr><td>Não conformes</td><td>${rs.naoConformes}</td></tr>
+      <tr><td>Sem critério numérico para julgar</td><td>${rs.semCriterio}</td></tr>
+      <tr><td><b>Conformidade</b></td><td><b>${pct(rs.pctConformidade)}</b></td></tr>
+    </tbody></table>
+
+    ${grupos.length ? `<table><thead><tr><th class="t">Tipo de controle</th><th>Previstos</th>
+      <th>Executados</th><th>Conformes</th><th>Não conformes</th>
+      <th>Conformidade</th></tr></thead><tbody>${grupos.map(g => `<tr>
+        <td>${esc(g.grupo)}</td>
+        <td>${g.previstos ? fmt(g.previstos, 0) : '—'}</td>
+        <td>${g.executados}</td>
+        <td>${g.conformes}</td>
+        <td>${g.naoConformes}</td>
+        <td>${pct(g.pct)}</td></tr>`).join('')}</tbody></table>` : ''}
+
+    <table><thead><tr><th>Trecho</th><th class="t">Ensaio</th><th class="t">Norma</th>
+      <th>Medição</th><th>Critério</th><th class="t">Resultado</th>
+      <th class="t">Data e responsável</th><th>Foto</th></tr></thead><tbody>${regs.map(r => {
+      const e = ensaioDe(r.cod) || {nome: r.cod, unidade: '', norma_metodo: {}};
+      const nm = e.norma_metodo || {};
+      const lim = [r.lim_min != null ? '≥ ' + fmt(r.lim_min, 2) : '',
+                   r.lim_max != null ? '≤ ' + fmt(r.lim_max, 2) : ''].filter(Boolean).join(' e ');
+      return `<tr>
+        <td>${esc(seg(r.seg))}</td>
+        <td class="t">${esc(e.nome)}</td>
+        <td class="t">${nm.codigo ? esc(nm.codigo) : '<i>pendente</i>'}</td>
+        <td>${r.valor != null ? fmt(r.valor, 2) : '—'} ${esc(e.unidade || '')}</td>
+        <td>${lim || 'do projeto'}</td>
+        <td class="t">${esc(textoConforme(r))}</td>
+        <td class="t">${esc(r.data)}${r.resp ? ' · ' + esc(r.resp) : ''}</td>
+        <td>${r.foto && S.fotos[r.foto]
+          ? `<img src="${S.fotos[r.foto]}" style="width:64px;height:46px;object-fit:cover;border:1px solid #D4DBE2;border-radius:3px">`
+          : '—'}</td></tr>`;
+    }).join('')}</tbody></table>
+
+    ${fora ? `<div class="meta">${fora} ensaio(s) lançado(s) fora do trecho em obra não
+      entram neste quadro.</div>` : ''}
+    ${pendentes ? `<div class="meta"><b>Norma de referência pendente de confirmação em
+      ${pendentes} ensaio(s) deste relatório.</b> O catálogo da plataforma só exibe código de
+      norma conferido na fonte; onde está «pendente», a norma aplicável deve ser informada
+      pela fiscalização antes do uso do quadro em medição.</div>` : ''}
+    <div class="meta">O critério de aceitação registrado é o que vigorava no aceite de cada
+      ensaio, copiado para dentro do registro: alteração posterior do catálogo não reprova,
+      retroativamente, ensaio já aceito.</div>`;
 }

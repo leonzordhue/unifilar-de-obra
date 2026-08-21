@@ -162,6 +162,25 @@ def main():
            f"conf={rs['pctConformidade']} previstos={rs['previstos']}")
         pg.evaluate("fechaFicha()")
 
+        print("\n5b. O ENSAIO CHEGA AO RELATÓRIO")
+        # ensaio que não chega ao relatório não serve de nada numa medição
+        pg.evaluate("document.querySelector(\".abas button[data-v='rel']\").click()")
+        pg.wait_for_timeout(2500)
+        rel = pg.evaluate("document.querySelector('#vRel').textContent")
+        ok("Controle tecnológico" in rel, "o relatório tem a seção de controle tecnológico")
+        ok("Não conforme" in rel, "o resultado do ensaio aparece no relatório")
+        ok("Fiscal do DMOB" in rel, "o responsável aparece no relatório")
+        ok("pendente" in rel.lower() and "norma" in rel.lower(),
+           "o relatório avisa que a norma está pendente de confirmação")
+        ok("Conformidade" in rel, "o relatório traz o indicador de conformidade")
+        secoes = pg.evaluate("[...document.querySelectorAll('#vRel h2')].map(e => e.textContent)")
+        ok(len(secoes) == 6 and secoes[-1].strip().startswith("6."),
+           "as seções ficam numeradas em sequência", " | ".join(secoes))
+        pg.screenshot(path=os.path.join(RAIZ, "documentacao", "imagens",
+                                        "07-relatorio-ensaios.png"), full_page=True)
+        pg.evaluate("document.querySelector(\".abas button[data-v='mapa']\").click()")
+        pg.wait_for_timeout(900)
+
         print("\n6. A OBRA É GUARDADA PELO NÚMERO DO CONTRATO")
         pg.evaluate(f"""() => {{
             document.querySelector('#nomeObra').value = 'AM-151 — recuperação de erosões';

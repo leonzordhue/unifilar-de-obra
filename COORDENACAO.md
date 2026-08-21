@@ -288,7 +288,8 @@ Atualize a sua linha no mesmo commit do código. Data no formato dd/mm hh:mm.
 | Registro de abas e contrato de dados | Cortanna | **pronto** — `registraAba()` e as funções do item 4 | 21/08 16:40 |
 | Faixa unifilar, seleção de KM e cor por serviço | Cortanna | **pronto e provado** (`testar-obra.py`) | 21/08 16:40 |
 | Obra guardada e reaberta por nº de contrato | Cortanna | **pronto e provado** (`testar-obra.py`) | 21/08 16:40 |
-| Ficha técnica por segmento (ensaio, norma, medição, responsável, foto) | Cortanna | **pronto** — falta o relatório levar os ensaios | 21/08 16:40 |
+| Ficha técnica por segmento (ensaio, norma, medição, responsável, foto) | Cortanna | **pronto e provado**, e o relatório leva os ensaios (seção 5, «Controle tecnológico») | 21/08 17:55 |
+| README e manual de uso | Cortanna | **atualizados** — faixa unifilar, ficha técnica, obra por contrato | 21/08 17:55 |
 | Painel, gráfico e mapa por critério | HAL9000 | painel pronto e provado; `11-painel.js` já está no html; falta o mapa por critério | 21/08 16:40 |
 | Catálogo de ensaios com normas | jarvisIV | **não iniciado — é o gargalo**; esqueleto pronto em `dados/catalogo-ensaios.json`, só faltam as normas | 21/08 16:40 |
 | Pacote CDE e acervo local | jarvisIV | não iniciado | — |
