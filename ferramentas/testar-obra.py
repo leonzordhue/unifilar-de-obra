@@ -285,6 +285,61 @@ def main():
         pg.evaluate("document.querySelector(\".abas button[data-v='mapa']\").click()")
         pg.wait_for_timeout(900)
 
+        print("\n5c. RESUMO PINTADO NO CROQUI E GRÁFICO NO RELATÓRIO")
+        # O croqui circula sozinho — colado num ofício, impresso. Ou ele leva o resumo, ou
+        # diz onde é a obra sem dizer como ela está.
+        g = pg.evaluate("typeof graficoQuadroObra === 'function' ? graficoQuadroObra() : ''")
+        ok("<svg" in g and "</svg>" in g, "o relatório traz o gráfico do quadro",
+           f"{len(g)} caracteres de SVG")
+        import re as _re
+        barras = len(_re.findall(r"<rect ", g))
+        ok(barras >= 8, "uma barra por situação em cada serviço", f"{barras} retângulo(s)")
+        cores = pg.evaluate("""() => ['C','E','PA','S','P'].map(c => corStatus(c))""")
+        ok(all(c.lower() in g.lower() for c in cores if c),
+           "todas as situações aparecem com a cor do catálogo, inclusive Previsto",
+           " ".join(cores))
+        ok("contratado" in g, "o gráfico marca a quantidade contratada")
+
+        # o painel do croqui é desenhado em canvas: a conferência é por PIXEL, contando os
+        # que têm a cor de «concluído» dentro da imagem gerada
+        # o bloco guarda o estado e devolve depois: acrescentar lançamento aqui mudava a
+        # contagem que os blocos 6 e 7 conferem, e a prova passava a medir a si mesma
+        pg.evaluate("""() => {
+            window.__guardado = JSON.stringify(S.dados);
+            S.svc.filter(s => s.on).forEach(s => { s.km_contratado = 4; });
+            const l = {svc: 'EROSÕES', lado: 'U'};
+            [3, 4, 5].forEach(id => S.dados[chave(l, id)] = 'C');
+            S.croqui = null; render();
+        }""")
+        pg.wait_for_timeout(600)
+        pix = pg.evaluate("""async () => {
+            const c = await geraCroqui();
+            if (!c || !c.url) return null;
+            const im = new Image();
+            await new Promise(r => { im.onload = r; im.src = c.url; });
+            const cv = document.createElement('canvas');
+            cv.width = im.width; cv.height = im.height;
+            const g2 = cv.getContext('2d');
+            g2.drawImage(im, 0, 0);
+            const alvo = corStatus('C').replace('#', '');
+            const R = parseInt(alvo.slice(0, 2), 16), G = parseInt(alvo.slice(2, 4), 16),
+                  B = parseInt(alvo.slice(4, 6), 16);
+            const d = g2.getImageData(0, 0, cv.width, cv.height).data;
+            let n = 0;
+            for (let i = 0; i < d.length; i += 4)
+                if (Math.abs(d[i] - R) < 6 && Math.abs(d[i+1] - G) < 6 && Math.abs(d[i+2] - B) < 6) n++;
+            return {larg: im.width, alt: im.height, pixelsVerdes: n};
+        }""")
+        if pix and pix["larg"] >= 560:
+            ok(pix["pixelsVerdes"] > 200,
+               "a tabela pintada aparece dentro da imagem do croqui",
+               f"{pix['pixelsVerdes']} pixels na cor de concluído em "
+               f"{pix['larg']}×{pix['alt']}")
+        else:
+            print("         (imagem estreita: o painel não entra para não cobrir o traçado)")
+        pg.evaluate("() => { S.dados = JSON.parse(window.__guardado); S.croqui = null; render(); }")
+        pg.wait_for_timeout(500)
+
         print("\n6. A OBRA É GUARDADA PELO NÚMERO DO CONTRATO")
         pg.evaluate(f"""() => {{
             document.querySelector('#nomeObra').value = 'AM-151 — recuperação de erosões';

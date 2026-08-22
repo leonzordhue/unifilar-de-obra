@@ -144,6 +144,9 @@ async function geraCroqui(largura = 1500, altura = 900){
     g.fillText(rot, Math.max(2, rx) + 4, ry);
   });
 
+  // o resumo entra DEPOIS dos marcos de quilômetro, senão eles passam por cima
+  desenhaResumoCroqui(g, W, yb);
+
   // faixa de rodapé: identificação, escala e crédito
   g.fillStyle = 'rgba(22,50,79,.94)'; g.fillRect(0, yb, W, 46);
   g.fillStyle = '#fff'; g.font = '700 13px system-ui, sans-serif';
@@ -219,4 +222,133 @@ async function pintaCroqui(){
     a.download = `croqui-${(S.obra || S.eixo.nome).replace(/[^\w\-]+/g, '-').toLowerCase()}.png`;
     document.body.appendChild(a); a.click(); a.remove();
   };
+}
+
+
+/* ---------------------------------------------------------------- resumo no croqui */
+/** Tabela de resumo por serviço, desenhada no próprio croqui.
+
+    A imagem circula sozinha — colada num ofício, impressa, mandada por aplicativo. Sem o
+    resumo ela diz onde é a obra e não diz como ela está.
+
+    A forma é a da planilha do escritório: número em coluna, com a célula pintada na cor da
+    situação. A primeira versão usava barra empilhada e ficava ilegível — serviço presente em
+    um quinto dos quilômetros dava um risco de três pixels.
+
+    Só entra quando cabe. Numa imagem estreita cobriria o traçado, e o croqui perderia a
+    função de situar a pessoa no local. */
+function desenhaResumoCroqui(g, W, yb){
+  if (typeof quadroObra !== 'function') return;
+  const q = quadroObra().filter(x => x.C + x.E + x.PA + x.S > 0.001)
+    .sort((a, b) => b.C - a.C);
+  if (!q.length) return;
+  const COL = [
+    {cod: 'C',  rot: 'Concl.', k: 'C'},
+    {cod: 'E',  rot: 'Em and.', k: 'E'},
+    {cod: 'PA', rot: 'Paral.', k: 'PA'},
+    {cod: '',   rot: 'Prev.', k: 'P'}
+  ];
+  const LSVC = 132, LCOL = 44, LPCT = 40, LARG = LSVC + COL.length * LCOL + LPCT + 20;
+  const LINHA = 15, CAB = 30;
+  const cabem = Math.max(0, Math.floor((yb - 26 - CAB - LINHA) / LINHA));
+  if (W < 560 || cabem < 3) return;
+  const mostra = q.slice(0, Math.min(cabem, 10));
+  const resto = q.length - mostra.length;
+  const alt = CAB + (mostra.length + 1) * LINHA + (resto ? LINHA : 0) + 6;
+  const x0 = W - LARG - 12, y0 = yb - alt - 12;
+
+  g.save();
+  g.fillStyle = 'rgba(255,255,255,.95)';
+  g.strokeStyle = 'rgba(22,50,79,.6)';
+  g.lineWidth = 1;
+  g.beginPath(); g.rect(x0, y0, LARG, alt); g.fill(); g.stroke();
+
+  g.textBaseline = 'middle';
+  g.textAlign = 'left';
+  g.fillStyle = '#16324F';
+  g.font = '700 10.5px system-ui, sans-serif';
+  g.fillText('RESUMO POR SERVIÇO — QUILÔMETRO', x0 + 8, y0 + 11);
+
+  // cabeçalho das colunas, pintado como na planilha
+  const yc = y0 + CAB - 8;
+  g.font = '600 9px system-ui, sans-serif';
+  COL.forEach((c, k) => {
+    const x = x0 + 8 + LSVC + k * LCOL;
+    if (c.cod){
+      g.fillStyle = corStatus(c.cod);
+      g.fillRect(x, yc - 6, LCOL - 2, 12);
+      g.fillStyle = txtStatus(c.cod);
+    } else {
+      g.fillStyle = '#5A6B7B';
+    }
+    g.textAlign = 'center';
+    g.fillText(c.rot, x + (LCOL - 2) / 2, yc);
+  });
+  // A planilha do escritório mede porcentagem sobre o CONTRATADO. Com espaço para uma
+  // coluna só, é essa que aparece — e o cabeçalho diz qual das duas está na tela, senão o
+  // número fica ambíguo entre «andou do trecho» e «falta entregar».
+  const usaContrato = q.some(x => x.contratado);
+  g.textAlign = 'right';
+  g.fillStyle = '#5A6B7B';
+  g.fillText(usaContrato ? '% contr.' : '% trecho', x0 + LARG - 10, yc);
+
+  const num = v => v > 0.001 ? fmt(v, v < 10 ? 1 : 0) : '';
+  mostra.forEach((x, i) => {
+    const y = y0 + CAB + i * LINHA + LINHA / 2;
+    g.textAlign = 'left';
+    g.fillStyle = '#1F2933';
+    g.font = '9.5px system-ui, sans-serif';
+    let nome = x.svc;
+    while (nome.length > 4 && g.measureText(nome).width > LSVC - 6) nome = nome.slice(0, -2);
+    if (nome !== x.svc) nome = nome.slice(0, -1) + '…';
+    g.fillText(nome, x0 + 8, y);
+    COL.forEach((c, k) => {
+      const xx = x0 + 8 + LSVC + k * LCOL, v = x[c.k];
+      if (v > 0.001 && c.cod){
+        g.fillStyle = corStatus(c.cod);
+        g.fillRect(xx, y - 6, LCOL - 2, 12);
+        g.fillStyle = txtStatus(c.cod);
+      } else {
+        g.fillStyle = '#5A6B7B';
+      }
+      g.textAlign = 'center';
+      g.font = '9.5px system-ui, sans-serif';
+      g.fillText(num(v), xx + (LCOL - 2) / 2, y);
+    });
+    g.textAlign = 'right';
+    g.fillStyle = '#16324F';
+    g.font = '600 9.5px system-ui, sans-serif';
+    const pv = usaContrato ? x.pctContrato : x.pctTrecho;
+    if (x.excedeContrato) g.fillStyle = '#B0413E';
+    g.fillText(pv == null ? '—' : fmt(100 * pv, 0) + '%', x0 + LARG - 10, y);
+    g.fillStyle = '#16324F';
+  });
+
+  // linha de total, como na planilha
+  const yt = y0 + CAB + mostra.length * LINHA + LINHA / 2;
+  const soma = k => q.reduce((a, x) => a + x[k], 0);
+  const totTrecho = q.reduce((a, x) => a + x.kmTrecho, 0);
+  g.strokeStyle = 'rgba(22,50,79,.3)';
+  g.beginPath(); g.moveTo(x0 + 6, yt - 8); g.lineTo(x0 + LARG - 6, yt - 8); g.stroke();
+  g.textAlign = 'left';
+  g.fillStyle = '#16324F';
+  g.font = '700 9.5px system-ui, sans-serif';
+  g.fillText('TOTAL', x0 + 8, yt);
+  COL.forEach((c, k) => {
+    g.textAlign = 'center';
+    g.fillText(num(soma(c.k)), x0 + 8 + LSVC + k * LCOL + (LCOL - 2) / 2, yt);
+  });
+  g.textAlign = 'right';
+  const totCt = q.reduce((a, x) => a + (x.contratado || 0), 0);
+  const den = usaContrato ? totCt : totTrecho;
+  g.fillText(den > 0 ? fmt(100 * soma('C') / den, 0) + '%' : '—', x0 + LARG - 10, yt);
+
+  if (resto){
+    const y = yt + LINHA;
+    g.textAlign = 'left';
+    g.fillStyle = '#5A6B7B';
+    g.font = 'italic 9px system-ui, sans-serif';
+    g.fillText(`e mais ${resto} serviço(s) — ver o relatório`, x0 + 8, y);
+  }
+  g.restore();
 }

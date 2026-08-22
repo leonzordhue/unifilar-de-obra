@@ -120,15 +120,25 @@ function tabelaQuadroObra(){
   const km = v => v > 0 ? fmt(v, 1) : '—';
   const pc = v => v == null ? '—' : fmt(100 * v, 1) + '%';
   const soma = k => q.reduce((a, x) => a + x[k], 0);
+  // A célula com quilômetro ganha o fundo da situação, na paleta do catálogo — que é a do
+  // escritório: verde concluído, laranja em andamento. Célula em zero fica branca, senão o
+  // quadro vira um mosaico e a cor deixa de destacar o que importa.
+  const cel = (v, cod) => v > 0.001
+    ? `<td style="background:${corStatus(cod)};color:${txtStatus(cod)}">${km(v)}</td>`
+    : '<td>—</td>';
   const somaCt = q.reduce((a, x) => a + (x.contratado || 0), 0);
   return `<table><thead><tr><th class="t">Serviço</th>
       ${temCt ? '<th>Contratado</th>' : ''}
-      <th>Concluído</th><th>Em and.</th><th>Paralisado</th><th>Sem plan.</th><th>Previsto</th>
+      <th style="background:${corStatus('C')};color:${txtStatus('C')}">Concluído</th>
+      <th style="background:${corStatus('E')};color:${txtStatus('E')}">Em and.</th>
+      <th style="background:${corStatus('PA')};color:${txtStatus('PA')}">Paralisado</th>
+      <th style="background:${corStatus('S')};color:${txtStatus('S')}">Sem plan.</th>
+      <th>Previsto</th>
       <th>% do trecho</th>${temCt ? '<th>% do contrato</th>' : ''}</tr></thead><tbody>${
     q.map(x => `<tr><td class="t">${esc(x.svc)}</td>
       ${temCt ? `<td>${km(x.contratado || 0)}</td>` : ''}
-      <td>${km(x.C)}</td><td>${km(x.E)}</td><td>${km(x.PA)}</td><td>${km(x.S)}</td>
-      <td>${km(x.P)}</td><td>${pc(x.pctTrecho)}</td>
+      ${cel(x.C, 'C')}${cel(x.E, 'E')}${cel(x.PA, 'PA')}${cel(x.S, 'S')}${cel(x.P, '')}
+      <td>${pc(x.pctTrecho)}</td>
       ${temCt ? `<td>${x.excedeContrato
         ? `<b title="executado acima do contratado">${pc(x.pctContrato)} ⚠</b>`
         : pc(x.pctContrato)}</td>` : ''}</tr>`).join('')}
@@ -166,3 +176,67 @@ function blocoContratoRel(){
   return `<table><tbody>${linhas.map(([a, b]) =>
     `<tr><td class="t">${esc(a)}</td><td class="t">${esc(b)}</td></tr>`).join('')}</tbody></table>`;
 }
+
+
+/* ---------------------------------------------------------------- gráfico para análise */
+/** Barras empilhadas por serviço, em SVG escrito à mão.
+
+    Sem biblioteca de gráfico: o repositório serve tudo da própria pasta, e dependência nova
+    precisa ser baixada, versionada e justificada. SVG também sobrevive à impressão sem
+    perder nitidez, o que um canvas não faz.
+
+    O que o gráfico responde de longe, e a tabela não: qual frente está parada, qual está
+    quase pronta, e qual passou do contratado — este último com o traço de referência. */
+function graficoQuadroObra(){
+  const q = quadroObra().filter(x => x.kmTrecho > 0.001);
+  if (!q.length) return '';
+  const temCt = q.some(x => x.contratado);
+  // Previsto tem código 'P' no catálogo: buscar a cor por '' devolvia branco, a barra
+  // desaparecia e as demais ficavam minúsculas contra a escala do trecho inteiro — o
+  // gráfico deixava de comparar, que é a única coisa que ele existe para fazer.
+  const ordem = [['C', 'C'], ['E', 'E'], ['PA', 'PA'], ['S', 'S'], ['P', 'P']];
+  // a escala é o maior entre a extensão do trecho e o maior contratado: sem isso, um serviço
+  // com contratado acima do trecho sairia com a barra estourando a área do desenho
+  const esc = Math.max(...q.map(x => Math.max(x.kmTrecho, x.contratado || 0)));
+  const LB = 15, GAP = 7, ESQ = 168, DIR = 62, TOPO = 26;
+  const larg = 760, alt = TOPO + q.length * (LB + GAP) + 10;
+  const px = km => (larg - ESQ - DIR) * km / (esc || 1);
+  const linhas = q.map((x, i) => {
+    const y = TOPO + i * (LB + GAP);
+    let cx = ESQ, barras = '';
+    ordem.forEach(([cod, ]) => {
+      const v = x[cod];
+      if (!v || v <= 0.001) return;
+      const w = px(v);
+      barras += `<rect x="${cx.toFixed(1)}" y="${y}" width="${w.toFixed(1)}" height="${LB}"
+        fill="${corStatus(cod)}"><title>${esc0(x.svc)} — ${esc0(nomeStatus(cod))}: ${fmt(v, 1)} km</title></rect>`;
+      cx += w;
+    });
+    const ct = x.contratado ? `<line x1="${(ESQ + px(x.contratado)).toFixed(1)}" y1="${y - 2}"
+      x2="${(ESQ + px(x.contratado)).toFixed(1)}" y2="${y + LB + 2}"
+      stroke="#16324F" stroke-width="2" stroke-dasharray="3 2"><title>contratado: ${fmt(x.contratado, 0)} km</title></line>` : '';
+    const pv = temCt && x.contratado ? x.pctContrato : x.pctTrecho;
+    return `<text x="${ESQ - 6}" y="${y + LB / 2}" text-anchor="end" dominant-baseline="middle"
+        font-size="10.5">${esc0(x.svc.length > 26 ? x.svc.slice(0, 25) + '…' : x.svc)}</text>
+      ${barras}${ct}
+      <text x="${larg - DIR + 6}" y="${y + LB / 2}" dominant-baseline="middle" font-size="10.5"
+        font-weight="600" fill="${x.excedeContrato ? '#B0413E' : '#16324F'}">${
+        pv == null ? '—' : fmt(100 * pv, 0) + '%'}</text>`;
+  }).join('');
+  const legenda = ordem.map(([cod, ], i) =>
+    `<rect x="${ESQ + i * 122}" y="6" width="10" height="10" fill="${corStatus(cod)}"
+       stroke="#8E9AA6" stroke-width=".5"/>
+     <text x="${ESQ + i * 122 + 14}" y="11.5" font-size="9.5" dominant-baseline="middle"
+       >${esc0(nomeStatus(cod === 'P' ? '' : cod))}</text>`).join('');
+  return `<svg viewBox="0 0 ${larg} ${alt}" width="100%" style="max-width:${larg}px"
+      font-family="system-ui, sans-serif" role="img"
+      aria-label="Avanço por serviço, em quilômetro">
+      ${legenda}${linhas}
+    </svg>
+    <div class="meta">Em quilômetro, escala comum a todos os serviços. O traço vertical marca
+      a quantidade contratada${temCt ? '' : ' (nenhuma informada ainda)'}; barra que passa dele
+      é executado acima do contratado. O percentual à direita é
+      ${temCt ? 'do contrato onde há quantidade informada, e do trecho nos demais'
+              : 'do trecho'}.</div>`;
+}
+const esc0 = t => esc(t);

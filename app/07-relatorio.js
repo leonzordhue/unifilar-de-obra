@@ -67,6 +67,7 @@ function pintaRel(){
 
     <h2>${S.croqui ? '3' : '2'}. Situação por serviço</h2>
     ${tabelaQuadroObra()}
+    ${typeof graficoQuadroObra === 'function' ? graficoQuadroObra() : ''}
     <div class="meta">Abaixo, o mesmo controle contado em posições — serviço, lado e
       quilômetro —, que é a unidade de lançamento da plataforma.</div>
     <table><thead><tr><th>Serviço</th><th>Lado</th><th>Concl.</th><th>Em and.</th>
