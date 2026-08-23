@@ -163,6 +163,35 @@ def main(defeito=False):
         ok(bool(re.search(r"KM\s*[\d.,]+\s*(a|-|–)\s*[\d.,]+", rel["texto"])),
            "e declara qual trecho esta contando")
 
+        print('\n8. O CLIENTE ABRIU E NAO TINHA MAPA - o caminho real, sem esperar')
+        # 23/08: ele carregou o eixo e foi direto ao Relatorio. O croqui e montado em segundo
+        # plano e demora alguns segundos; quem abre antes recebia o documento SEM a secao
+        # «Localizacao do trecho», e ela nunca chegava depois. Medido na epoca: 1,2 s apos o
+        # eixo -> 0 imagem; 7 s apos -> 1 imagem. O MESMO documento, dois conteudos, decididos
+        # por quanto a pessoa demorou a clicar. A suite inteira estava verde.
+        pg.evaluate("() => location.reload()")
+        pg.wait_for_timeout(2600)
+        pg.evaluate("""() => { const s = document.querySelector('#selAcervo');
+            const o = [...s.options].find(x => x.textContent.indexOf('AM-239') === 0);
+            if (o){ s.value = o.value; s.dispatchEvent(new Event('change')); } }""")
+        pg.wait_for_timeout(900)          # o cliente nao espera o croqui: clica
+        pg.evaluate("() => mostra('rel')")
+        pg.wait_for_timeout(9000)         # e depois olha o documento
+        img = pg.evaluate("() => document.querySelectorAll('#vRel img').length")
+        ok(img >= 1, "o relatorio traz o mapa mesmo quando aberto antes de o croqui ficar pronto",
+           f"{img} imagem(ns)")
+
+        # e o nome digitado tem de chegar ao documento ja aberto: na captura dele o campo
+        # dizia «AM-020» e o cabecalho do relatorio dizia «AM-239», que e o nome do EIXO
+        nome = pg.evaluate("""() => { const i = document.querySelector('#nomeObra');
+            i.value = 'AM-020 — teste'; i.dispatchEvent(new Event('input'));
+            return null; }""")
+        pg.wait_for_timeout(1200)
+        cab = pg.evaluate("() => document.querySelector('#vRel').innerText.slice(0, 400)")
+        ok("AM-020" in cab, "e o nome digitado da obra chega ao documento ja aberto",
+           "AM-020" if "AM-020" in cab else cab.split(chr(10))[2][:60])
+
+
         nav.close()
 
     print(f"\nERROS DE CONSOLE: {len(console)}")

@@ -219,7 +219,18 @@ function textoSituacao(eixo){
          'implantada no cadastro.</div>';
 }
 function textoExtensao(eixo){
-  if (!S.conf || !eixo || eixo.tipo !== 'rodovia') return '';
+  if (!eixo || eixo.tipo !== 'rodovia') return '';
+  // ARQUIVO INTEIRO AUSENTE TAMBÉM SE DECLARA. Até 23/08 esta função avisava quando FALTAVA
+  // O EIXO na conferência e ficava muda quando faltava a conferência inteira — o caso raro e
+  // grave era o silencioso, e o comum, o declarado. Se o `catch` do carregamento disparar
+  // (arquivo renomeado, deploy parcial, Jekyll comendo a pasta), os avisos de traçado
+  // faltando somem todos de uma vez e a plataforma segue como se cada extensão estivesse
+  // conferida — inclusive o da AM-366, que é o que mostra os 17 km pavimentados em Tefé.
+  // Ausência de aviso não tem cara de defeito; por isso ela precisa ter voz. Achado do
+  // jarvisIV ao derrubar uma hipótese própria.
+  if (!S.conf) return '<div class="dica" style="margin-top:6px">Conferência de extensão não ' +
+    'carregada: nenhuma extensão desta tela foi comparada com o cadastro do Departamento ' +
+    'Rodoviário.</div>';
   const c = (S.conf.eixos || {})[eixo.nome];
   if (!c) return '<div class="dica" style="margin-top:6px">Extensão sem conferência ' +
                  'independente: o cadastro do Departamento Rodoviário não foi consultado ' +
@@ -289,12 +300,25 @@ function aplicaEixo(eixo, mantemInv){
     if (S.vista === 'croqui') pintaCroqui();
   });
 }
+/** Diz o que está a caminho e repinta a vista aberta — as duas coisas, sempre juntas.
+
+    Anunciar sem repintar deixa «montando…» na tela para sempre; repintar sem anunciar é o
+    silêncio que fez o cliente receber relatório sem mapa. */
+function anuncia(oque){
+  S.carregando = oque || '';
+  if (typeof render === 'function') render();
+}
+
 async function escolheAcervo(){
   const sel = $('#selAcervo');
   if (!sel.value) return;
+  // o acervo de ramais tem 6 MB: entre escolher e o traçado aparecer há segundos de espera em
+  // que a tela dizia «escolha um eixo» — a mesma frase de quando não se escolheu nada
+  anuncia('carregando o traçado do acervo…');
   const d = await acervo(S.fonte);
   const it = d.itens[+sel.value];
-  if (!it) return;
+  if (!it){ anuncia(''); return; }
+  anuncia('');
   aplicaEixo({nome: it.nome, tipo: it.tipo, linhas: it.linhas,
               km_cadastro: it.km_cadastro, km_geometria: it.km_geometria,
               km_implantado: it.km_implantado, faixas: it.faixas || [],

@@ -14,8 +14,29 @@ function faixasDe(l){
 function pintaRel(){
   const alvo = $('#vRel'), linhas = linhasMatriz();
   if (!S.eixo || !linhas.length){
-    alvo.innerHTML = '<div class="aviso"><b>Nada a relatar.</b> Escolha um eixo e marque serviços.</div>';
+    alvo.innerHTML = S.carregando
+      ? `<div class="aviso"><b>${esc(S.carregando)}</b></div>`
+      : '<div class="aviso"><b>Nada a relatar.</b> Escolha um eixo e marque serviços.</div>';
     return;
+  }
+  // O RELATÓRIO SEM MAPA ERA UMA CORRIDA, e o cliente caiu nela em 23/08. O croqui é montado
+  // em segundo plano quando o eixo carrega (03-acervo.js) e demora alguns segundos: quem abre
+  // «Relatório» antes disso recebia o documento SEM a seção «Localização do trecho» — e ela
+  // nunca aparecia depois, porque ficar pronto não repintava nada. Reproduzido: relatório
+  // aberto 1,2 s após o eixo → 0 imagem; 7 s após → 1 imagem. O mesmo documento, dois
+  // conteúdos, decididos por quanto a pessoa demorou a clicar.
+  //
+  // Agora o relatório PEDE o croqui, como o pacote CDE e o «Baixar PNG» já faziam, e se
+  // repinta quando ele chega. `pedindoCroqui` impede a segunda chamada de disparar outra
+  // geração enquanto a primeira corre.
+  if (!S.croqui && typeof geraCroqui === 'function' && !pintaRel.pedindoCroqui){
+    pintaRel.pedindoCroqui = true;
+    geraCroqui().then(c => {
+      pintaRel.pedindoCroqui = false;
+      if (!c) return;
+      S.croqui = c;
+      if (S.vista === 'rel') pintaRel();
+    }).catch(() => { pintaRel.pedindoCroqui = false; });
   }
   const segs = segsNoTrecho(), t = totais();
   // recortada: o quilômetro da ponta entra pelo pedaço que está no trecho
@@ -305,7 +326,10 @@ function controleDaObra(){
       <td>${fmt(totalKm, 0)}</td><td>${km(x.S)}</td><td>${km(x.P)}</td>
       <td>${km(x.E)}</td><td>${km(x.PA)}</td><td><b>${km(x.C)}</b></td>
       <td><b>${pct(x.C, totalKm)}</b></td></tr>`).join('')}
-    <tr><td class="t"><b>Total</b></td><td><b>${fmt(totalKm * q.length, 0)}</b></td>
+    <tr><td class="t"><b>Total</b><span style="font-weight:400;color:#5A6B7B"> · ${
+        q.length} serviço(s) × ${fmt(totalKm, 0)} km</span></td>
+      <td><b>${fmt(totalKm * q.length, 0)}</b><span style="font-weight:400;color:#5A6B7B">
+        km de controle</span></td>
       <td><b>${km(soma('S'))}</b></td><td><b>${km(soma('P'))}</b></td>
       <td><b>${km(soma('E'))}</b></td><td><b>${km(soma('PA'))}</b></td>
       <td><b>${km(soma('C'))}</b></td>

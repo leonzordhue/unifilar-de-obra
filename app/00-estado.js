@@ -55,6 +55,11 @@ const S = {
   cat: null, catId: '', conf: null, acervo: {rodovia: null, ramal: null},
   fonte: 'rodovia', ref: 'km',
   eixo: null, segs: [], svc: [], dados: {},
+  // O QUE ESTÁ A CAMINHO. Tudo o que depende de rede ou de desenho demorado passa por aqui,
+  // e toda vista vazia pergunta antes de dizer «escolha um eixo»: o cliente abriu o relatório
+  // 1,2 s depois de carregar o eixo e recebeu um documento sem mapa, porque a tela calada
+  // durante o carregamento é indistinguível da tela vazia.
+  carregando: '',
   // Data de cada lançamento, em mapa PARALELO a `dados` — e não dentro da célula. São onze
   // leitores de `S.dados` em sete arquivos: trocar o tipo do valor é a mudança que passa nas
   // provas e quebra no canto que ninguém abriu. O preço do mapa paralelo é poder divergir,

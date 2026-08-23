@@ -136,6 +136,26 @@ que o `montaAbas()` percorre.**
 Fica registrada e riscada em vez de apagada: apagar esconderia que o contrato desta casa
 mentiu por dois dias, e foi lendo esta seção que alguém perdeu tempo.
 
+### Armadilha do `render()` — leia antes de escrever prova que olha o DOM
+
+**`render()` pinta SÓ a vista ativa** (`99-montagem.js`). As outras vistas ficam com o que
+sobrou da pintura anterior. Prova que faz `render()` e depois lê o DOM de uma vista que não
+é a ativa **não mede o que acha que mede**: lê a tela de antes, e pode passar verde por
+acidente ou reprovar por engano.
+
+Esta armadilha pegou duas pessoas em dois dias, e as duas perderam tempo achando que era
+defeito de produto:
+
+- **22/08, `testar-painel.py`** — dois blocos liam `#vPainel` com `S.vista === 'matriz'`.
+  Reprovavam de verdade, e o defeito era do produto (o painel não repintava no «Controle»),
+  mas o diagnóstico só apareceu depois de medir `S.vista` nos pontos de falha (jarvisIV).
+- **23/08, `testar-tela-carregando.py`** — o bloco 3 lia as quatro vistas depois de um
+  `render()`. Três «FALHA» que eram da prova (Cortanna).
+
+**A regra:** quem lê o DOM de uma vista chama o pintor dela de propósito
+(`pintaPainel()`, `pintaRel()`, `pintaMatriz()`, `pintaFaixa()`), ou troca a vista antes.
+É o que acontece de verdade quando a pessoa abre aquela aba.
+
 ### Estado
 
 ```js

@@ -188,7 +188,15 @@ function liga(){
     S.catId = e.target.value;
     montaSvc(); pintaCat(); pintaSvc(); render(); salvaLocal();
   };
-  $('#nomeObra').oninput = salvaLocal;
+  // O NOME DA OBRA TEM DE CHEGAR AO DOCUMENTO. Só `salvaLocal` guardava o valor, e o
+  // relatório já pintado continuava com o nome anterior — na captura do cliente, em 23/08, o
+  // campo dizia «AM-020» e o cabeçalho do relatório dizia «AM-239», que é o nome do eixo, o
+  // que o `S.obra || S.eixo.nome` usa quando a obra está vazia. Reproduzido: `S.obra` já era
+  // «AM-020» e o documento na tela ainda dizia «AM-239».
+  $('#nomeObra').oninput = () => {
+    salvaLocal();
+    if (S.vista === 'rel' && typeof pintaRel === 'function') pintaRel();
+  };
 }
 
 /* ---------------------------------------------------------------- início */
@@ -217,9 +225,13 @@ function liga(){
   montaAbas(); liga(); iniMapa();
   await pintaAcervo();
   const salvo = localStorage.getItem(CHAVE_LOCAL);
+  // recuperar projeto guardado leva segundos com 269 km e fotos: sem anunciar, quem abre a
+  // plataforma vê «escolha um eixo» e acha que perdeu o trabalho da véspera
+  if (salvo && typeof anuncia === 'function') anuncia('recuperando o projeto guardado…');
   if (salvo){
     try { aplicaProjeto(JSON.parse(salvo)); }
     catch (e){ /* projeto local corrompido: começa limpo */ }
+    if (typeof anuncia === 'function') S.carregando = '';
   }
   render();
 })();

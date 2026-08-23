@@ -53,8 +53,10 @@ function resumoLinha(l){
 function pintaMatriz(){
   const alvo = $('#vMatriz'), linhas = linhasMatriz();
   if (!S.eixo || !linhas.length){
-    alvo.innerHTML = `<div class="aviso"><b>Nada a exibir.</b> ${
-      !S.eixo ? 'Escolha um eixo na lateral.' : 'Marque ao menos um serviço na lateral.'}</div>`;
+    alvo.innerHTML = S.carregando
+      ? `<div class="aviso"><b>${esc(S.carregando)}</b></div>`
+      : `<div class="aviso"><b>Nada a exibir.</b> ${
+        !S.eixo ? 'Escolha um eixo na lateral.' : 'Marque ao menos um serviço na lateral.'}</div>`;
     return;
   }
   const segs = S.segs;

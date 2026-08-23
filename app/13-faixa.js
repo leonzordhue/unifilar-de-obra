@@ -39,7 +39,8 @@ function pintaFaixa(){
   const cx = $('#faixa');
   if (!cx) return;
   if (!S.eixo || !S.segs.length){
-    cx.innerHTML = '<div class="faixaVazia">Escolha um eixo para ver o traçado dividido.</div>';
+    cx.innerHTML = `<div class="faixaVazia">${S.carregando
+      ? esc(S.carregando) : 'Escolha um eixo para ver o traçado dividido.'}</div>`;
     return;
   }
   const sel = CH_SEL();

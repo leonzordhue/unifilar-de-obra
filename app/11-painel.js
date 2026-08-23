@@ -110,7 +110,9 @@ function pintaPainel(){
   const alvo = $('#vPainel');
   if (!alvo) return;
   if (!S.eixo){
-    alvo.innerHTML = '<div class="aviso"><b>Nada a exibir.</b> Escolha um eixo na lateral.</div>';
+    alvo.innerHTML = S.carregando
+      ? `<div class="aviso"><b>${esc(S.carregando)}</b></div>`
+      : '<div class="aviso"><b>Nada a exibir.</b> Escolha um eixo na lateral.</div>';
     return;
   }
   const segs = segsNoTrecho(), ids = segs.map(s => s.id);
