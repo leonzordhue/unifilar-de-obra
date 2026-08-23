@@ -30,7 +30,7 @@ próprio navegador e o projeto fica no `localStorage` até ser salvo em arquivo.
 | **Trecho em obra** | A obra pode ocupar só parte do eixo. Fora do trecho a célula fica hachurada e não recebe lançamento. |
 | **Serviços por lado** | Dois catálogos da planilha da SEINFRA — recuperação (12 serviços, padrão AM-010) e implantação (9 serviços, padrão AM-070) — cada serviço com os lados que fazem sentido (único, faixa direita/esquerda, acostamento direito/esquerdo). |
 | **Croqui em satélite** | Imagem do trecho sobre imagem de satélite, gerada na hora, com marcação de quilômetro, escala e crédito — para quem lê o relatório se localizar. |
-| **Relatório** | Localização do trecho, avanço geral, situação por serviço, detalhamento por faixa e notas técnicas, pronto para imprimir ou salvar em PDF pelo navegador. |
+| **Relatório** | Localização do trecho, avanço geral, situação por serviço, o unifilar impresso (uma barra por serviço e lado, cor por situação) e notas técnicas, pronto para imprimir ou salvar em PDF pelo navegador. A relação faixa a faixa continua completa no CSV e no pacote CDE. |
 | **Acervo base** | 34 rodovias estaduais (3.456,7 km de traçado, dos quais **1.146,6 km implantados**) e 905 ramais (6.262,1 km), do cadastro do Departamento Rodoviário. |
 | **Implantado x planejado** | O cadastro registra trecho que ainda não existe no chão. A plataforma separa os dois: diz quanto do eixo é implantado e em que quilômetros está o planejado. |
 
@@ -80,19 +80,28 @@ dados/
   catalogo-ensaios.json          ensaios de controle tecnológico e normas de referência
 ferramentas/
   gerar-acervo.py                monta os acervos a partir das camadas do DMOB
-  testar-motor.mjs               prova o cálculo fora do navegador (node)
-  testar-interface.py            opera a interface num Chromium e grava as capturas
-  testar-fluxos.py               prova KMZ, KML, salvar/reabrir, CSV, estaca e ramal
-  testar-modulos.mjs             prova a carga dos dez módulos: ordem, globais e símbolos
-  conferir-acervo-vs-cadastro.py compara o acervo com a Planilha Geral do Departamento
-  testar-sentido-por-ramal.py    mede o KM 0 contra o KM que os ramais declaram
-  testar-obra.py                 o fluxo da obra ponta a ponta, na AM-151
+  testar-motor.mjs               cálculo, costura do traçado e sentido do eixo (node)
+  testar-modulos.mjs             carga dos módulos: ordem, globais e símbolos
   testar-estaca-e-trecho.mjs     estaqueamento, recorte fracionário e sobra do último km
-  testar-painel.py               painel de conformidade
+  testar-interface.py            opera a interface num Chromium e grava as capturas
+  testar-fluxos.py               KMZ, KML, salvar/reabrir, CSV, estaca e ramal
+  testar-obra.py                 o fluxo da obra ponta a ponta, na AM-151
+  testar-simplicidade.py         alvos na tela, gestos até lançar e porta de cada função
+  testar-campo.py                tablet retrato, tablet paisagem e telefone
+  testar-painel.py               painel de conformidade, mapa por critério e quadro da obra
+  testar-impressao.py            gera o PDF e mede página, cabeçalho órfão, croqui e rodapé
+  testar-cde.py                  abre o pacote e confere cada arquivo contra a tela
+  testar-desempenho.py           tempo de carga, de render e do clique na matriz
+  testar-armazenamento-cheio.py  o que acontece quando o navegador recusa gravar
+  testar-limite-de-fotos.py      quantas fotos cabem, e o que sobra quando não cabem
+  testar-fotos-no-recarregamento.py  a foto do trabalho em curso sobrevive ao recarregar
+  testar-troca-de-obra.py        trocar de contrato não descarta o dia de campo em silêncio
+  testar-nada-sumiu.py           o que saiu da tela continua alcançável
+  testar-importacao.py           importa a planilha viva do DMOB e confere o avanço
   testar-prova-de-vazamento.py   lançamento não vaza entre catálogos de serviço
   testar-o-verificador.py        autoteste: o verificador reprova defeito injetado
-  testar-cde.py                  abre o pacote e confere cada arquivo contra a tela
-  testar-impressao.py            gera o PDF e mede página, cabeçalho órfão e rodapé
+  conferir-acervo-vs-cadastro.py compara o acervo com a Planilha Geral do Departamento
+  testar-sentido-por-ramal.py    mede o KM 0 contra o KM que os ramais declaram
   importar-camada-de-km.py       conferência contra a planilha viva do DMOB
   juntar-normas.py               junta as fatias de pesquisa de norma, recusando o que não
                                  tem código, título e fonte
@@ -164,7 +173,33 @@ primeiro vértice do traçado nos 905 casos: o KM 0 do ramal é o entroncamento,
 
 ## Como isto foi conferido
 
-Duas provas rodam por fora e não dependem de conferência visual:
+**São 21 provas, e todas rodam por fora, sem conferência visual.** A regra da casa é que
+prova que nunca reprovou não vale nada: `testar-o-verificador.py` injeta defeito de propósito
+e exige que as outras acusem, e `testar-simplicidade.py --autoteste` incha a tela com doze
+botões para confirmar que o portão pisca.
+
+O que elas seguram, em número:
+
+- **a tela continua simples**: 27 alvos na primeira dobra com o eixo carregado, e o primeiro
+  serviço lançado em 5 gestos — escolher a rodovia, marcar o quilômetro, o serviço, a
+  situação, aplicar;
+- **toda função tirada da tela tem porta**: croqui em PNG, CSV, pacote CDE, imprimir,
+  inverter sentido, estaca inicial e catálogo de serviços;
+- **o relatório cabe**: 10 páginas para uma obra de 269 km, com cabeçalho de tabela repetido
+  em toda página que tem linha e o croqui dentro da margem;
+- **o clique na matriz não remonta a tela**: 5.918 células, 0 ms entre o clique e a repintura;
+- **nada se perde quando o navegador recusa gravar**: o aviso aparece, o projeto degrada sem
+  as fotos, e o quilômetro lançado sobrevive ao recarregamento;
+- **trocar de contrato pergunta antes de descartar** o que está na tela.
+
+Rodar tudo de uma vez — a suíte inteira, uma linha por prova:
+
+```
+python ferramentas/rodar-todas.py
+```
+
+E as três que interessa rodar sozinhas, sendo a última a única que confere o dado contra
+**fonte de fora**:
 
 ```
 node ferramentas/testar-motor.mjs               # cálculo: geodésia, segmentação, sentido do eixo

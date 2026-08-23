@@ -285,6 +285,22 @@ Atualize a sua linha no mesmo commit do código. Data no formato dd/mm hh:mm.
 
 | Frente | Dono | Situação | Atualizado em |
 |---|---|---|---|
+| **PRONTO, condição 4 — declaração do jarvisIV** | jarvisIV | **entregue** — reconferi os 5 achados que abri (os 5 caíram) e digo pronto na minha frente. **Um impedimento só, e não é meu de fechar: nada commitado, e o Pages serve o `f262177` de ontem.** Lista em `_canal/JARVISIV.md`, item 14 | 22/08 22:50 |
+| PRONTO, condição 1 — suíte inteira verde | jarvisIV | **conferido** — `python ferramentas/rodar-todas.py`: **20 portões verdes em ~6 min**, mais 1 relatório fora da conta. Descobre as provas sozinho; não aceita como verde quem imprime «FALHA(S)» e sai 0, nem quem não dá veredito nenhum (a `testar-sentido-por-ramal.py` é relatório e eu a estava contando como verde) | 22/08 23:00 |
+| PRONTO, condição 3 — nada removido em silêncio | jarvisIV | **provado** — a tabela «saiu da tela / onde está» virou `ferramentas/testar-nada-sumiu.py`: 21 conferências no DOM vivo, verde. Declaração em Markdown envelhece em silêncio; prova não | 22/08 22:50 |
+| Trocar de contrato descarta a tela sem perguntar | Cortanna | **corrigido e provado** — `abreObra()` passou a chamar `podeDescartar()`, e reabrir a MESMA obra não pergunta. Reconferido por mim em `ferramentas/testar-troca-de-obra.py` (a medição virou portão): 1 pergunta ao trocar, 0 ao reabrir a mesma | 22/08 22:40 |
+| Foto de obra anterior ocupa o teto da obra nova | Cortanna | **corrigido e provado** — `S.fotos = p.fotos || {}`, com a ressalva do `fotosOmitidas` para não apagar foto de projeto salvo sem ela. Reconferido: 0 órfãs, 0 KB | 22/08 22:40 |
+| Foto que não cabe leva a medição junto | Cortanna | **corrigido e provado** — o ensaio entra sem a foto, com `r.semFoto` levando o motivo à ficha, ao CSV e ao relatório. A prova virou portão (`testar-limite-de-fotos.py`): `0 → 1` registro, medição 97 preservada | 22/08 22:40 |
+| Pacote CDE montando o zip em memória | jarvisIV | **hipótese derrubada** — o teto do `guardaFoto()` impede o estouro e o `exportaCDE()` avisa na falha; nome da foto no CSV bate com o do zip. Caminho defendido | 22/08 |
+| **Catálogo de ensaios — FECHADO** | jarvisIV | **22 itens, 22 confirmados, 0 declarações pendentes.** Nove itens ficam sem limite numérico de propósito (critério do projeto ou de curva) e entram na conformidade como «sem base» | 22/08 |
+| Espessura da base julgada pelo intervalo construtivo | jarvisIV | **corrigido** — a tolerância é ± 10% da espessura de PROJETO (DNIT 141/2022-ES, 7.3 c); 10–20 cm é o intervalo construtivo (5.3.6). 19 cm num projeto de 15 cm saía **conforme**. Limites a nulo, critério manda o fiscal digitar projeto ± 10% na ficha | 22/08 |
+| fck do concreto dependia de norma ABNT não pública | jarvisIV | **fechado** — o método passou a ser a **DNER-ME 091/98**, pública e lida; o prefácio dela diz que veio substituir o texto que «adotava a ABNT NBR 5739/94 pelo Processo de Referência». A NBR 12655 fica onde é o papel dela: amostragem | 22/08 |
+| Junção sobrescrevia correção de outro dono em silêncio | jarvisIV | **corrigido** — campo de julgamento de item confirmado só muda com `corrige` declarado na fatia; senão a junção **mantém o catálogo** e imprime a divergência. Dentro de `corrige`, nulo apaga o número. Item recusado deixou de ter a lacuna dada por fechada | 22/08 |
+| Catálogo de ensaios — CBR-SUBLEITO | jarvisIV | **fechado** — DNIT 137/2010-ES aberta no PDF do DNIT; a ES não fixa ISC mínimo (é do projeto), `limite_min` fica **nulo**, não zero; frequência 1/400 m, `por_km` 2,5 | 22/08 |
+| Expansão do subleito julgada pelo número da base | jarvisIV | **corrigido** — `EXPANSAO` era `camada: subleito` com o limite de 0,5% da base: 1,2% no subleito (conforme pela 137, que admite 2%) saía **reprovado**. Item retiquetado para base; entrou `EXPANSAO-SUBLEITO`, limite 2,0% | 22/08 |
+| Grau de compactação do subleito ausente do catálogo | jarvisIV | **corrigido** — a 137, 7.2 c, exige **100%**, não os 95% do aterro: quem lançasse no item do aterro **aceitava serviço que a norma rejeita**. Entrou `GC-SUBLEITO` | 22/08 |
+| Junção de normas reabria lacuna já fechada | jarvisIV | **corrigido** — a declaração vive na fatia de quem abriu e voltava a cada junção. Regra `resolvidos: ["COD"]` na própria fatia, com recusa de declaração falsa (provada) | 22/08 |
+| Painel não repintava no «Controle» | HAL9000 | **corrigido e provado** — `juntaVistas()` no fim de `pintaMatriz()`, com guarda de `typeof` e trava de reentrância. `testar-painel.py` verde | 22/08 22:40 |
 | Registro de abas e contrato de dados | Cortanna | **pronto** — `registraAba()` e as funções do item 4 | 21/08 16:40 |
 | Faixa unifilar, seleção de KM e cor por serviço | Cortanna | **pronto e provado** (`testar-obra.py`) | 21/08 16:40 |
 | Obra guardada e reaberta por nº de contrato | Cortanna | **pronto e provado** (`testar-obra.py`) | 21/08 16:40 |
@@ -358,6 +374,12 @@ commit `9207ddf`, já verde, com `kmNoTrecho` atravessando a ponte do contexto.
 
 ## 10. Pedidos ao dono do arquivo
 
+**jarvisIV → Cortanna, 22/08 (não bloqueia nada).** A tua `dados/_normas/cortanna.json` diverge do catálogo em 4 campos, e a junção passa a imprimir os dois valores lado a lado a cada rodada: `CBR-SUBLEITO.norma_metodo` (o teu tem o título em caixa baixa, sem «– Método de ensaio», e a fonte no índice da coletânea em vez do PDF) e `ESPESSURA-BASE.limite_min`, `.limite_max` e `.criterio` (10/20 é o intervalo construtivo, não a tolerância de ± 10% do projeto — ver `_canal/JARVISIV.md`, item 5). O catálogo já está com o valor conferido; é só apagar esses campos da tua fatia, ou declarar `corrige` no que quiseres reimpor. Não toquei no teu arquivo.
+
+**jarvisIV → HAL9000, 22/08.** `app/06-matriz.js`: chamar `juntaVistas()` no fim de `pintaMatriz()`, com guarda de `typeof` (o módulo 11 carrega depois do 06). Sem isso o quadro da obra e a conformidade ficam com o número anterior ao lado da matriz recém lançada, na mesma rolagem do «Controle» — e a tua `testar-painel.py` reprova por isso, com razão. Não editei: o teu bloco 11 mede que a matriz não é remontada no clique, e quem mexer ali tem de manter aquilo verde. Se preferires que eu faça, passa o arquivo no quadro.
+
+**Atendido em 22/08 (Cortanna → jarvisIV):** o `catch` vazio do `salvaLocal()`. A saída foi melhor que a que eu sugeri — grava tudo, grava sem as fotos, avisa uma vez com marca fixa, e devolve o último estado bom se nada couber. Conferido: 20 de 20 lançamentos sobrevivem ao recarregar.
+
 Escreva aqui o que precisa que outro faça no arquivo dele. Quem atender apaga o pedido e
 registra no quadro.
 
@@ -376,3 +398,101 @@ risco de dano se for preenchida no chute. Item 5 tem o formato e as regras.
 ensaios executados). A pintura por serviço já está lá e é o padrão que o cliente pediu: o
 critério entra como **alternativa escolhida pelo usuário**, não como substituição. Use
 `corConformidade()` e trate `null` como sem base, nunca como zero.
+
+---
+
+## Simplificação da casca — 22/08 02h10 (Cortanna, sob coordenação do HAL9000)
+
+Pedido do cliente: «não gostei de como ficou, muito confuso, era pra ser algo simples».
+Meta do coordenador: interativos visíveis **<= 45** e **<= 5** cliques até o primeiro
+lançamento. Régua: `ferramentas/medir-simplicidade.py` (a definição de «interativo
+visível» está escrita dentro do script, para a conferência do jarvisIV usar a mesma).
+
+Medido, AM-151 carregada: **94 → 41** interativos visíveis; lateral **68 → 23** controles
+e **6 → 3** blocos; topo **5 → 2** botões; ajuda **909 → 356** caracteres, dos quais
+**44 são texto escrito por nós** e 312 são estado do eixo (`infoAcervo`, `dicaSentido`,
+`infoCat`). Primeiro lançamento: **4 gestos** (escolher o eixo, marcar o km na faixa,
+escolher a situação, aplicar).
+
+**Nada foi apagado. O que saiu da tela, e onde está:**
+
+| Saiu da tela | Onde está agora |
+|---|---|
+| Botões «Novo», «Guardar obra», «Abrir» | painel **Obras**: `Nova obra`, `Guardar esta obra`, `Abrir arquivo…` |
+| Referência km/estaca, inverter sentido, estaca inicial | `<details>` «Sentido e estaqueamento», passo 2 |
+| Ensaios contratados (marcar/desmarcar + lista) | `<details>` «Ensaios contratados», passo 2 |
+| Acrescentar serviço fora do catálogo | `<details>`, passo 3 |
+| Objeto, valor e vigências do contrato | `<details>` «Objeto, valor e vigências», passo 2 |
+| Quantidade contratada por serviço | `<details>`, passo 2 |
+| Bloco «Legenda» | linha discreta dentro da faixa unifilar |
+| Ajuda longa dos campos de KM e da estaca | atributo `title=` do próprio controle |
+
+**«Abrir» não virou «Obras».** «Obras» lista o que está guardado neste navegador; «Abrir» é
+a única porta para projeto `.json` ou pacote CDE `.zip` vindo de fora. Continua existindo,
+dentro do painel.
+
+**Divergência declarada, decisão do coordenador:** a ordem dizia «ensaios sai da lateral».
+Ele ficou na lateral, recolhido, porque o que estava ali é *quais ensaios a obra contratou*
+— denominador do «% de ensaios executados» do painel —, e não o registro do ensaio
+executado, que é o que já existe na ficha do quilômetro.
+
+**Perda de dado corrigida no mesmo bloco** (achado do jarvisIV): `salvaLocal()` em
+`app/08-persistencia.js` tinha `catch` vazio e perdia lançamento em silêncio com o
+armazenamento cheio. Agora grava tudo → grava sem as fotos (que têm chave própria) → avisa
+uma vez e mantém marca fixa no topo; e se nada couber, devolve o projeto que já estava
+guardado, para uma falha de gravação não apagar o último estado bom.
+`ferramentas/testar-armazenamento-cheio.py`: 20 lançamentos em memória, **20 sobrevivem ao
+recarregar** (eram 5).
+
+---
+
+## 11. Coordenação HAL9000 — simplificação (22/08)
+
+O Paulo abriu a plataforma e disse: **«muito confuso, era pra ser algo simples»**. Ele pôs o
+HAL9000 à frente e determinou que o projeto termina quando **os três concordarem** que
+terminou. Esta seção é o alvo comum.
+
+### O que se está perseguindo
+
+A referência é a planilha `SEINFRA_CONTROLE AM-010`: uma linha por serviço e lado, uma coluna
+por quilômetro, cor por situação. E o gesto que o Paulo descreveu: *carrega o traçado, aparece
+a linha dividida em quilômetro, seleciona os quilômetros, marca o serviço com cor, diz a
+situação, salva com o número do contrato.*
+
+### Medida — antes e agora
+
+| | antes | agora | meta |
+|---|---|---|---|
+| abas | 6 | **3** | 3 |
+| botões no topo | 5 | **2** | 2 |
+| botões de ação na barra | 3 | **1** | 1 |
+| blocos na lateral | 6 | **3** | 3 |
+| texto de ajuda na lateral | 829 car. | **413** | ≤ 250 |
+| interativos na primeira dobra | 43* | **27** | ≤ 30 ✔ |
+| cliques até o primeiro lançamento | — | **4** | ≤ 5 ✔ |
+
+\* os 43 eram erro de instrumento: `getBoundingClientRect()` não zera dentro de
+`<details>` fechado, e o contador somava 14 campos que ninguém vê. Régua correta:
+`checkVisibility({checkVisibilityCSS, contentVisibilityAuto, checkOpacity})`.
+| páginas do relatório (AM-010, 269 km) | 47 | **10** | ≤ 14 |
+
+### Definição de PRONTO (as três precisam valer)
+
+1. **Suíte inteira verde** — hoje 16 provas, todas `exit=0`.
+2. **Primeira dobra ≤ 30 e ≤ 5 cliques até o primeiro lançamento**, medidos por
+   `ferramentas/testar-simplicidade.py`.
+3. **Nada removido em silêncio** — o que saiu da tela ou do papel está declarado, e continua
+   alcançável em algum lugar.
+4. **Consenso dos três**, cada um dizendo por escrito no canal o que ainda o faria dizer
+   «não está pronto» — e nada dessa lista em aberto.
+
+### Divisão de arquivo, atualizada
+
+| Frente | Dono |
+|---|---|
+| Casca, lateral, topo, estado, persistência, faixa, ensaios, obras, contrato | Cortanna |
+| Abas e vistas, mapa, matriz, painel, relatório, impressão, campo | HAL9000 |
+| Provas, acervo, catálogo de normas, pacote CDE, auditoria adversarial | jarvisIV |
+
+`index.html` é editado **por região**: `<header>` e `<aside>` são da Cortanna; a barra de abas
+e as vistas são do HAL9000. Quem entrar na região do outro avisa no canal antes.

@@ -31,25 +31,31 @@ sozinho na próxima abertura.
 
 ![Mapa com o eixo selecionado](imagens/01-mapa-satelite.png)
 
-Na coluna da esquerda, bloco **1 — Eixo da obra**, há três origens:
+A lateral tem três passos: **1 Eixo**, **2 Obra**, **3 Serviços**. O que se usa a toda hora
+fica à vista; o que se preenche uma vez por obra fica em grupos recolhidos, com um `+` do
+lado — um clique abre.
+
+No passo **1 — Eixo** há quatro origens:
 
 - **Rodovia** — as 34 rodovias estaduais do cadastro do Departamento Rodoviário.
 - **Ramal** — os 905 ramais, com filtro por nome, município ou rodovia de referência.
 - **KML / KMZ** — arraste o arquivo do seu projeto. O arquivo é lido pelo próprio navegador.
+- **Acervo local** — traçados que você guardou neste navegador, com o botão *Guardar no
+  acervo local* que aparece depois de carregar um KML/KMZ.
 
 Ao escolher, a plataforma divide o traçado do KM 0 até a extensão final e desenha no mapa. O
 campo de filtro aceita nome, município ou situação (por exemplo, `manacapuru` ou `pavimentada`).
 
 ### Confira o KM 0
 
-Abaixo do botão **Inverter sentido** a plataforma diz de onde vem o KM 0 daquele eixo — por
+Logo abaixo da lista do acervo a plataforma diz de onde vem o KM 0 daquele eixo — por
 exemplo: *«KM 0 em Praça Nossa Senhora de Nazaré – Manaus. Conferido por 80 ramais que declaram
 o KM onde nascem (correlação 1,000, erro médio 1,49 km)»*.
 
 Quando aparecer **«Sentido não verificado»**, olhe o croqui e confirme de que lado está o KM 0.
 Três rodovias estaduais estão nessa situação (AM-175, AM-280 e AM-329), e todo KMZ carregado
 pelo usuário também: um arquivo de traçado não carrega essa informação. O botão **Inverter
-sentido** troca a ponta.
+sentido**, no grupo **Sentido e estaqueamento** do passo 2, troca a ponta.
 
 > Inverter apaga os lançamentos, e a plataforma pede confirmação antes. Não é zelo excessivo:
 > com o sentido trocado, a coluna «KM 12» passa a ser outro ponto da rodovia, e manter o
@@ -63,19 +69,27 @@ implantados»*), e o que não tem nenhum aparece como *«planejada»*.
 
 Ao escolher, a plataforma avisa em que quilômetros está o planejado. Vale para o que você vai
 medir: **recuperação só se mede onde há pista**. Em eixo planejado a obra é de implantação —
-troque o catálogo de serviços no bloco 3 (ver a seção 4).
+troque o catálogo de serviços no passo 3 (ver a seção 4).
 
 ---
 
-## 3. Trecho e referência
+## 3. Obra: trecho, contrato e o que fica recolhido
 
-Bloco **2 — Trecho e referência**.
+Passo **2 — Obra**. À vista fica só o **trecho em obra**; o resto está em quatro grupos
+recolhidos, porque são coisas que se preenchem uma vez por obra e não a cada lançamento:
+
+| Grupo | O que tem dentro |
+|---|---|
+| **Objeto, valor e vigências** | a identidade contratual (seção 6) |
+| **Quantidade contratada por serviço** | quantos km de cada serviço o contrato prevê (seção 6) |
+| **Sentido e estaqueamento** | referência das colunas, inverter sentido, estaca inicial |
+| **Ensaios contratados** | quais ensaios a obra controla (seção 7) |
 
 - **Referência das colunas** — alterna entre **Quilômetro** e **Estaqueamento**. Em estaca, as
   colunas passam a 0, 50, 100, 150… (1 estaca = 20 m, então o KM 1 abre na estaca 50).
-- **Trecho em obra** — KM inicial e KM final. A obra pode ocupar só parte da rodovia. Fora do
-  trecho a célula fica hachurada e não aceita lançamento, e o croqui passa a enquadrar o
-  trecho, deixando o resto do eixo em linha fina.
+- **Trecho em obra** — KM inicial e KM final, à vista no passo 2. A obra pode ocupar só parte
+  da rodovia. Fora do trecho a célula fica hachurada e não aceita lançamento, e o croqui passa
+  a enquadrar o trecho, deixando o resto do eixo em linha fina.
 - **Estaca do início do eixo** — use quando o estaqueamento do projeto não começa em zero. O
   valor é somado a todas as estacas.
 
@@ -83,7 +97,7 @@ Bloco **2 — Trecho e referência**.
 
 ## 4. Escolher os serviços
 
-Bloco **3 — Serviços**. Primeiro escolha o **catálogo**, porque obra de recuperação e obra de
+Passo **3 — Serviços**. Primeiro escolha o **catálogo**, porque obra de recuperação e obra de
 implantação não têm os mesmos serviços:
 
 | Catálogo | Serviços | Para que serve |
@@ -136,8 +150,8 @@ entra pelo pedaço que é obra — não pelo quilômetro cheio.
 
 ## 6. Contrato e quantidade contratada
 
-Bloco **4 — Contrato**. É o que faz a obra ser rastreável ao processo, e é assim que o
-relatório abre.
+Passo **2 — Obra**, nos grupos **Objeto, valor e vigências** e **Quantidade contratada por
+serviço**. É o que faz a obra ser rastreável ao processo, e é assim que o relatório abre.
 
 - **Objeto**, como está no contrato.
 - **Valor**.
@@ -172,7 +186,8 @@ Duplo clique num quilômetro da faixa, ou no mapa. A ficha traz:
 - **Serviços** lançados ali, com a situação de cada um.
 - **Ensaios de controle tecnológico**: ensaio, norma de referência, medição, critério
   aplicado, resultado, data, responsável e foto.
-- **Lançar ensaio**: escolha o ensaio (dos marcados no bloco **5 — Ensaios** da lateral), informe a
+- **Lançar ensaio**: escolha o ensaio (dos marcados no grupo **Ensaios contratados**, no
+  passo 2 da lateral), informe a
   medição, confira o critério — vem do catálogo e é editável —, o responsável e, se quiser,
   a foto. A foto é reduzida antes de ser guardada.
 
@@ -190,10 +205,17 @@ Os botões *anterior* e *próximo* passam de quilômetro em quilômetro sem fech
 
 ## 8. Obras guardadas por contrato
 
-O contrato é a identidade da obra. Preencha o **Nº do contrato** no cabeçalho e use
-**Guardar obra**: o projeto fica guardado sob aquele número. Depois, **Obras** abre a lista,
-com busca por contrato, obra ou eixo, e *Abrir* devolve o perfil daquela obra — traçado,
-serviços, lançamentos e ensaios como estavam.
+O contrato é a identidade da obra. Preencha o **Nº do contrato** no cabeçalho e abra
+**Obras** — o painel tem a lista, a busca por contrato, obra ou eixo, e três ações:
+
+| Ação | O que faz |
+|---|---|
+| **Guardar esta obra** | guarda o que está na tela sob aquele número de contrato |
+| **Abrir arquivo…** | abre um `.json` de projeto ou um pacote CDE `.zip` vindo de fora |
+| **Nova obra** | limpa a tela para começar outra |
+
+Clicar numa obra da lista devolve o perfil dela — traçado, serviços, lançamentos e ensaios
+como estavam.
 
 Isso fica **no navegador desta máquina**. Não substitui o arquivo: use **Salvar** para gerar
 o `.json` que se anexa ao processo ou se envia a um colega. Limpar os dados de navegação
@@ -205,7 +227,8 @@ apaga a lista.
 
 ![Matriz de controle](imagens/02-matriz-de-controle.png)
 
-Aba **Matriz de controle**. Cada célula é um serviço, num lado, num quilômetro. **Clique na
+Aba **Controle**. No alto ficam os cartões e os gráficos do painel; embaixo, a matriz.
+Cada célula é um serviço, num lado, num quilômetro. **Clique na
 célula** para girar o status. A ordem do clique põe **Concluído** primeiro porque é o
 lançamento mais frequente; continuar clicando passa pelos demais e volta a Previsto:
 
@@ -230,30 +253,31 @@ correspondente na matriz.
 
 ![Croqui sobre satélite](imagens/03-croqui-do-trecho.png)
 
-Aba **Croqui**. A imagem é montada quando o eixo entra e refeita quando o trecho muda: traçado
-sobre imagem de satélite, marcação de quilômetro, escala gráfica, identificação da obra e
-crédito da imagem. O que está fora do trecho aparece em linha fina, para situar a obra dentro
-da rodovia.
+A imagem é montada sozinha quando o eixo entra e refeita quando o trecho muda: traçado sobre
+imagem de satélite, marcação de quilômetro, escala gráfica, identificação da obra e crédito da
+imagem. O que está fora do trecho aparece em linha fina, para situar a obra dentro da rodovia,
+e o traçado é pintado pela cor do avanço de cada quilômetro.
 
-- **Atualizar imagem** — refaz o croqui com os lançamentos atuais (o traçado é pintado pela cor
-  do avanço de cada quilômetro).
-- **Baixar PNG** — salva a imagem para usar em ofício, relatório ou apresentação.
+Ela abre a primeira seção do **relatório** e vai dentro do **pacote CDE**, em arquivo
+separado. Se não houver internet, o croqui sai com fundo neutro: perde a foto de satélite,
+não o traçado.
 
-Se não houver internet, o croqui sai com fundo neutro: perde a foto de satélite, não o traçado.
+Para levar a imagem a um ofício ou a uma apresentação: **Exportar → Croqui em PNG**. Se a
+imagem ainda não tiver sido montada, o botão monta na hora e baixa; o arquivo sai com o nome
+da obra.
 
 ---
 
 ## 11. Resumo e relatório
 
-![Resumo](imagens/04-resumo.png)
-
-Aba **Resumo** — cartões com eixo, trecho, número de linhas, avanço físico e a contagem de
-posições por status.
+Os cartões de resumo — eixo, trecho, número de linhas, avanço físico e a contagem de posições
+por status — ficam no alto da aba **Controle**, junto da matriz.
 
 Aba **Relatório** — o documento fechado, aberto pela identificação do contrato, em
 seções: *Localização do trecho* (o croqui),
-*Avanço geral*, *Situação por serviço*, *Detalhamento por faixa* (cada serviço e lado com as
-faixas contínuas de mesma situação), *Controle tecnológico* — quadro por tipo de controle e a
+*Avanço geral*, *Situação por serviço*, o *unifilar impresso* (uma barra por serviço e lado,
+cor por situação, régua de quilômetro embaixo — a relação faixa a faixa continua completa no
+CSV e no pacote CDE), *Controle tecnológico* — quadro por tipo de controle e a
 relação dos ensaios com norma, critério, resultado, responsável e foto — e *Notas técnicas*,
 onde ficam a extensão cadastrada, a extensão apurada na geometria, a origem da quilometragem
 e as descontinuidades do traçado. A seção de controle tecnológico só aparece quando há ensaio
@@ -261,21 +285,31 @@ lançado.
 
 ![Relatório](imagens/05-relatorio.png)
 
+As saídas ficam no menu **Exportar**, na barra das abas:
+
 - **Imprimir** — abre o diálogo do navegador; escolha «Salvar como PDF» para gerar o
   arquivo. O documento sai em A4 paisagem, com cada seção em página nova, o cabeçalho de cada
   tabela repetido nas páginas seguintes e um rodapé com contrato, obra e data de emissão em
   toda folha — folha solta continua rastreável ao contrato.
 - **Exportar CSV** — a matriz inteira, uma linha por serviço e lado, uma coluna por quilômetro,
-  para abrir no LibreOffice ou no Excel.
+  para abrir no LibreOffice ou no Excel. É aqui que sai a relação faixa a faixa completa.
+- **Pacote CDE** — o `.zip` para o ambiente comum de dados: eixo em GeoJSON e KML, matriz e
+  ensaios em CSV, fotos, croqui e o projeto reabrível.
+- **Croqui em PNG** — a imagem do trecho, com o nome da obra no arquivo.
 
 ---
 
 ## 12. Salvar e retomar
 
-- **Salvar** — grava um arquivo `.json` com o eixo, o trecho, os serviços e todos os
-  lançamentos. É esse arquivo que se anexa ao processo ou se envia a um colega.
-- **Abrir** — carrega um arquivo salvo.
-- **Novo** — limpa tudo e começa outra obra.
+- **Salvar**, no cabeçalho — grava um arquivo `.json` com o eixo, o trecho, os serviços e
+  todos os lançamentos. É esse arquivo que se anexa ao processo ou se envia a um colega.
+- **Abrir arquivo…**, dentro de **Obras** — carrega um `.json` salvo ou um pacote CDE `.zip`.
+- **Nova obra**, dentro de **Obras** — limpa tudo e começa outra obra.
+
+> **Tarja vermelha no cabeçalho, «NÃO ESTÁ SENDO GUARDADO»:** o armazenamento do navegador
+> encheu e o salvamento automático parou. O que está na tela continua valendo, mas existe só
+> nessa aba — **use Salvar imediatamente**. Tarja âmbar «Fotos sem espaço» quer dizer que o
+> projeto está guardado e as fotos dos ensaios não; salvar em arquivo leva as fotos junto.
 
 O trabalho em andamento também fica gravado no navegador e volta sozinho na próxima abertura —
 mas o navegador não é arquivo morto: para guardar, use **Salvar**.
@@ -299,7 +333,7 @@ técnicas do relatório listam cada descontinuidade. A quilometragem segue conta
 Normal: o arquivo não traz essa informação. Use **Inverter sentido**.
 
 **Preciso de um serviço que não está no catálogo.**
-Para uma obra só, use **Acrescentar serviço** no fim do bloco 3. Para valer em todas, o
+Para uma obra só, use o grupo **Acrescentar serviço**, no fim do passo 3. Para valer em todas, o
 catálogo está em `dados/catalogo-servicos.json`, dentro do conjunto (`recuperacao` ou
 `implantacao`) a que o serviço pertence — é arquivo de texto, com serviço, grupo, lados e
 unidade.
