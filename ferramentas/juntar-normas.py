@@ -24,6 +24,11 @@ RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FATIAS = os.path.join(RAIZ, "dados", "_normas")
 CATALOGO = os.path.join(RAIZ, "dados", "catalogo-ensaios.json")
 
+# campos de JULGAMENTO: e' com eles que a plataforma decide conforme ou nao conforme, e sao
+# os que nao podem mudar sem alguem declarar a mudanca.
+JULGAM = ("limite_min", "limite_max", "criterio", "frequencia", "por_km",
+          "norma_metodo", "norma_especificacao")
+
 # campos que a plataforma le; o resto e ignorado em silencio
 CAMPOS = ("norma_metodo", "norma_especificacao", "criterio", "limite_min", "limite_max",
           "frequencia", "por_km", "confirmado", "observacao", "unidade", "camada")
@@ -87,6 +92,7 @@ def main():
         return 0
 
     problemas, entraram, desconhecidos, por_autor = [], 0, [], {}
+    resolvidos, divergencias, corrigidos, recusados = {}, [], [], set()
     for arq in arquivos:
         nome = os.path.basename(arq)
         try:
@@ -106,8 +112,16 @@ def main():
                 desconhecidos.append(f"{cod} (em {nome})")
                 continue
             if not confere(it, cod, problemas):
+                # A correcao nao entrou; dar a lacuna por fechada aqui apagaria a declaracao
+                # que existe justamente para cobra-la, e o item ficaria errado e sem cobranca.
+                recusados.add(cod)
                 continue
             alvo = por_cod[cod]
+            # Uma fatia que ficou para tras sobrescreve, em silencio, a correcao que outra
+            # pessoa fez depois -- foi assim que o intervalo construtivo 10/20 voltou por cima
+            # da tolerancia de projeto do ESPESSURA-BASE, sem uma linha de aviso. Item ja
+            # confirmado so muda com a mudanca DECLARADA em `corrige`.
+            declarados_corrige = set((fatia.get("corrige") or {}).get(cod, []))
             # Só entra o que ACRESCENTA. Uma fatia ainda em branco tem `confirmado: false` e
             # dicionários de norma com campos vazios — e ambos são valores «preenchidos» para
             # uma cópia ingênua. Juntar assim rebaixaria item já confirmado por outra pessoa,
@@ -116,12 +130,24 @@ def main():
                 if k not in it:
                     continue
                 v = it[k]
-                if v is None or v == "":
+                # Nulo vindo de fatia e' «nao falo deste campo» -- e' assim que fatia em branco
+                # deixa de rebaixar item ja conferido. Dentro de `corrige`, nulo passa a ser
+                # «apaga este numero», que e' o unico jeito de dizer «o criterio e' do projeto».
+                if (v is None or v == "") and k not in declarados_corrige:
                     continue
                 if k == "confirmado" and not v:
                     continue
                 if isinstance(v, dict) and not any((str(x) or "").strip() for x in v.values()):
                     continue
+                if (alvo.get("confirmado") and k in JULGAM and k not in declarados_corrige
+                        and k in alvo and alvo[k] != v):
+                    divergencias.append(
+                        f"{cod}.{k}: o catálogo diz {alvo[k]!r} e a fatia de {autor} diz {v!r}. "
+                        "Mantido o do catálogo. Para trocar, declare na fatia: "
+                        f'"corrige": {{"{cod}": ["{k}"]}}')
+                    continue
+                if k in declarados_corrige and k in alvo and alvo[k] != v:
+                    corrigidos.append(f"{cod}.{k}: {alvo[k]!r} → {v!r} (por {autor})")
                 alvo[k] = v
             if it.get("confirmado"):
                 alvo["confirmado"] = True
@@ -133,6 +159,12 @@ def main():
         # CÓDIGO do ensaio. Comparar o objeto inteiro fazia a mesma declaração entrar duas
         # vezes assim que alguém acrescentasse um campo a ela — e a lista que existe para
         # dizer o que falta passava a mentir sobre quantos faltam.
+        # Quem fecha a lacuna declara `resolvidos: ["COD"]` na PROPRIA fatia. Sem isso a
+        # declaracao de quem abriu volta a cada juncao, porque ela continua na fatia dele,
+        # e ninguem pode apaga-la sem editar arquivo de outro dono. A lista que existe para
+        # dizer o que falta passava a cobrar o que ja foi feito.
+        for cod in fatia.get("resolvidos", []):
+            resolvidos[cod] = autor
         raiz = cat.setdefault("nao_confirmados", [])
         for nc in fatia.get("nao_confirmados", []):
             cod = nc.get("cod") if isinstance(nc, dict) else None
@@ -147,6 +179,26 @@ def main():
                 # a declaração que já está na raiz manda: pode ter sido revista à mão
                 for k, v in nc.items():
                     atual.setdefault(k, v)
+
+    raiz = cat.setdefault("nao_confirmados", [])
+    fechados = []
+    for cod, autor in resolvidos.items():
+        if cod in recusados:
+            problemas.append(f"{cod}: declarado resolvido por {autor}, mas o item da fatia foi "
+                             "recusado nesta rodada — a declaracao fica de pe")
+            continue
+        antes = len(raiz)
+        raiz[:] = [n for n in raiz if not (isinstance(n, dict) and n.get("cod") == cod)]
+        item = next((i for i in cat["itens"] if i["cod"] == cod), None)
+        if item is None:
+            problemas.append(f"{cod}: declarado resolvido por {autor}, mas nao existe no catalogo")
+        elif not item.get("confirmado"):
+            problemas.append(f"{cod}: declarado resolvido por {autor} e ainda esta com "
+                             "confirmado=false — resolvido é o que foi conferido, não o que "
+                             "foi prometido")
+            raiz.append({"cod": cod, "motivo": f"declarado resolvido por {autor} sem conferencia"})
+        elif antes != len(raiz):
+            fechados.append(f"{cod} (por {autor})")
 
     # Contradição: confirmado E declarado não confirmado. Sai no mesmo documento, dizendo as
     # duas coisas. O caso legítimo é a conferência PARCIAL — método conferido, critério não —,
@@ -164,6 +216,21 @@ def main():
     print(f"fatias lidas: {len(arquivos)}")
     for a, n in sorted(por_autor.items()):
         print(f"   {a}: {n} item(ns) aceito(s)")
+    if corrigidos:
+        print()
+        print(f"{len(corrigidos)} correcao(oes) declarada(s):")
+        for c in corrigidos:
+            print("   ", c)
+    if divergencias:
+        print()
+        print(f"{len(divergencias)} DIVERGENCIA(S) — fatia atrasada, catálogo mantido:")
+        for d in divergencias:
+            print("   ", d)
+    if fechados:
+        print()
+        print(f"{len(fechados)} lacuna(s) fechada(s) nesta juncao:")
+        for f in fechados:
+            print("   ", f)
     if desconhecidos:
         print(f"\n{len(desconhecidos)} código(s) que não existem no catálogo — ignorados:")
         for d in desconhecidos[:10]:

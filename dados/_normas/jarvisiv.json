@@ -1,0 +1,120 @@
+{
+ "autor": "jarvisIV",
+ "gerado_em": "2026-08-22",
+ "observacao": "Rodada da DNIT 137/2010-ES. O PDF foi baixado do portal do DNIT (7 páginas, 221.693 bytes) e lido no texto, não em resumo. A DNIT 108/2009-ES foi aberta junto, porque a 137 fixa o critério do material por remissão a ela, e remissão não conferida é número de ouvir falar.",
+ "itens": [
+  {
+   "cod": "CBR-SUBLEITO",
+   "camada": "subleito",
+   "unidade": "%",
+   "norma_metodo": {
+    "codigo": "DNIT 172/2016-ME",
+    "titulo": "Solos – Determinação do Índice de Suporte Califórnia utilizando amostras não trabalhadas – Método de ensaio",
+    "orgao": "DNIT",
+    "fonte": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/metodo-de-ensaio-me/dnit_172_2016_me.pdf"
+   },
+   "norma_especificacao": {
+    "codigo": "DNIT 137/2010-ES",
+    "titulo": "Pavimentação – Regularização do subleito – Especificação de serviço",
+    "orgao": "DNIT",
+    "fonte": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/especificacao-de-servico-es/dnit_137_2010_es-1.pdf"
+   },
+   "criterio": "A especificação NÃO fixa ISC mínimo para o subleito. Ela exige do material da regularização «a melhor capacidade de suporte e expansão ≤ 2%», por remissão à alínea «d» da subseção 5.1 da DNIT 108/2009-ES (DNIT 137/2010-ES, 5.1), e mais: nenhuma partícula com diâmetro acima de 76 mm, e Índice de Grupo (IG) no máximo igual ao do subleito indicado no projeto. O ISC mínimo é, portanto, o do PROJETO de engenharia. Por isso o limite fica nulo e não zero: nulo a plataforma lê como «critério do projeto», zero ela leria como «qualquer valor passa».",
+   "limite_min": null,
+   "limite_max": null,
+   "frequencia": "Ensaios de ISC e de expansão no material coletado na pista, com a energia do ensaio de compactação, a cada 400 m, em locais escolhidos aleatoriamente — os mesmos de onde saíram as amostras do ensaio de compactação. A critério da Fiscalização a frequência pode cair para uma amostra a cada 800 m de extensão, no caso de materiais homogêneos. A frequência indicada é a mínima aceitável. Para pistas de extensão limitada, com área de até 4.000 m², devem ser coletadas pelo menos 5 amostras (DNIT 137/2010-ES, 7.1 c e 7.1 d).",
+   "por_km": 2.5,
+   "confirmado": true,
+   "observacao": "A ES é de 2010 e cita a DNER-ME 049/94 como método. A norma vigente é a DNIT 172/2016-ME, que no próprio prefácio diz «cancela e substitui a Norma DNER-ME 049/94» e traz, na folha de rosto, «Origem: Revisão da Norma DNER-ME 049/94» — aprovada pela Diretoria Colegiada em 15/03/2016. Foi essa troca que autorizou usar o código novo debaixo de uma ES que cita o antigo. A fonte do método deixou de apontar para o índice da coletânea e passa a apontar para o PDF da norma. Conferência de aceitação por amostragem: a ES julga por X - ks ≥ valor mínimo, com k da tabela de amostragem variável (7.5) — a plataforma compara valor individual, que é mais rigoroso, e não substitui o controle estatístico do laboratório."
+  },
+  {
+   "cod": "EXPANSAO-SUBLEITO",
+   "camada": "subleito",
+   "unidade": "%",
+   "norma_metodo": {
+    "codigo": "DNIT 172/2016-ME",
+    "titulo": "Solos – Determinação do Índice de Suporte Califórnia utilizando amostras não trabalhadas – Método de ensaio",
+    "orgao": "DNIT",
+    "fonte": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/metodo-de-ensaio-me/dnit_172_2016_me.pdf"
+   },
+   "norma_especificacao": {
+    "codigo": "DNIT 137/2010-ES",
+    "titulo": "Pavimentação – Regularização do subleito – Especificação de serviço",
+    "orgao": "DNIT",
+    "fonte": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/especificacao-de-servico-es/dnit_137_2010_es-1.pdf"
+   },
+   "criterio": "Expansão máxima de 2%, medida no mesmo corpo de prova do ensaio de ISC. A DNIT 137/2010-ES, 5.1, exige do material da regularização «a melhor capacidade de suporte e expansão ≤ 2%» por remissão à alínea «d» da subseção 5.1 da DNIT 108/2009-ES; essa alínea foi aberta e diz, com essas letras, «melhor capacidade de suporte e expansão ≤ 2%» para a camada final dos aterros.",
+   "limite_min": null,
+   "limite_max": 2.0,
+   "frequencia": "Ensaios de ISC e de expansão no material coletado na pista, com a energia do ensaio de compactação, a cada 400 m, em locais escolhidos aleatoriamente — os mesmos de onde saíram as amostras do ensaio de compactação. A critério da Fiscalização a frequência pode cair para uma amostra a cada 800 m de extensão, no caso de materiais homogêneos. A frequência indicada é a mínima aceitável. Para pistas de extensão limitada, com área de até 4.000 m², devem ser coletadas pelo menos 5 amostras (DNIT 137/2010-ES, 7.1 c e 7.1 d).",
+   "por_km": 2.5,
+   "confirmado": true,
+   "observacao": "Não confundir com o item EXPANSAO, que é da BASE e tem limite de 0,5% (DNIT 141/2022-ES). Para o CORPO do aterro a DNIT 108/2009-ES, 5.1 c, admite expansão ≤ 4% e exige ISC ≥ 2% — outra camada, outro par de números, e não há item para ela neste catálogo. Aceitação por amostragem, na ES: X + ks ≤ valor máximo admitido."
+  },
+  {
+   "cod": "GC-SUBLEITO",
+   "camada": "subleito",
+   "unidade": "%",
+   "norma_metodo": {
+    "codigo": "DNIT 458/2025-ME",
+    "titulo": "Solos – Determinação da massa específica aparente in situ com emprego do frasco de areia – Método de ensaio",
+    "orgao": "DNIT",
+    "fonte": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/metodo-de-ensaio-me/dnit_458_2025_me.pdf"
+   },
+   "norma_especificacao": {
+    "codigo": "DNIT 137/2010-ES",
+    "titulo": "Pavimentação – Regularização do subleito – Especificação de serviço",
+    "orgao": "DNIT",
+    "fonte": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/especificacao-de-servico-es/dnit_137_2010_es-1.pdf"
+   },
+   "criterio": "Não devem ser aceitos valores de grau de compactação inferiores a 100% em relação à massa específica aparente seca máxima obtida no laboratório (DNIT 137/2010-ES, 7.2 c). São 100%, e não os 95% do aterro: a regularização do subleito é mais exigente que a camada que ela regulariza, e usar o número do aterro aqui aceita serviço que a norma rejeita. A umidade higroscópica, medida imediatamente antes da compactação, admite ± 2% em relação à umidade ótima (7.2 a).",
+   "limite_min": 100.0,
+   "limite_max": null,
+   "frequencia": "Umidade higroscópica a cada 100 m de pista a ser compactada, em locais escolhidos aleatoriamente (DNER-ME 052/94 ou DNER-ME 088/94). Massa específica aparente seca in situ em locais escolhidos aleatoriamente; para pistas de extensão limitada, com no máximo 1.250 m³ de material, pelo menos 5 determinações para o cálculo do grau de compactação. O número e a frequência gerais saem do Plano de Amostragem Variável aprovado pela Fiscalização, elaborado conforme a DNER-PRO 277/97 (DNIT 137/2010-ES, 7.2 e 7.4).",
+   "por_km": null,
+   "confirmado": true,
+   "observacao": "por_km nulo de propósito: a ES amarra a frequência do grau de compactação ao Plano de Amostragem Variável e ao volume de material, não ao quilômetro. O que é por metro corrido nesta camada é a umidade (100 m), não o GC. O registro do MÉTODO é o mesmo já confirmado no item GC-ATERRO, e não uma segunda conferência: a ES de 2010 cita DNER-ME 092/94 ou DNER-ME 036/94, e a 092/94 foi revisada pela DNIT 458/2025-ME. A DNER-ME 036/94 continua sem conferência primária nesta rodada."
+  },
+  {
+   "cod": "EXPANSAO",
+   "camada": "base",
+   "observacao": "O limite de 0,5% é o da BASE (DNIT 141/2022-ES). Item retiquetado para camada «base» em 22/08: estava declarado como «subleito» carregando o número da base, e nessa combinação uma expansão de 1,2% no subleito — conforme pela DNIT 137/2010-ES, que admite até 2% — saía reprovada pela plataforma. O subleito ganhou item próprio, EXPANSAO-SUBLEITO. A sub-base segue sem item e sem limite conferido."
+  },
+  {
+   "cod": "ESPESSURA-BASE",
+   "limite_min": null,
+   "limite_max": null,
+   "criterio": "Duas condições, e nenhuma delas vira número fixo no catálogo. (1) TOLERÂNCIA DE ACEITAÇÃO: ± 10% em relação à espessura da camada indicada no projeto (DNIT 141/2022-ES, 7.3, alínea «c» do controle geométrico, feito após a realocação e o nivelamento do eixo e das bordas). (2) INTERVALO CONSTRUTIVO: a camada compactada deve ter espessura entre 10 cm e 20 cm; acima de 20 cm de espessura final a base é subdividida em camadas parciais, com 10 cm de mínimo cada uma (5.3.6). Informe nos campos de mínimo e máximo a espessura de projeto ± 10% — projeto de 15 cm dá 13,5 e 16,5.",
+   "observacao": "Os limites ficam NULOS de propósito, e isso conserta um julgamento errado. O par 10/20 estava preenchido como critério, e 10 a 20 cm é o intervalo construtivo, não a tolerância: uma medida de 19 cm num projeto de 15 cm está DENTRO do intervalo e FORA da tolerância de ± 10%, e a plataforma a pintava de conforme — erro para o lado de quem executa. Com os limites nulos a ficha abre mínimo e máximo em branco e mostra o critério acima, que é o caminho que a própria ficha já previa para critério que depende do projeto. Da mesma subseção 7.3, ainda sem item neste catálogo: largura da plataforma até 10 cm em excesso, sem tolerar largura inferior à do projeto geométrico; flecha de abaulamento até 20% em excesso, ou 0,5% em excesso na declividade transversal de caimento simples, sem tolerar falta nos dois casos."
+  },
+  {
+   "cod": "FCK-CONCRETO",
+   "norma_metodo": {
+    "codigo": "DNER-ME 091/98",
+    "titulo": "Concreto - ensaio de compressão de corpos-de-prova cilíndricos",
+    "orgao": "DNER/DNIT",
+    "fonte": "https://www.gov.br/dnit/pt-br/assuntos/planejamento-e-pesquisa/ipr/coletanea-de-normas/coletanea-de-normas/metodo-de-ensaio-me/dner_me_091_98.pdf"
+   },
+   "frequencia": "A especificação não fixa número de corpos de prova por extensão nem por volume: trata a aceitação por controle estatístico do fck estimado, com registro conforme a DNIT 011-PRO, e remete a amostragem à ABNT NBR 12655. A moldagem e a cura dos corpos de prova seguem a DNER-ME 046/98, referência «a» da seção 2 da DNER-ME 091/98.",
+   "observacao": "por_km nulo: bueiro é dispositivo pontual, não serviço por quilômetro — a quantidade de ensaios acompanha o número de bueiros e o volume de concreto, não a extensão da rodovia. MÉTODO, e é aqui que a ressalva antiga caiu: o campo pedia a norma de MÉTODO — como se mede — e estava com a ABNT NBR 12655, que é procedimento de preparo, controle, recebimento e aceitação, transcrita da lista de referências da ES porque o texto ABNT não é público. Existe método do próprio DNER, público e primário: a DNER-ME 091/98, baixada do portal (6 páginas, 130.541 bytes) e lida. O prefácio dela diz, com essas letras, que veio para substituir a DNER-ME 091/94, «que adotava a ABNT NBR 5739/94 no DNER pelo Processo de Referência, por outro texto descritivo correspondente» — ou seja, o DNER escreveu o método por extenso justamente para não depender do texto da ABNT. É essa que passa a constar. A NBR 12655 continua citada, no campo de frequência, como o que a ES manda seguir na amostragem — que é o papel real dela. ESCOPO, e isto continua valendo: os 20 MPa são de BUEIRO TUBULAR DE CONCRETO (DNIT 023/2024-ES, 5.1.1). A DNIT 026/2025-ES — dispositivos de drenagem em geral — NÃO fixa fck: manda dosar conforme o projeto, e o único valor absoluto dela é o lastro de concreto magro, 15 MPa aos 28 dias. Se a obra medir sarjeta ou descida d'água, o limite de 20 aqui NÃO se aplica e o número vem do projeto.",
+   "confirmado": true
+  }
+ ],
+ "nao_confirmados": [],
+ "resolvidos": [
+  "CBR-SUBLEITO",
+  "ESPESSURA-BASE",
+  "FCK-CONCRETO"
+ ],
+ "corrige": {
+  "ESPESSURA-BASE": [
+   "limite_min",
+   "limite_max",
+   "criterio"
+  ],
+  "FCK-CONCRETO": [
+   "norma_metodo",
+   "frequencia"
+  ]
+ }
+}
