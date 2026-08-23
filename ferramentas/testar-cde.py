@@ -101,7 +101,8 @@ def main():
         z = zipfile.ZipFile(alvo)
         nomes = z.namelist()
         esperados = ["LEIA-ME.txt", "projeto.json", "01-eixo.geojson", "02-eixo.kml",
-                     "03-matriz-de-controle.csv", "04-ensaios.csv", "05-croqui.png"]
+                     "03-matriz-de-controle.csv", "04-ensaios.csv", "05-croqui.png",
+                     "06-faixas.csv"]
         faltam = [n for n in esperados if n not in nomes]
         ok(not faltam, "todos os arquivos previstos estão no pacote",
            f"{len(nomes)} arquivo(s)" + (f" · faltam {faltam}" if faltam else ""))
@@ -136,6 +137,30 @@ def main():
             ok(False, "o XML do KML é válido", str(e))
 
         print("\n5. OS CSV BATEM COM A TELA")
+        # A relacao faixa a faixa e o que o relatorio DEIXOU de imprimir quando as 38 paginas
+        # de tabela viraram desenho, e o rodape do relatorio manda procurar aqui. Promessa
+        # escrita no documento vira prova: se o arquivo sumir, o documento passa a mentir.
+        fx = list(csv.DictReader(io.StringIO(
+            z.read("06-faixas.csv").decode("utf-8-sig")), delimiter=";"))
+        ok(len(fx) > 0 and set(fx[0]) >= {"SERVICO", "LADO", "KM_INICIAL", "KM_FINAL",
+                                          "EXTENSAO_KM", "SITUACAO"},
+           "a relacao faixa a faixa esta no pacote, com inicio, fim e extensao",
+           f"{len(fx)} faixa(s)")
+        num = lambda v: float(str(v).replace(",", "."))
+        km_trecho = sum(f["properties"]["km_no_trecho"] for f in gj["features"])
+        por_linha = {}
+        for f in fx:
+            por_linha.setdefault((f["SERVICO"], f["LADO"]), []).append(f)
+        somas = {k: sum(num(f["EXTENSAO_KM"]) for f in v) for k, v in por_linha.items()}
+        ok(somas and all(abs(t - km_trecho) < 0.05 for t in somas.values()),
+           "cada linha de controle soma a extensao do trecho, sem buraco nem sobra",
+           f"{min(somas.values()):.3f}-{max(somas.values()):.3f} km de {km_trecho:.3f}")
+        emenda = [k for k, v in por_linha.items()
+                  if any(abs(num(v[i]["KM_FINAL"]) - num(v[i + 1]["KM_INICIAL"])) > 1e-6
+                         for i in range(len(v) - 1))]
+        ok(not emenda, "as faixas de cada linha sao contiguas (fim de uma = inicio da outra)",
+           str(emenda[:2]) if emenda else "sem descontinuidade")
+
         mat = z.read("03-matriz-de-controle.csv").decode("utf-8-sig").splitlines()
         ok(len(mat) > 5 and mat[0].startswith("SERVICO;"), "matriz em CSV",
            f"{len(mat)} linha(s)")

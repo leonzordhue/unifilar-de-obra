@@ -130,15 +130,12 @@ def main():
             pg.wait_for_timeout(2400)
 
             print("1. A ABA SE REGISTRA SOZINHA")
-            abas = pg.eval_on_selector_all("#abas button[data-v]", "es => es.map(e => e.dataset.v)")
-            ok("painel" in abas, "aba «painel» aparece na barra", " ".join(abas))
-            # `montaAbas` procura a primeira aba de ordem maior para inserir antes dela; as
-            # abas fixas do html nao estao em ABAS, entao `ordemAba` devolve 0 para todas e a
-            # aba registrada cai no comeco da barra. O registro de abas e' de outro dono.
-            pendente(abas.index("painel") == 1 if "painel" in abas else False,
-                     "entra depois do mapa e antes da matriz (ordem 15)",
-                     "Cortanna · app/00-estado.js", " ".join(abas))
-            pg.click("#abas button[data-v='painel']")
+            abas = pg.eval_on_selector_all("#abas button[data-v]",
+                "es => es.filter(e => e.offsetParent !== null).map(e => e.textContent)")
+            ok(len(abas) == 3, "a barra tem três abas, não seis", " · ".join(abas))
+            ok("Controle" in abas, "«Controle» é onde o painel abre", " · ".join(abas))
+            ok(abas[0].startswith("Obra"), "a primeira aba é o trabalho: Obra", abas[0])
+            pg.click("#abas button[data-v='matriz']")   # «Controle»: painel + matriz juntos
             pg.wait_for_timeout(600)
             ok("Nada a exibir" in pg.inner_text("#vPainel"),
                "sem eixo, o painel diz o que falta em vez de mostrar zero")
@@ -148,7 +145,7 @@ def main():
                 const o = [...s.options].find(x => x.textContent.startsWith('AM-070'));
                 s.value = o.value; s.dispatchEvent(new Event('change')); }""")
             pg.wait_for_timeout(2200)
-            pg.click("#abas button[data-v='painel']")
+            pg.click("#abas button[data-v='matriz']")   # «Controle»: painel + matriz juntos
             pg.wait_for_timeout(800)
             t = pg.inner_text("#vPainel")
             ok("—" in t, "percentual sem base sai como travessão")
@@ -317,7 +314,7 @@ def main():
 
             print("")
             print("10. QUADRO DA OBRA E AVANÇO SOBRE O CONTRATADO")
-            pg.click("#abas button[data-v='painel']")
+            pg.click("#abas button[data-v='matriz']")   # «Controle»: painel + matriz juntos
             pg.wait_for_timeout(900)
             # innerText devolve o texto RENDERIZADO: `.grEns` é uppercase por CSS, então a
             # comparação tem de ser insensível a caixa — do contrário a prova reprovaria por
@@ -377,6 +374,29 @@ def main():
             ok(m and m["depoisResumo"] != m["antesResumo"],
                "e o resumo da linha acompanha na hora",
                f"{m['antesResumo']} → {m['depoisResumo']}" if m else "")
+
+            print("")
+            print("12. TODA SAÍDA DE ARQUIVO TEM PORTA")
+            # A Cortanna achou, ao reescrever o manual, que esconder a aba «Croqui» tinha
+            # levado junto o gesto «Baixar PNG» — a imagem seguia no relatório e no CDE, mas
+            # o arquivo que se anexa a ofício não tinha como ser obtido. Esta prova existe
+            # para isso não voltar a acontecer em silêncio a cada corte de tela.
+            saidas = pg.evaluate("""() => {
+                const bt = document.querySelector('#btExportar');
+                if (bt) bt.click();
+                const menu = document.querySelector('#menuExportar');
+                const itens = menu ? [...menu.querySelectorAll('button')]
+                    .filter(b => b.checkVisibility ? b.checkVisibility() : true)
+                    .map(b => b.textContent.trim()) : [];
+                if (bt) bt.click();
+                return itens; }""")
+            ok(len(saidas) >= 4, "o menu «Exportar» reúne as saídas de arquivo",
+               " · ".join(saidas))
+            ok(any("PNG" in x for x in saidas),
+               "o croqui em PNG tem porta depois de a aba sumir",
+               " · ".join(saidas))
+            ok(any("CSV" in x for x in saidas) and any("CDE" in x for x in saidas),
+               "CSV e pacote CDE continuam alcançáveis")
 
         print(f"\nERROS DE CONSOLE: {len(console)}")
         for c in console[:6]:

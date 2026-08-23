@@ -139,20 +139,31 @@ def main():
     largura, altura = doc[0].rect.width, doc[0].rect.height
     ok(largura > altura, "sai em paisagem, como o @page manda",
        f"{largura:.0f} × {altura:.0f} pt")
+    print("")
+    print("2. O RELATÓRIO CABE PARA SER IMPRESSO")
+    # Medida anterior: 47 páginas, 38 delas na tabela de «Detalhamento por faixa». Ela virou
+    # um unifilar desenhado — uma barra por serviço, cor por situação, como na planilha da
+    # casa. O que saiu do papel (faixa a faixa, com extensão) continua no CSV e no pacote
+    # CDE, e o próprio documento declara onde está.
+    ok(len(doc) <= 14, "o relatório de uma obra de 269 km cabe em até 14 páginas",
+       f"{len(doc)} página(s)")
+    todo = chr(10).join(paginas)
+    ok("Situação de cada serviço ao longo do trecho" in todo,
+       "o unifilar impresso entrou no lugar da tabela")
+    ok("CSV" in todo and "CDE" in todo,
+       "e o documento diz onde está a relação faixa a faixa que saiu do papel")
 
-    print("\n2. CABEÇALHO DE TABELA EM TODA PÁGINA QUE TEM LINHA")
-    # a tabela de «Detalhamento por faixa» e a mais longa: uma tabela por servico e lado.
-    # Onde houver linha dela, tem de haver o cabecalho — senao a pagina vira numero sem rotulo.
-    cab = ("FAIXA", "EXTENSÃO", "SITUAÇÃO")
-    # «KM x ao KM y» aparece uma vez no cabeçalho do relatório («Trecho em obra»), fora de
-    # tabela. Duas ou mais ocorrências na mesma página é linha de tabela — sem esse cuidado a
-    # prova acusaria a página de rosto e o vermelho não seria do CSS.
-    com_linha = [i for i, t in enumerate(paginas) if t.count("ao KM") >= 2]
-    orfas = [i + 1 for i in com_linha if not all(c in paginas[i].upper() for c in cab)]
-    ok(bool(com_linha), "a tabela de detalhamento entrou no PDF",
-       f"{len(com_linha)} página(s) com linhas")
-    ok(not orfas, "nenhuma página com linha ficou sem o cabeçalho da tabela",
+    print("")
+    print("2-B. CABEÇALHO DE TABELA EM TODA PÁGINA QUE TEM LINHA")
+    # as tabelas que restam (avanço geral, quadro por serviço, ensaios) ainda podem
+    # atravessar página, e ali o cabeçalho repetido segue obrigatório
+    paginas_quadro = [i for i, t in enumerate(paginas) if "% DO TRECHO" in t.upper()]
+    orfas = [i + 1 for i in paginas_quadro if "SERVIÇO" not in paginas[i].upper()]
+    ok(bool(paginas_quadro), "o quadro por serviço entrou no PDF",
+       f"{len(paginas_quadro)} página(s)")
+    ok(not orfas, "nenhuma página do quadro ficou sem cabeçalho",
        "sem órfãs" if not orfas else f"páginas órfãs: {orfas}")
+
 
     print("\n3. TÍTULO DE SEÇÃO NÃO FICA SOZINHO NO PÉ DA PÁGINA")
     pior = None
