@@ -45,69 +45,89 @@ function pintaContrato(){
           placeholder="${esc(c.dica)}"></label>`).join('')}
       </div>
     </details>
-    <details class="avancado">
-      <summary>Quantidade contratada por serviço</summary>
-      <div>
-      ${ligados.length ? `<table class="tabQt"><tbody>${ligados.map(s => `<tr>
-          <td>${esc(s.nome)}</td>
-          <td><input type="number" step="any" min="0" data-qt="${esc(s.nome)}"
-            value="${s.km_contratado == null ? '' : s.km_contratado}" placeholder="km"></td>
-        </tr>`).join('')}</tbody></table>`
-        : '<div class="dica">Marque serviços para informar a quantidade de cada um.</div>'}
-      <div class="dica">Em quilômetros. Serviço sem quantidade é medido só contra o trecho.</div>
-      </div>
     </details>`;
+  // A QUANTIDADE CONTRATADA SAIU DA TELA nesta rodada, por ordem do cliente: «é pra gente
+  // organizar o andamento da obra e não fazer a medição no momento» — medição é outro
+  // projeto. Saiu o campo de digitar, NÃO o dado: `km_contratado` continua vivo dentro de
+  // cada serviço, viaja no projeto salvo, e o quadro e o relatório seguem mostrando
+  // «% do contrato» para a obra que já tem o número. Apagar o dado de quem já digitou seria
+  // perda de trabalho — e o dia em que a medição voltar, ela volta sobre o que existe.
   $$('#blocoContrato [data-ct]').forEach(i => i.oninput = () => {
     const v = i.value.trim();
     dadosContrato()[i.dataset.ct] = i.type === 'number' ? (v === '' ? null : +v) : v;
     salvaLocal();
-  });
-  $$('#blocoContrato [data-qt]').forEach(i => i.oninput = () => {
-    const s = S.svc.find(x => x.nome === i.dataset.qt);
-    if (s) s.km_contratado = i.value.trim() === '' ? null : +i.value;
-    render(); salvaLocal();
   });
 }
 
 /* ---------------------------------------------------------------- quadro da obra */
 /** Uma linha por serviço, em quilômetro, no formato que o escritório reporta: quanto está
     em cada situação, quanto foi executado e quanto isso representa do contratado. */
+/** O estado de UM serviço em UM quilômetro, colapsando os lados pelo MENOS avançado.
+
+    O serviço ocupa vários lados e o quilômetro conta UMA vez. Medido em 21/08, antes desta
+    regra: limpeza lateral concluída no acostamento direito e prevista no esquerdo entrava
+    como «1 km concluído» — meio serviço virava serviço inteiro num quadro que vai a medição.
+
+    Menos avançado, e não média: «concluído» significa que não há mais nada a fazer ali, e com
+    um lado pendente há. A média daria meio quilômetro concluído e meio previsto: número certo
+    e leitura errada, porque ninguém saberia qual metade. «Não se aplica» não conta como
+    atraso — um lado inaplicável não segura o quilômetro.
+
+    Mora aqui sozinha, e não dentro do `quadroObra()`, porque o painel precisa da MESMA regra:
+    o cartão «Avanço físico» contava serviço×lado e dizia 3.228 «quilômetros» onde há 269 —
+    contava o mesmo quilômetro duas vezes, uma por lado, e a tela mostrava 19,1% ao lado dos
+    24,4% do quadro. Duas contas do mesmo número em telas diferentes é o defeito que a casa
+    proíbe; por isso extraída em vez de copiada. Pedida pelo HAL9000 em 23/08. */
+const ORDEM_ESTADO = {C: 5, E: 4, PA: 3, S: 2, P: 1};
+function estadoDoKm(nomeSvc, segId){
+  const lados = (S.svc.find(s => s.nome === nomeSvc) || {lados: []}).lados || [];
+  let pior = null, todosNA = lados.length > 0;
+  lados.forEach(ld => {
+    const v = S.dados[chave({svc: nomeSvc, lado: ld}, segId)] || 'P';
+    if (v === 'NA') return;
+    todosNA = false;
+    if (pior === null || ORDEM_ESTADO[v] < ORDEM_ESTADO[pior]) pior = v;
+  });
+  return todosNA ? 'NA' : (pior === null ? 'P' : pior);
+}
+
 function quadroObra(){
   const segs = segsNoTrecho();
   const porSvc = new Map();
   S.svc.filter(s => s.on).forEach(s => porSvc.set(s.nome, {
     svc: s.nome, cor: corServico(s.nome), contratado: kmContratado(s.nome),
-    C: 0, E: 0, PA: 0, S: 0, P: 0, NA: 0, kmTrecho: 0
+    foraCatalogo: !!s.foraCatalogo,
+    // CONTAGEM: o quilômetro vale 1, como a linha vale 1 na planilha da casa. O KM 268 da
+    // AM-010 tem 0,062 km de sobra e a equipe conta 257 concluídos; somando extensão saía
+    // 256,06 — foi este número que o cliente chamou de «ele acha que tem mais km».
+    C: 0, E: 0, PA: 0, S: 0, P: 0, NA: 0,
+    // EXTENSÃO: guardada à parte, e é ela que sustenta percentual e medição. Contagem e
+    // extensão nunca se derivam uma da outra: num recorte KM 12,5–18,3 as pontas valem meio
+    // quilômetro cada, e contar célula ali inflou o avanço em 5 pontos numa medição de 21/08.
+    km: {C: 0, E: 0, PA: 0, S: 0, P: 0, NA: 0}, trechos: 0, kmTrecho: 0
   }));
-  // O serviço ocupa vários lados e o quilômetro conta UMA vez — pelo estado MENOS avançado.
-  //
-  // Medido em 21/08, antes desta correção: limpeza lateral concluída no acostamento direito e
-  // prevista no esquerdo entrava como «1 km concluído». Meio serviço virava serviço inteiro
-  // num quadro que vai a medição.
-  //
-  // Menos avançado, e não média: «concluído» num quadro de medição significa que não há mais
-  // nada a fazer ali, e com um lado pendente há. A média daria meio quilômetro concluído e
-  // meio previsto — número certo e leitura errada, porque ninguém saberia qual metade.
-  // «Não se aplica» não conta como atraso: um lado inaplicável não segura o quilômetro.
-  const ordem = {C: 5, E: 4, PA: 3, S: 2, P: 1};
   porSvc.forEach((q, nome) => {
-    const lados = (S.svc.find(s => s.nome === nome) || {lados: []}).lados;
     segs.forEach(sg => {
       const km = kmNoTrecho(sg);
       q.kmTrecho += km;
-      let pior = null, todosNA = lados.length > 0;
-      lados.forEach(ld => {
-        const v = S.dados[chave({svc: nome, lado: ld}, sg.id)] || 'P';
-        if (v === 'NA') return;                 // lado inaplicável não segura o quilômetro
-        todosNA = false;
-        if (pior === null || ordem[v] < ordem[pior]) pior = v;
-      });
-      q[todosNA ? 'NA' : (pior === null ? 'P' : pior)] += km;
+      q.trechos += 1;
+      const est = estadoDoKm(nome, sg.id);
+      q[est] += 1;        // contagem, como a planilha
+      q.km[est] += km;    // extensão, para o percentual e para o dia da medição
     });
   });
   return [...porSvc.values()].map(q => {
-    q.pctTrecho = q.kmTrecho > 0 ? q.C / q.kmTrecho : null;
-    q.pctContrato = q.contratado ? q.C / q.contratado : null;
+    q.kmC = q.km.C;
+    // UMA BASE SÓ NA PLATAFORMA: o avanço do acompanhamento é contagem de quilômetros, como
+    // na planilha da casa e como o `resumoLinha` da matriz passou a fazer por decisão do
+    // coordenador em 23/08. Duas bases fariam a mesma obra mostrar dois avanços — matriz
+    // dizendo 9% e quadro dizendo 4% — e é isso que destrói a confiança num relatório.
+    // O preço está declarado nas notas técnicas: num recorte que começa ou termina no meio
+    // de um quilômetro, a ponta conta 1 e o avanço sai otimista em relação à geodésia.
+    q.pctTrecho = q.trechos > 0 ? q.C / q.trechos : null;
+    // O contrato é medição, e medição é extensão: quilômetro contratado é quilômetro de
+    // estrada, não posição de planilha. Aqui a base continua sendo `kmC`, de propósito.
+    q.pctContrato = q.contratado ? q.km.C / q.contratado : null;
     // Executado acima do contratado não é avanço: ou a quantidade contratada está errada, ou
     // se lançou serviço fora do contrato. Medido na AM-010: 259 km lançados contra 175
     // contratados dariam «148%» impressos num quadro de medição, sem uma palavra.
@@ -120,50 +140,52 @@ function quadroObra(){
 function tabelaQuadroObra(){
   const q = quadroObra();
   if (!q.length) return '';
-  const temCt = q.some(x => x.contratado);
-  const km = v => v > 0 ? fmt(v, 1) : '—';
+  // SEM AS COLUNAS DE CONTRATO nesta fase, por ordem do cliente: «é pra gente organizar o
+  // andamento da obra e não fazer a medição no momento». Sem campo para digitar quantidade,
+  // uma coluna «Contratado» e um «% do contrato» ficariam mostrando número que ninguém mais
+  // atualiza — pior que não mostrar. O dado (`km_contratado`) continua guardado no projeto e
+  // o cálculo (`pctContrato`) continua existindo: a medição volta noutro projeto, sobre o
+  // que já existe.
+  const num = v => v > 0 ? String(v) : '—';
   const pc = v => v == null ? '—' : fmt(100 * v, 1) + '%';
   const soma = k => q.reduce((a, x) => a + x[k], 0);
-  // A célula com quilômetro ganha o fundo da situação, na paleta do catálogo — que é a do
-  // escritório: verde concluído, laranja em andamento. Célula em zero fica branca, senão o
-  // quadro vira um mosaico e a cor deixa de destacar o que importa.
-  const cel = (v, cod) => v > 0.001
-    ? `<td style="background:${corStatus(cod)};color:${txtStatus(cod)}">${km(v)}</td>`
-    : '<td>—</td>';
-  const somaCt = q.reduce((a, x) => a + (x.contratado || 0), 0);
+  // O cabeçalho colorido precisa de respiro: quatro etiquetas grudadas leem como planilha
+  // exportada. Uma borda branca de 3 px separa sem inventar traço novo, e o número no meio
+  // da célula é o que faz a coluna ser lida como coluna.
+  const CAB = 'padding:5px 9px;border-left:3px solid #fff;text-align:center';
+  const th = (cod, rot) => `<th style="${CAB};background:${corStatus(cod)};color:${
+    txtStatus(cod)}">${rot}</th>`;
+  // A célula com o quilômetro ganha o fundo da situação, na paleta do escritório. Zero fica
+  // branca: senão o quadro vira mosaico e a cor deixa de destacar o que importa.
+  const cel = (v, cod) => v > 0
+    ? `<td style="background:${corStatus(cod)};color:${txtStatus(cod)};text-align:center">${
+        num(v)}</td>`
+    : '<td style="text-align:center">—</td>';
   return `<table><thead><tr><th class="t">Serviço</th>
-      ${temCt ? '<th>Contratado</th>' : ''}
-      <th style="background:${corStatus('C')};color:${txtStatus('C')}">Concluído</th>
-      <th style="background:${corStatus('E')};color:${txtStatus('E')}">Em and.</th>
-      <th style="background:${corStatus('PA')};color:${txtStatus('PA')}">Paralisado</th>
-      <th style="background:${corStatus('S')};color:${txtStatus('S')}">Sem plan.</th>
-      <th>Previsto</th>
-      <th>% do trecho</th>${temCt ? '<th>% do contrato</th>' : ''}</tr></thead><tbody>${
-    q.map(x => `<tr><td class="t">${esc(x.svc)}</td>
-      ${temCt ? `<td>${km(x.contratado || 0)}</td>` : ''}
+      ${th('C', 'Concluído')}${th('E', 'Em and.')}${th('PA', 'Paralisado')}${th('S', 'Sem plan.')}
+      <th style="${CAB}">Previsto</th>
+      <th style="${CAB}">% do trecho</th></tr>
+      <tr><th class="t" style="font-weight:400;font-size:10px">quilômetros contados</th>
+      <th colspan="5" style="font-weight:400;font-size:10px;text-align:center">um quilômetro
+        conta 1, como a linha da planilha</th>
+      <th style="font-weight:400;font-size:10px;text-align:center">mesma base da matriz</th>
+      </tr></thead><tbody>${
+    q.map(x => `<tr><td class="t">${esc(x.svc)}${x.foraCatalogo
+        ? ' <span style="font-size:9.5px;color:var(--ambar)">fora do catálogo</span>' : ''}</td>
       ${cel(x.C, 'C')}${cel(x.E, 'E')}${cel(x.PA, 'PA')}${cel(x.S, 'S')}${cel(x.P, '')}
-      <td>${pc(x.pctTrecho)}</td>
-      ${temCt ? `<td>${x.excedeContrato
-        ? `<b title="executado acima do contratado">${pc(x.pctContrato)} ⚠</b>`
-        : pc(x.pctContrato)}</td>` : ''}</tr>`).join('')}
+      <td style="text-align:center">${pc(x.pctTrecho)}</td></tr>`).join('')}
     <tr><td class="t"><b>Total</b></td>
-      ${temCt ? `<td><b>${km(somaCt)}</b></td>` : ''}
-      <td><b>${km(soma('C'))}</b></td><td><b>${km(soma('E'))}</b></td>
-      <td><b>${km(soma('PA'))}</b></td><td><b>${km(soma('S'))}</b></td>
-      <td><b>${km(soma('P'))}</b></td>
-      <td><b>${pc(soma('kmTrecho') > 0 ? soma('C') / soma('kmTrecho') : null)}</b></td>
-      ${temCt ? `<td><b>${pc(somaCt > 0 ? soma('C') / somaCt : null)}</b></td>` : ''}</tr>
+      <td style="text-align:center"><b>${num(soma('C'))}</b></td>
+      <td style="text-align:center"><b>${num(soma('E'))}</b></td>
+      <td style="text-align:center"><b>${num(soma('PA'))}</b></td>
+      <td style="text-align:center"><b>${num(soma('S'))}</b></td>
+      <td style="text-align:center"><b>${num(soma('P'))}</b></td>
+      <td style="text-align:center"><b>${pc(soma('trechos') > 0
+        ? soma('C') / soma('trechos') : null)}</b></td></tr>
     </tbody></table>
-    ${q.some(x => x.excedeContrato) ? `<div class="meta"><b>⚠ Executado acima do
-      contratado</b> em ${q.filter(x => x.excedeContrato).length} serviço(s):
-      ${esc(q.filter(x => x.excedeContrato).map(x => x.svc).join(', '))}. Isso não é avanço
-      acima de 100% — ou a quantidade contratada informada está errada, ou foi lançado
-      serviço além do que o contrato prevê. Confira antes de usar este quadro em medição.
-      </div>` : ''}
-    <div class="meta">Em quilômetros. Um quilômetro conta uma vez por serviço, pelo estado
-      mais avançado entre os lados. <b>% do trecho</b> mede onde a obra está; <b>% do
-      contrato</b> mede quanto falta entregar${temCt ? '' : ' — e só aparece quando a '
-      + 'quantidade contratada é informada'}.</div>`;
+    <div class="meta">Quilômetros contados: um quilômetro conta 1 por serviço, pelo estado
+      <b>menos avançado</b> entre os lados — com um lado pendente, o quilômetro ainda tem o
+      que fazer. <b>% do trecho</b> é a mesma base da matriz e do painel.</div>`;
 }
 
 /** Cabeçalho de identificação do contrato, para o relatório. */

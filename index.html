@@ -13,6 +13,14 @@
   --cinza:#8E9AA6; --cinza-cl:#E8EDF2; --linha:#D4DBE2; --fundo:#F6F8FA;
   --texto:#1F2933; --texto2:#5A6673;
   --sombra:0 1px 3px rgba(22,50,79,.10), 0 4px 14px rgba(22,50,79,.06);
+  /* UMA ESCALA DE TIPO. A lateral tinha seis tamanhos diferentes (10, 10,5, 11, 11,5, 12,5 e
+     14 px) e nenhum deles queria dizer nada em relação ao outro — é o que faz uma tela parecer
+     montada aos pedaços em vez de projetada. Quatro degraus, cada um com um trabalho:
+       --t-micro  rótulo em caixa alta, o menor tamanho que ainda se lê
+       --t-ui     texto de controle e de tabela: o corpo da plataforma
+       --t-forte  o que precisa ser lido antes do resto
+       --t-titulo cabeçalho de bloco e número grande */
+  --t-micro:10.5px; --t-nota:11.5px; --t-ui:12.5px; --t-forte:13.5px; --t-titulo:15px;
 }
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:var(--texto);background:var(--fundo)}
@@ -36,29 +44,37 @@ header input[type=text]::placeholder{color:#A9C4E0}
 .btn.pri{background:var(--verde);border-color:var(--verde)}
 
 main{flex:1;display:flex;min-height:0}
-aside{width:322px;flex:0 0 322px;background:#fff;border-right:1px solid var(--linha);overflow-y:auto;padding-bottom:24px}
-aside h2{margin:0;padding:11px 14px 9px;font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--navy);background:var(--azul-cl);border-bottom:1px solid var(--linha);display:flex;align-items:center;gap:8px}
+/* a lateral inteira na escala: o que não tem tamanho declarado herdava os 14 px do corpo e
+   convivia com rótulos de 10,5 — seis tamanhos numa coluna de 322 px */
+aside{width:322px;flex:0 0 322px;background:#fff;border-right:1px solid var(--linha);overflow-y:auto;padding-bottom:24px;font-size:var(--t-forte)}
+aside h2{margin:0;padding:12px 14px 10px;font-size:var(--t-micro);text-transform:uppercase;letter-spacing:.12em;color:var(--navy);background:var(--azul-cl);border-bottom:1px solid var(--linha);display:flex;align-items:center;gap:8px}
 aside h2 i{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:var(--navy);color:#fff;font-size:10.5px;font-style:normal;font-weight:700}
 .bloco{padding:12px 14px;border-bottom:1px solid var(--linha)}
 .campo{margin-bottom:10px}
 .campo:last-child{margin-bottom:0}
-.campo label{display:block;font-size:11px;font-weight:600;color:var(--texto2);margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em}
-.dica{font-size:11px;color:var(--texto2);margin-top:4px;line-height:1.35}
+.campo label{display:block;font-size:var(--t-micro);font-weight:700;color:var(--texto2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.08em}
+.dica{font-size:var(--t-nota);color:var(--texto2);margin-top:5px;line-height:1.4}
 aside details.avancado{margin-top:10px;border-top:1px dashed var(--linha);padding-top:9px}
-aside details.avancado>summary{font-size:10.5px;font-weight:700;color:var(--texto2);text-transform:uppercase;letter-spacing:.08em;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between}
+/* Grupo recolhido tem de parecer FECHADO, não desligado. Antes era texto cinza com um «+»
+   solto na ponta, e lia como rótulo inativo: o cliente não abria porque não parecia abrível.
+   Agora tem área de toque inteira, fundo que responde ao ponteiro e um sinal que gira. */
+aside details.avancado>summary{font-size:var(--t-micro);font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.08em;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;padding:9px 10px;margin:0 -10px;border-radius:6px}
+aside details.avancado>summary:hover{background:var(--azul-cl)}
+aside details.avancado>summary::after{transition:transform .15s ease}
+aside details[open].avancado>summary{color:var(--navy);background:var(--azul-cl)}
 aside details.avancado>summary::-webkit-details-marker{display:none}
-aside details.avancado>summary::after{content:'+';font-size:14px;color:var(--navy);line-height:1}
-aside details[open].avancado>summary::after{content:'−'}
+aside details.avancado>summary::after{content:'›';font-size:15px;font-weight:400;color:var(--navy);line-height:1;transform:rotate(90deg)}
+aside details[open].avancado>summary::after{content:'›';transform:rotate(-90deg)}
 aside details.avancado>div{margin-top:10px}
 #faixaBox #legenda{display:flex;flex-wrap:wrap;gap:2px 12px;padding:0 10px 6px}
 #faixaBox #legenda .leg{margin:0;font-size:10.5px;gap:5px}
 #faixaBox #legenda .leg i{width:16px;height:9px}
-select,input[type=number],input[type=search]{width:100%;padding:7px 9px;border:1px solid var(--linha);border-radius:6px;background:#fff}
+select,input[type=number],input[type=search]{width:100%;padding:7px 9px;border:1px solid var(--linha);border-radius:6px;background:#fff;font-size:var(--t-forte)}
 select:focus,input:focus{outline:2px solid var(--azul-cl);border-color:var(--azul)}
 .linha2{display:flex;gap:8px}
 .linha2>*{flex:1;min-width:0}
 .seg{display:flex;border:1px solid var(--linha);border-radius:6px;overflow:hidden}
-.seg button{flex:1;padding:7px 4px;background:#fff;border:0;border-right:1px solid var(--linha);font-size:12.5px}
+.seg button{flex:1;padding:8px 4px;background:#fff;border:0;border-right:1px solid var(--linha);font-size:var(--t-ui)}
 .seg button:last-child{border-right:0}
 .seg button.on{background:var(--navy);color:#fff;font-weight:600}
 .dropzone{border:1.5px dashed var(--linha);border-radius:8px;padding:16px 10px;text-align:center;color:var(--texto2);font-size:12.5px;background:#FBFCFD}
@@ -67,12 +83,12 @@ select:focus,input:focus{outline:2px solid var(--azul-cl);border-color:var(--azu
 .svc{display:flex;align-items:flex-start;gap:8px;padding:6px 4px;border-radius:6px}
 .svc:hover{background:var(--fundo)}
 .svc input{margin:2px 0 0}
-.svc .nm{flex:1;font-size:12.5px;line-height:1.3}
-.svc .gr{font-size:10.5px;color:var(--texto2)}
-.svc .lados{font-size:10px;color:var(--texto2);white-space:nowrap;padding-top:2px}
-.mini{font-size:11.5px;padding:5px 9px;border-radius:6px;border:1px solid var(--linha);background:#fff;color:var(--navy)}
+.svc .nm{flex:1;font-size:var(--t-ui);line-height:1.3}
+.svc .gr{font-size:var(--t-micro);color:var(--texto2);letter-spacing:.04em}
+.svc .lados{font-size:var(--t-micro);color:var(--texto2);white-space:nowrap;padding-top:2px}
+.mini{font-size:var(--t-nota);padding:6px 10px;border-radius:6px;border:1px solid var(--linha);background:#fff;color:var(--navy)}
 .mini:hover{background:var(--azul-cl)}
-.leg{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px}
+.leg{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:var(--t-nota)}
 .leg i{width:26px;height:15px;border-radius:3px;border:1px solid rgba(0,0,0,.12);flex:0 0 auto}
 
 section.painel{flex:1;display:flex;flex-direction:column;min-width:0}
@@ -99,12 +115,25 @@ table.mat tbody tr.gr th.sv{background:var(--azul-cl);color:var(--navy);font-wei
 table.mat tbody tr.gr td{background:var(--azul-cl)}
 table.mat td.cel{width:30px;min-width:30px;height:24px;cursor:pointer;font-size:10px;font-weight:700;user-select:none}
 table.mat td.cel:hover{outline:2px solid var(--navy);outline-offset:-2px;position:relative;z-index:1}
+/* Zebra discreta: em 269 colunas o olho escorrega de linha. Só nas células sem lançamento —
+   a célula pintada tem cor própria e a zebra não a alcança. */
+table.mat tbody tr:not(.gr):nth-child(even) td.cel{background:#F7F9FB}
+table.mat tbody tr:not(.gr):nth-child(odd) td.cel{background:#fff}
+/* A régua de 10 em 10 km, no cabeçalho, nas células e no rodapé */
+table.mat th.m10,table.mat td.m10{border-left:2px solid var(--cinza)}
+table.mat thead th.m10{border-left-color:#7FA6CC}
+.legGrade{display:flex;flex-wrap:wrap;gap:4px 16px;padding:10px 14px 0;font-size:var(--t-micro);
+  color:var(--texto2);text-transform:uppercase;letter-spacing:.06em}
+.legGrade span{display:flex;align-items:center;gap:6px}
+.legGrade .comoPinta{margin-left:auto;text-transform:none;letter-spacing:0;font-size:var(--t-nota);color:var(--texto2)}
+.legGrade i{width:14px;height:10px;border-radius:2px;border:1px solid rgba(0,0,0,.12)}
+.legGrade i.hachura{background:repeating-linear-gradient(45deg,#fff,#fff 3px,#F0F2F5 3px,#F0F2F5 6px)}
 table.mat td.fora{background:repeating-linear-gradient(45deg,#fff,#fff 4px,#F0F2F5 4px,#F0F2F5 8px);cursor:default}
 table.mat tfoot th,table.mat tfoot td{background:#F1F4F7;font-weight:700;font-size:10.5px;position:sticky;bottom:0;z-index:2}
 table.mat tfoot th.sv{background:#F1F4F7;color:var(--navy);z-index:3}
 
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:12px;padding:14px}
-.card{background:#fff;border-radius:10px;padding:12px 14px;box-shadow:var(--sombra);border-top:3px solid var(--navy)}
+.card{background:#fff;border-radius:10px;padding:12px 14px;box-shadow:inset 0 3px 0 var(--navy),var(--sombra)}
 .card .rot{font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--texto2)}
 .card .val{font-size:20px;font-weight:700;color:var(--navy);margin-top:2px;line-height:1.2}
 .card .sub{font-size:11px;color:var(--texto2)}
@@ -221,12 +250,18 @@ table.res tfoot td{background:#F1F4F7;font-weight:700}
   pointer-events:none;white-space:nowrap}
 .faixaTrilho .km:last-child .rot{left:auto;right:3px}
 #barraLanca{display:flex;align-items:end;gap:9px;margin-top:8px;flex-wrap:wrap}
-#barraLanca label{display:flex;flex-direction:column;gap:3px;font-size:10px;text-transform:uppercase;
+#barraLanca label{display:flex;flex-direction:column;gap:4px;font-size:var(--t-micro);text-transform:uppercase;
   letter-spacing:.06em;color:var(--texto2)}
-#barraLanca select{font:13px inherit;padding:5px 7px;border:1px solid var(--linha);border-radius:6px;
+#barraLanca select{font:var(--t-forte)/1.2 inherit;padding:7px 9px;border:1px solid var(--linha);border-radius:6px;
   background:#fff;text-transform:none;letter-spacing:0;color:var(--texto);max-width:290px}
 #barraLanca .sep{flex:1}
-#barraLanca .min{font-size:11px;color:var(--texto2)}
+#barraLanca .min{font-size:11px;color:var(--texto2);max-width:34ch;line-height:1.35}
+/* O lançamento é o gesto do dia inteiro: a barra ganha fundo próprio e o botão de aplicar
+   ganha o tamanho de quem termina a frase. Antes ela era uma linha de controles pequenos
+   com o mesmo peso do texto de ajuda ao lado. */
+#barraLanca{background:#fff;border:1px solid var(--linha);border-radius:8px;padding:9px 11px;
+  box-shadow:var(--sombra)}
+#barraLanca #btAplica{padding:9px 16px;font-size:var(--t-forte);font-weight:600}
 #barraLanca .amostra{width:20px;height:20px;border-radius:4px;border:1px solid rgba(0,0,0,.18);
   margin-bottom:4px}
 #barraLanca button[disabled]{opacity:.45}
@@ -293,6 +328,7 @@ table.res tfoot td{background:#F1F4F7;font-weight:700}
         <input type="search" id="buscaAcervo" placeholder="Filtrar por nome, município, situação…">
         <select id="selAcervo" size="9" style="margin-top:6px"></select>
         <div class="dica" id="infoAcervo">Acervo do Departamento Rodoviário.</div>
+        <button class="mini hidden" id="btRemoveLocal" style="width:100%;margin-top:6px">Remover do acervo local</button>
       </div>
       <div class="campo hidden" id="cxArquivo">
         <div class="dropzone" id="dz">

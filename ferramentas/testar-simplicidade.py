@@ -161,6 +161,14 @@ def main():
         ok(len(dobra) <= META_DOBRA,
            f"no máximo {META_DOBRA} alvos na primeira dobra, COM o eixo carregado",
            f"{len(dobra)} alvos")
+        # Quando estoura, o total sozinho nao diz o que entrou: a lista item a item e o que
+        # resolve divergencia — foi ela que separou os 43 dos 27 em 23/08, quando um contador
+        # media retangulo e o outro media pintura. Herdada da `medir-simplicidade.py`, que era
+        # a mesma medicao sem portao e foi apagada no mesmo dia (Cortanna, declarado no canal).
+        if len(dobra) > META_DOBRA:
+            print("     o que esta na dobra, item a item:")
+            for alvo in dobra:
+                print("       - " + str(alvo))
 
         print("\n2. GESTOS ATÉ O PRIMEIRO SERVIÇO LANÇADO")
         ok(chegou, "o caminho do lançamento existe: eixo, quilômetro, serviço, situação")

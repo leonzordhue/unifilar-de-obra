@@ -32,16 +32,22 @@ sozinho na próxima abertura.
 ![Mapa com o eixo selecionado](imagens/01-mapa-satelite.png)
 
 A lateral tem três passos: **1 Eixo**, **2 Obra**, **3 Serviços**. O que se usa a toda hora
-fica à vista; o que se preenche uma vez por obra fica em grupos recolhidos, com um `+` do
-lado — um clique abre.
+fica à vista; o que se preenche uma vez por obra fica em grupos recolhidos, com uma seta do
+lado — um clique abre, e a seta gira.
 
 No passo **1 — Eixo** há quatro origens:
 
-- **Rodovia** — as 34 rodovias estaduais do cadastro do Departamento Rodoviário.
+- **Rodovia** — as rodovias estaduais **que têm pista implantada**. São 23 das 34 do
+  cadastro: rodovia inteiramente planejada não entra, porque não existe pista onde medir, e a
+  lista diz quantas ficaram fora. Duas continuam ali com aviso — AM-326 e AM-366 —, porque o
+  cadastro registra pista implantada nelas (27,8 km e 17,0 km) que o traçado do acervo não
+  tem; o rótulo avisa: *«implantados no cadastro, sem traçado»*.
 - **Ramal** — os 905 ramais, com filtro por nome, município ou rodovia de referência.
 - **KML / KMZ** — arraste o arquivo do seu projeto. O arquivo é lido pelo próprio navegador.
 - **Acervo local** — traçados que você guardou neste navegador, com o botão *Guardar no
-  acervo local* que aparece depois de carregar um KML/KMZ.
+  acervo local* que aparece depois de carregar um KML/KMZ. Para tirar um da lista, escolha-o
+  e use *Remover do acervo local* — o projeto que já usa aquele traçado continua com ele
+  dentro.
 
 Ao escolher, a plataforma divide o traçado do KM 0 até a extensão final e desenha no mapa. O
 campo de filtro aceita nome, município ou situação (por exemplo, `manacapuru` ou `pavimentada`).
@@ -53,8 +59,8 @@ exemplo: *«KM 0 em Praça Nossa Senhora de Nazaré – Manaus. Conferido por 80
 o KM onde nascem (correlação 1,000, erro médio 1,49 km)»*.
 
 Quando aparecer **«Sentido não verificado»**, olhe o croqui e confirme de que lado está o KM 0.
-Três rodovias estaduais estão nessa situação (AM-175, AM-280 e AM-329), e todo KMZ carregado
-pelo usuário também: um arquivo de traçado não carrega essa informação. O botão **Inverter
+Três rodovias estaduais estão nessa situação (AM-175, AM-280 e AM-329), e qualquer KMZ
+carregado pelo usuário também: um arquivo de traçado não carrega essa informação. O botão **Inverter
 sentido**, no grupo **Sentido e estaqueamento** do passo 2, troca a ponta.
 
 > Inverter apaga os lançamentos, e a plataforma pede confirmação antes. Não é zelo excessivo:
@@ -81,7 +87,6 @@ recolhidos, porque são coisas que se preenchem uma vez por obra e não a cada l
 | Grupo | O que tem dentro |
 |---|---|
 | **Objeto, valor e vigências** | a identidade contratual (seção 6) |
-| **Quantidade contratada por serviço** | quantos km de cada serviço o contrato prevê (seção 6) |
 | **Sentido e estaqueamento** | referência das colunas, inverter sentido, estaca inicial |
 | **Ensaios contratados** | quais ensaios a obra controla (seção 7) |
 
@@ -148,32 +153,28 @@ entra pelo pedaço que é obra — não pelo quilômetro cheio.
 
 ---
 
-## 6. Contrato e quantidade contratada
+## 6. Identificação do contrato
 
-Passo **2 — Obra**, nos grupos **Objeto, valor e vigências** e **Quantidade contratada por
-serviço**. É o que faz a obra ser rastreável ao processo, e é assim que o relatório abre.
+Passo **2 — Obra**, no grupo **Objeto, valor e vigências**. É o que faz a obra ser rastreável
+ao processo, e é assim que o relatório abre.
 
 - **Objeto**, como está no contrato.
 - **Valor**.
 - **Vigência do contrato** e **vigência de execução** — as duas, porque não coincidem.
-- **Quantidade contratada por serviço**, em quilômetros: quanto de cada serviço o contrato
-  prevê.
 
-A quantidade contratada muda o que o avanço significa. Um serviço com 175 km contratados numa
-obra de 250 km, com 175 km executados, está **100% entregue** — e 70% do trecho. O relatório
-mostra as duas colunas, porque medem coisas diferentes:
+> **Quantidade contratada por serviço saiu desta versão.** A plataforma está para acompanhar o
+> andamento da obra, não para medir contrato: medição é outro trabalho e vem em outro momento.
+> Quem já tinha informado quantidade não perdeu nada — o número continua guardado dentro do
+> projeto e volta quando a medição voltar.
 
-| Coluna | O que responde |
-|---|---|
-| **% do trecho** | onde a obra está, ao longo do eixo |
-| **% do contrato** | quanto falta entregar do que foi contratado |
-
-Serviço sem quantidade informada aparece com traço na coluna do contrato — nunca com zero.
-Zero significaria «nada executado», e o que existe é «não informado».
+O quadro da obra mostra **% do trecho**: onde a obra está ao longo do eixo em obra. A coluna
+«% do contrato» saiu com a quantidade contratada, e volta com ela.
 
 O **quadro de avanço por serviço** sai no relatório em quilômetros, e um quilômetro conta uma
-vez por serviço, pelo estado mais avançado entre os lados: somar faixa direita e esquerda
-dobraria a extensão da obra.
+vez por serviço, **pelo estado menos avançado entre os lados**: com a faixa direita concluída e
+a esquerda não, aquele quilômetro ainda tem o que fazer, e contá-lo como concluído seria meio
+serviço virando serviço inteiro num documento que instrui medição. Somar os dois lados também
+não serve: dobraria a extensão da obra.
 
 ---
 
@@ -227,9 +228,16 @@ apaga a lista.
 
 ![Matriz de controle](imagens/02-matriz-de-controle.png)
 
-Aba **Controle**. No alto ficam os cartões e os gráficos do painel; embaixo, a matriz.
+Aba **Controle**. A grade abre primeiro — uma linha por serviço e lado, uma coluna por
+quilômetro, como a planilha da equipe —, e os cartões e gráficos do painel ficam logo abaixo.
+A legenda das situações fica em cima da grade, e o cabeçalho traz uma marca mais forte a cada
+10 km, para não se perder a conta em 269 colunas.
+
 Cada célula é um serviço, num lado, num quilômetro. **Clique na
-célula** para girar o status. A ordem do clique põe **Concluído** primeiro porque é o
+célula** para girar o status; **arraste** para repetir nas seguintes o status que acabou de
+aplicar, que é como se pinta uma faixa inteira sem dar um clique por quilômetro. A coluna de
+serviço fica fixa: rolar até o KM 130 não faz perder de vista o que se está lançando, e
+marcar um quilômetro na faixa (aba **Obra**) leva a grade até ele. A ordem do clique põe **Concluído** primeiro porque é o
 lançamento mais frequente; continuar clicando passa pelos demais e volta a Previsto:
 
 | Clique | Status | Cor | Quando usar |
@@ -237,11 +245,16 @@ lançamento mais frequente; continuar clicando passa pelos demais e volta a Prev
 | — | **Previsto** | cinza claro | planejado, não iniciado |
 | 1º | **Concluído** | verde | concluído e conferido |
 | 2º | **Em andamento** | laranja | em execução no quilômetro |
-| 3º | **Sem planejamento** | vermelho | quilômetro sem planejamento no período |
-| 4º | **Não se aplica** | cinza | serviço não aplicável ao quilômetro |
-| 5º | volta a **Previsto** | | |
+| 3º | **Paralisado** | vermelho-escuro | frente aberta e parada |
+| 4º | **Sem planejamento** | vermelho | quilômetro sem planejamento no período |
+| 5º | **Não se aplica** | cinza | serviço não aplicável ao quilômetro |
+| 6º | volta a **Previsto** | | |
 
 O avanço físico conta apenas o que está **Concluído**; *Não se aplica* sai do denominador.
+
+O giro passa pelos seis estados, **Paralisado** incluído — ele entrou no ciclo em 23/08,
+porque era o único estado do catálogo que não se conseguia marcar na grade, e é o primeiro que
+o pedido do cliente nomeia. A contagem dele aparece na coluna **PA**.
 
 A coluna **%** de cada linha mostra o avanço do serviço no trecho, e o cabeçalho de cada
 quilômetro traz a extensão real do segmento. Clicar num quilômetro no mapa leva à coluna
@@ -270,8 +283,10 @@ da obra.
 
 ## 11. Resumo e relatório
 
-Os cartões de resumo — eixo, trecho, número de linhas, avanço físico e a contagem de posições
-por status — ficam no alto da aba **Controle**, junto da matriz.
+Os cartões de resumo — avanço físico e a contagem de quilômetros por situação — ficam na aba
+**Controle**, logo abaixo da grade. Todos os números de avanço da plataforma saem da mesma
+régua: **um quilômetro conta 1 por serviço, pelo estado menos avançado entre os lados**. Se a
+faixa direita está concluída e a esquerda não, aquele quilômetro ainda tem o que fazer.
 
 Aba **Relatório** — o documento fechado, aberto pela identificação do contrato, em
 seções: *Localização do trecho* (o croqui),

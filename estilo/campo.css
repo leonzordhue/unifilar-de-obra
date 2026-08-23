@@ -75,8 +75,13 @@ section.painel { min-height: 54vh; }
 /* A matriz tem 269 colunas e já rola dentro de `.wrapmat`. O que muda em campo é o tamanho
    da célula: ela é o alvo de toque do lançamento. */
 .wrapmat { -webkit-overflow-scrolling: touch; }
-table.mat td.cel { min-width: 34px; height: 34px; }
-table.mat th.sv { min-width: 150px; font-size: 11px; }
+/* `body` na frente NAO e enfeite: esta folha e carregada no `<link>` do topo e as regras do
+   `<style>` do index vem depois, com a mesma especificidade — quem vem depois vence. Medido
+   em 23/08 num telefone de 390 px: a celula continuava com 24 px de altura, ou seja, o alvo
+   de toque prometido aqui nunca chegou ao dedo de ninguem. Mesmo padrao do dia: a regra
+   existia, o comentario explicava, e o efeito nao acontecia. */
+body table.mat td.cel { min-width: 34px; height: 34px; }
+body table.mat th.sv { min-width: 150px; font-size: 11px; }
 
 /* ---------------------------------------------------------------- ficha */
 /* Já cabia na tela (medido: 94 % da largura em tablet retrato). Aqui só se tira a moldura,

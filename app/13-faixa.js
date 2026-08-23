@@ -129,6 +129,12 @@ function ligaFaixa(){
     aplica(idDe(ev), ligando);
     atualizaSelecao();
   };
+  // a faixa é a leitura espacial e a grade é a planilha: marcar num lugar move o outro, senão
+  // são duas telas do mesmo eixo que não se conversam
+  trilho.addEventListener('pointerup', ev => {
+    const id = idDe(ev);
+    if (id != null && typeof marcaColuna === 'function') marcaColuna(id);
+  });
   const solta = () => { arrastando = false; };
   trilho.onpointerup = solta;
   trilho.onpointercancel = solta;
@@ -169,7 +175,7 @@ function pintaBarraLanca(){
       `<option value="${esc(st.cod === 'P' ? '' : st.cod)}">${esc(st.nome)}</option>`).join('')}</select></label>
     <button class="btn pri" id="btAplica" disabled>Aplicar à seleção</button>
     <div class="sep"></div>
-    <span class="min">Clique para marcar, arraste para pegar um intervalo, duplo clique abre a ficha.</span>`;
+    <span class="min">Clique marca · arraste pega o intervalo · duplo clique abre a ficha</span>`;
   $('#selSvcAtivo').onchange = e => { S.svcAtivo = e.target.value; pintaBarraLanca(); atualizaSelecao(); };
   $('#btAplica').onclick = aplicaNaSelecao;
   atualizaSelecao();
@@ -185,7 +191,7 @@ function aplicaNaSelecao(){
   lados.forEach(ld => {
     const l = {svc: at.nome, lado: ld};
     sel.forEach(id => {
-      if (v) S.dados[chave(l, id)] = v; else delete S.dados[chave(l, id)];
+      marcaKm(l, id, v);
     });
   });
   render(); salvaLocal();

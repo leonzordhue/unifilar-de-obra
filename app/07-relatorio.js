@@ -56,16 +56,38 @@ function pintaRel(){
       ${blocoContratoRel()}` : ''}
 
     <h2>${S.croqui ? '2' : '1'}. Avanço geral</h2>
-    <table><thead><tr><th>Indicador</th><th>Valor</th></tr></thead><tbody>
-      <tr><td>Posições de controle (serviço × lado × quilômetro)</td><td>${linhas.length * segs.length}</td></tr>
-      <tr><td>Posições aplicáveis</td><td>${t.val}</td></tr>
-      <tr><td>Posições concluídas</td><td>${t.C}</td></tr>
-      <tr><td>Posições em andamento</td><td>${t.E}</td></tr>
-      <tr><td>Posições sem planejamento</td><td>${t.S}</td></tr>
-      <tr><td><b>Avanço físico do trecho</b></td><td><b>${fmt(t.pct * 100, 2)}%</b></td></tr>
-    </tbody></table>
+    ${(() => {
+      // O RELATÓRIO CONTA QUILÔMETRO, como a tela e como a planilha da casa.
+      //
+      // Até 23/08 esta tabela contava POSIÇÃO — serviço × lado × quilômetro — e dizia «3.228
+      // posições» onde a obra tem 269 quilômetros. Os dois percentuais batiam por acidente:
+      // neste projeto os dois lados andam sempre juntos, e a proporção se mantinha. No dia em
+      // que um lado andasse sem o outro — que é para isso que o lado existe — o documento que
+      // instrui processo diria um número e a tela diria outro. Achado do HAL9000, medido.
+      //
+      // A contagem por posição não sumiu: virou a última linha, declarada como detalhe de
+      // lançamento, que é o que ela é.
+      const q = typeof quadroObra === 'function' ? quadroObra() : [];
+      const soma = k => q.reduce((a, x) => a + x[k], 0);
+      const kmTot = soma('trechos'), kmNA = soma('NA');
+      const aplic = kmTot - kmNA;
+      const pctKm = aplic > 0 ? soma('C') / aplic : 0;
+      return `<table><thead><tr><th>Indicador</th><th>Valor</th></tr></thead><tbody>
+        <tr><td>Quilômetros de controle (serviço × quilômetro)</td><td>${kmTot}</td></tr>
+        <tr><td>Quilômetros aplicáveis</td><td>${aplic}</td></tr>
+        <tr><td>Quilômetros concluídos</td><td>${soma('C')}</td></tr>
+        <tr><td>Quilômetros em andamento</td><td>${soma('E')}</td></tr>
+        <tr><td>Quilômetros paralisados</td><td>${soma('PA')}</td></tr>
+        <tr><td>Quilômetros sem planejamento</td><td>${soma('S')}</td></tr>
+        <tr><td><b>Avanço físico do trecho</b></td><td><b>${fmt(pctKm * 100, 2)}%</b></td></tr>
+        <tr><td class="t" style="color:var(--texto2)">Posições de lançamento
+          (serviço × lado × quilômetro), o detalhe em que a obra é lançada</td>
+          <td style="color:var(--texto2)">${linhas.length * segs.length}</td></tr>
+      </tbody></table>`;
+    })()}
 
-    <h2>${S.croqui ? '3' : '2'}. Situação por serviço</h2>
+    <h2>${S.croqui ? '3' : '2'}. Controle da obra — situação por serviço</h2>
+    ${controleDaObra()}
     ${tabelaQuadroObra()}
     ${typeof graficoQuadroObra === 'function' ? graficoQuadroObra() : ''}
     <div class="meta">Abaixo, o mesmo controle contado em posições — serviço, lado e
@@ -88,6 +110,21 @@ function pintaRel(){
       traçado — fórmula inversa de Vincenty, elipsoide GRS-80 —, e não por comprimento planar,
       que em coordenadas geográficas não tem significado métrico. O último quilômetro do eixo
       pode ter extensão inferior a 1 km, correspondente ao resto do traçado.</div>
+    ${(() => {
+      // O avanço passou a contar quilômetros, como a planilha da casa: cada quilômetro vale 1,
+      // inclusive a ponta de um recorte que começa ou termina no meio de um. Onde isso muda o
+      // número, o documento diz — percentual de fiscalização não pode ter viés escondido.
+      const segs = segsNoTrecho();
+      const parciais = segs.filter(sg => kmNoTrecho(sg) < sg.ext - 1e-6);
+      if (!parciais.length) return '';
+      const somaParcial = parciais.reduce((a, sg) => a + kmNoTrecho(sg), 0);
+      return `<div class="meta"><b>Base do avanço:</b> o percentual conta quilômetros — cada
+        quilômetro do trecho vale 1, como na planilha de controle da casa. ${parciais.length}
+        quilômetro(s) deste recorte entram parcialmente (${fmt(somaParcial, 3)} km de
+        ${fmt(parciais.reduce((a, sg) => a + sg.ext, 0), 3)} km) e mesmo assim contam 1 cada:
+        nesses casos o percentual é otimista em relação à extensão medida em campo. A extensão
+        real de cada faixa está no <code>06-faixas.csv</code> do pacote CDE.</div>`;
+    })()}
     ${S.eixo.km_cadastro ? `<div class="meta"><b>Extensão cadastrada:</b> ${fmt(S.eixo.km_cadastro, 3)} km ·
       <b>apurada na geometria:</b> ${fmt(geoTot, 3)} km.</div>` : ''}
     <div class="meta"><b>Catálogo de serviços:</b> ${esc(conjuntoAtual().nome)} — ${
@@ -127,13 +164,19 @@ function baixa(blob, nome){
 function textoCSV(){
   const linhas = linhasMatriz(), segs = segsNoTrecho();
   const sep = ';';
-  const cab = ['SERVICO', 'LADO', 'CONCLUIDO', 'EM ANDAMENTO', 'SEM PLANEJAMENTO',
-    'PREVISTO', 'NAO SE APLICA', '% EXECUTADO',
+  const cab = ['SERVICO', 'LADO', 'FORA_DO_CATALOGO', 'DATA_ULTIMO_LANCAMENTO',
+    'CONCLUIDO', 'EM ANDAMENTO',
+    'SEM PLANEJAMENTO', 'PREVISTO', 'NAO SE APLICA', '% EXECUTADO',
     ...segs.map(sg => (S.ref === 'est' ? 'E ' : 'KM ') + rotuloCurto(sg))];
   const out = [cab.join(sep)];
   linhas.forEach(l => {
     const r = resumoLinha(l);
-    out.push([l.svc, l.lado, r.C, r.E, r.S, r.P, r.NA,
+    const fora = (S.svc.find(s => s.nome === l.svc) || {}).foraCatalogo ? 'SIM' : '';
+    // a linha é serviço×lado ao longo de todos os quilômetros: a data que cabe aqui é a do
+    // lançamento mais recente da linha. Vazio quer dizer «sem data», que é o projeto anterior
+    // ao registro — nunca a data de quem exportou.
+    const dt = ultimaData(segs.map(sg => chave(l, sg.id)));
+    out.push([l.svc, l.lado, fora, dt, r.C, r.E, r.S, r.P, r.NA,
       r.pct == null ? '' : (100 * r.pct).toFixed(1).replace('.', ','),
       ...segs.map(sg => nomeStatus(S.dados[chave(l, sg.id)] || ''))].join(sep));
   });
@@ -225,6 +268,54 @@ function secaoEnsaios(segs){
 
 /* ---------------------------------------------------------------- detalhamento por faixa */
 const LIMITE_FAIXAS = 40;      // por serviço e lado; acima disto o corte é declarado
+
+/** O quadro no formato que a equipe já lê — a aba «CONTROLE DA OBRA» da planilha deles.
+
+    A planilha `CAMADA DE KM AM-010.xlsx` traz, por serviço: TOTAL (KM), SEM PLANEJAMENTO,
+    SALDO PLANEJADO, EM ANDAMENTO, REALIZADO e PORCENTAGEM. É a linguagem do escritório, e o
+    relatório sai para as mesmas pessoas que leem aquela aba.
+
+    Duas diferenças declaradas, porque copiar sem dizer seria pior:
+    - `TOTAL` aqui é o **trecho em obra**, não a quantidade contratada. O cliente tirou a
+      quantidade contratada da tela: «é pra gente organizar o andamento da obra e não fazer a
+      medição no momento».
+    - `SALDO PLANEJADO` é o que está previsto e ainda não foi executado — na planilha deles a
+      coluna sai do planejamento do período, que a plataforma ainda não guarda. */
+function controleDaObra(){
+  if (typeof quadroObra !== 'function') return '';
+  const q = quadroObra().filter(x => x.C + x.E + x.PA + x.S + x.P > 0);
+  if (!q.length) return '';
+  const km = v => v > 0 ? fmt(Math.round(v), 0) : '—';
+  const soma = k => q.reduce((a, x) => a + (x[k] || 0), 0);
+  const totalKm = segsNoTrecho().length;
+  const pct = (c, t) => t > 0 ? fmt(100 * c / t, 1) + '%' : '—';
+  // O QUADRO DIZ SOBRE QUE TRECHO ESTÁ FALANDO. Sem isto ele mostra número sem régua: a
+  // mesma tabela serve o eixo inteiro e um recorte de 30 km, e foi por não declarar o recorte
+  // que a erosão apareceu com 262,5% às 12h05 — o denominador era outro e ninguém via.
+  const faixaTrecho = `KM ${fmt(S.kmIni, S.kmIni % 1 ? 1 : 0)}–${
+    fmt(S.kmFim, S.kmFim % 1 ? 1 : 0)}`;
+  return `<div class="meta"><b>CONTROLE DA OBRA</b> · trecho ${faixaTrecho} ·
+      ${fmt(totalKm, 0)} quilômetro(s) de controle · quilômetros contados, um por linha, como
+      na planilha da equipe</div>
+    <table><thead><tr>
+      <th class="t">Serviço</th><th>Total (km)</th><th>Sem planejamento</th>
+      <th>Saldo planejado</th><th>Em andamento</th><th>Paralisado</th>
+      <th>Realizado</th><th>%</th></tr></thead><tbody>${
+    q.map(x => `<tr><td class="t">${esc(x.svc)}</td>
+      <td>${fmt(totalKm, 0)}</td><td>${km(x.S)}</td><td>${km(x.P)}</td>
+      <td>${km(x.E)}</td><td>${km(x.PA)}</td><td><b>${km(x.C)}</b></td>
+      <td><b>${pct(x.C, totalKm)}</b></td></tr>`).join('')}
+    <tr><td class="t"><b>Total</b></td><td><b>${fmt(totalKm * q.length, 0)}</b></td>
+      <td><b>${km(soma('S'))}</b></td><td><b>${km(soma('P'))}</b></td>
+      <td><b>${km(soma('E'))}</b></td><td><b>${km(soma('PA'))}</b></td>
+      <td><b>${km(soma('C'))}</b></td>
+      <td><b>${pct(soma('C'), totalKm * q.length)}</b></td></tr>
+    </tbody></table>
+    <div class="meta">Em quilômetros contados: cada quilômetro vale um, uma vez por serviço,
+      pelo estado <b>menos avançado</b> entre os lados — com um lado pendente, o quilômetro
+      ainda tem o que fazer. É a mesma regra da planilha de controle da equipe. <b>Total</b> é o trecho em obra (${fmt(totalKm, 0)} km), não a quantidade
+      contratada: este relatório acompanha execução, não mede contrato.</div>`;
+}
 
 /** Detalhamento por faixa: um unifilar impresso, não 38 páginas de tabela.
 

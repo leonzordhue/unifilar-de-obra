@@ -71,7 +71,9 @@ def main():
         ok(pg.evaluate("typeof L") == "object", "Leaflet carregou")
         ok(pg.evaluate("typeof JSZip") == "function", "JSZip carregou")
         n = pg.evaluate("document.querySelectorAll('#selAcervo option').length")
-        ok(n >= 30, "acervo de rodovias no seletor", f"{n} opções")
+        # o acervo tem 34 eixos, mas 13 são PLANEJADAS e saíram da lista a pedido do
+        # cliente: rodovia planejada não existe no chão, e obra não se lança nela
+        ok(n >= 15, "acervo de rodovias implantadas no seletor", f"{n} opções")
         ok(pg.evaluate("document.querySelectorAll('#listaSvc .svc').length") >= 10,
            "catálogo de serviços na lateral",
            str(pg.evaluate("document.querySelectorAll('#listaSvc .svc').length")) + " serviços")
@@ -122,7 +124,11 @@ def main():
             pg.screenshot(path=os.path.join(CAP, "02-matriz-de-controle.png"))
 
         print("\n4. LANÇAMENTO POR CLIQUE")
-        antes = pg.evaluate("document.querySelector('#vMatriz tbody tr:not(.gr) td:nth-child(6)').textContent")
+        # a coluna «%» e a SETIMA celula da linha: servico/lado · C · E · PA · S · NA · %.
+        # Era a sexta ate 23/08, quando «PA» ganhou coluna propria — paralisado estava sendo
+        # somado em «previsto», e obra parada nao e obra que vai acontecer. Sem este ajuste a
+        # prova comparava a coluna NA consigo mesma e passava verde sem medir o percentual.
+        antes = pg.evaluate("document.querySelector('#vMatriz tbody tr:not(.gr) td:nth-child(7)').textContent")
         pg.evaluate("""() => {
             for (let k = 0; k < 8; k++){
                 const c = document.querySelector(`#vMatriz td.cel[data-id="${k}"]`);
@@ -130,7 +136,7 @@ def main():
             }
         }""")
         pg.wait_for_timeout(900)
-        depois = pg.evaluate("document.querySelector('#vMatriz tbody tr:not(.gr) td:nth-child(6)').textContent")
+        depois = pg.evaluate("document.querySelector('#vMatriz tbody tr:not(.gr) td:nth-child(7)').textContent")
         ok(antes != depois, "percentual da linha muda ao lançar", f"{antes} → {depois}")
 
         print("\n5. RECORTE DE TRECHO")
@@ -148,12 +154,17 @@ def main():
         print("\n6. ESTAQUEAMENTO")
         pg.evaluate("document.querySelector(\"#segRef button[data-r='est']\").click()")
         pg.wait_for_timeout(1200)
+        # por CONTEUDO, nao por indice: as colunas fixas da grade passaram de 6 para 7 quando
+        # o «PA» virou coluna, e um slice por posicao passou a ler o «%» como se fosse estaca
         rot = pg.evaluate("""[...document.querySelectorAll('#vMatriz thead th')]
-            .slice(6, 10).map(e => e.textContent.trim())""")
+            .map(e => e.textContent.trim())
+            .filter(t => /^(KM|E)\s/.test(t.replace(/ /g, ' '))).slice(0, 4)""")
         # 1 estaca = 20 m, logo o KM n abre na estaca n*50: 0, 50, 100, 150...
         esperado = ["0", "50", "100", "150"]
-        ok([r.replace(".", "") for r in rot] == esperado,
-           "colunas passam a estaca (km x 50)", " ".join(rot))
+        # «E 0», «E 50»…: o prefixo entrou de proposito, para o numero nu deixar de ser lido
+        # como quantidade. A prova continua medindo o passo de 50 estacas por quilometro.
+        limpa = [r.replace("E", "").replace(" ", " ").replace(".", "").strip() for r in rot]
+        ok(limpa == esperado, "colunas passam a estaca (km x 50)", " ".join(rot))
         pg.evaluate("document.querySelector(\"#segRef button[data-r='km']\").click()")
         pg.wait_for_timeout(800)
 

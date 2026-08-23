@@ -145,10 +145,18 @@ def main():
         pg.wait_for_timeout(1200)
         pg.evaluate("document.querySelector(\".abas button[data-v='matriz']\").click()")
         pg.wait_for_timeout(1200)
+        # 7 colunas fixas antes do primeiro quilômetro: Serviço/lado, C, E, PA, S, NA, %.
+        # Eram 6 até 23/08, quando «PA» virou coluna própria — paralisado estava sendo somado
+        # em «previsto», e obra que parou não é obra que vai acontecer.
         rot = pg.evaluate("""[...document.querySelectorAll('#vMatriz thead th')]
-            .slice(6, 9).map(e => e.textContent.trim())""")
-        ok([r.replace(".", "") for r in rot] == ["1200", "1250", "1300"],
+            .slice(7, 10).map(e => e.textContent.trim())""")
+        # o cabecalho agora nomeia a posicao («E 1.200» em vez de «1200»), porque numero nu
+        # era o que fazia ler posicao como quantidade. A conta medida aqui e a mesma.
+        limpa = [r.replace("E", "").replace(" ", " ").replace(".", "").strip() for r in rot]
+        ok(limpa == ["1200", "1250", "1300"],
            "estaca inicial desloca todas as colunas", " ".join(rot))
+        ok(all(r.strip().startswith("E") for r in rot),
+           "e o cabecalho diz que aquilo e estaca, nao quantidade", " ".join(rot))
         pg.evaluate("""() => {
             const e = document.querySelector('#estOff');
             e.value = 0; e.dispatchEvent(new Event('input'));

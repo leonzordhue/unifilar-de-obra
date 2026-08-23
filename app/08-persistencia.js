@@ -14,7 +14,9 @@ function projetoAtual(){
                     sentido: S.eixo.sentido || {}, meta: S.eixo.meta || null} : null,
     // `Set` não sobrevive ao JSON: vira `{}` sem avisar. Vai como lista e volta como Set.
     sel: [...(S.sel || [])],
-    svc: S.svc, dados: S.dados,
+    // `datas` viaja junto de `dados`: sem isto a data existiria só na aba aberta, e salvar e
+    // reabrir devolveria o projeto inteiro com o histórico zerado, sem uma palavra
+    svc: S.svc, dados: S.dados, datas: S.datas,
     // controle tecnologico: ensaios contratados, registros e as fotos deles
     ens: S.ens, reg: S.reg, seqReg: S.seqReg,
     fotos: S.reg.reduce((a, r) => (r.foto && S.fotos[r.foto] ? (a[r.foto] = S.fotos[r.foto], a) : a), {})
@@ -72,6 +74,46 @@ function marcaSalvamento(estado){
     ? 'O projeto está guardado neste navegador, mas as fotos dos ensaios não couberam.'
     : 'O armazenamento local está cheio. O trabalho existe só nesta aba até ser salvo em arquivo.';
 }
+/** Data de hoje em AAAA-MM-DD, no fuso de quem está lançando.
+
+    `toISOString()` daria UTC: às 21h de Manaus já é o dia seguinte em Greenwich, e o
+    lançamento da tarde apareceria no dia errado do acompanhamento. */
+function hoje(){
+  const d = new Date();
+  const p = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+
+/** O ÚNICO lugar que escreve lançamento — estado e data juntos.
+
+    Antes havia três (dois na matriz, um na faixa), cada um cuidando só do estado. Com a data
+    entrando no produto, três lugares seriam três chances de gravar estado sem data ou deixar
+    data órfã de estado; e o quarto lugar que alguém acrescentasse amanhã não saberia da regra.
+
+    A data é carimbada na MUDANÇA, não na escrita — achado do jarvisIV: o clique da matriz gira
+    o estado, e girar o ciclo inteiro volta ao mesmo valor. Carimbando na escrita, essa volta
+    trocaria uma data de junho pela de hoje e apagaria histórico sem mudar nada no dado.
+
+    E o que ela guarda é quando se LANÇOU, não quando se executou: a turma executa na sexta e
+    lança na segunda. Nenhum texto do produto pode chamar isto de «executado em». */
+function marcaKm(l, id, v){
+  const k = chave(l, id);
+  if (v){
+    if (S.dados[k] !== v) S.datas[k] = hoje();
+    S.dados[k] = v;
+  } else {
+    delete S.dados[k];
+    delete S.datas[k];
+  }
+}
+
+/** A data mais recente entre um conjunto de chaves — vazio quando nenhuma tem data. */
+function ultimaData(chaves){
+  let m = '';
+  chaves.forEach(k => { const d = S.datas[k]; if (d && d > m) m = d; });
+  return m;
+}
+
 function migraChaves(dados, catId){
   const out = {};
   for (const k in dados) out[k.split('|').length === 3 ? `${catId}|${k}` : k] = dados[k];
@@ -107,6 +149,13 @@ function aplicaProjeto(p){
   // Projeto gravado antes de o catalogo entrar na chave tem 3 campos em vez de 4. Sem
   // migrar, reabrir devolveria a matriz vazia sem avisar — o pior jeito de perder dado.
   S.dados = migraChaves(p.dados || {}, p.catId || S.catId);
+  // projeto salvo antes do registro de data abre sem data nenhuma, e isso é fato, não erro:
+  // aqueles lançamentos são anteriores ao registro. Carimbar hoje inventaria um pico de
+  // produção no dia da migração.
+  S.datas = migraChaves(p.datas || {}, p.catId || S.catId);
+  // depois de `S.dados` existir: o que foi lançado e não está no catálogo entra na lista em
+  // vez de sumir da tela — projeto do cliente trouxe 10 km assim
+  if (typeof adotaServicosOrfaos === 'function' && adotaServicosOrfaos()) pintaSvc();
   S.estOff = p.estOff || 0; $('#estOff').value = S.estOff;
   $$('#segRef button').forEach(b => b.classList.toggle('on', b.dataset.r === S.ref));
   $$('#segFonte button').forEach(b => b.classList.toggle('on', b.dataset.f === S.fonte));

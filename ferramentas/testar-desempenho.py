@@ -65,7 +65,9 @@ def main():
         print("1. CARGA DA PLATAFORMA")
         t0 = pg.evaluate("performance.now()") if False else None
         pg.goto(f"http://127.0.0.1:{PORTA}/index.html", wait_until="domcontentloaded")
-        pg.wait_for_function("document.querySelectorAll('#selAcervo option').length > 30",
+        # 21 rodovias, não 34: as planejadas saíram da lista por ordem do cliente —
+        # «elas não existem, são ideias, por isso planejadas»
+        pg.wait_for_function("document.querySelectorAll('#selAcervo option').length > 15",
                              timeout=30000)
         carga = pg.evaluate("performance.now()")
         ok(carga < LIMITE_CARGA_MS, "abrir a plataforma com os dois acervos na tela",

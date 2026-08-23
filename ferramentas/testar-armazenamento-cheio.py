@@ -133,4 +133,7 @@ if perdidos > 0 and avisou == 0:
 if perdidos > 0:
     print(f'ACHADO PARCIAL: {perdidos} perdidos, mas o usuário foi avisado {avisou}x.')
     sys.exit(1)
-print('Nada se perdeu — a hipótese cai.')
+# Carimbo de veredito, no formato que a casa usa: sem ele a `rodar-todas.py` classifica
+# este arquivo como RELATO e o tira da conta dos portoes. Ele E' portao -- sai 1 quando
+# perde lancamento --, so nao estava dizendo isso na linguagem que o contador le.
+print('RESULTADO: OK — o armazenamento cheio não leva lançamento embora em silêncio')

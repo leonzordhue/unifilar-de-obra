@@ -162,6 +162,17 @@ function liga(){
     }
     catch (e){ alert('Não foi possível abrir: ' + e.message); }
   };
+  // remover o traçado guardado: só aparece na origem «Acervo local», e pergunta antes — é
+  // descarte de dado que a pessoa criou
+  const btRemLocal = $('#btRemoveLocal');
+  if (btRemLocal) btRemLocal.onclick = () => {
+    const sel = $('#selAcervo');
+    const item = sel && sel.value !== '' ? acervoLocal()[+sel.value] : null;
+    if (!item){ alert('Escolha na lista o traçado que quer remover.'); return; }
+    if (!confirm(`Remover «${item.nome}» do acervo local deste navegador?`
+        + '\n\nO projeto que já usa esse traçado continua com ele dentro.')) return;
+    removeDoAcervoLocal(item.nome);
+  };
   $('#btNovo').onclick = () => {
     if (!confirm('Começar um projeto novo? O controle atual será descartado.')) return;
     localStorage.removeItem(CHAVE_LOCAL); location.reload();

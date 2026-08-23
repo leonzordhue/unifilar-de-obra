@@ -3,18 +3,30 @@
 const EST_M = 20;                    // 1 estaca = 20 m, praxe rodoviária
 const CHAVE_LOCAL = 'controle-obra-unifilar-v1';
 const CHAVE_OBRAS = 'controle-obra-unifilar-obras-v1';   // projetos por nº de contrato
-const CICLO = ['', 'C', 'E', 'S', 'NA'];
+// O giro do clique passa pelos SEIS estados do catálogo. «Paralisado» ficou de fora até
+// 23/08, e o buraco era exatamente onde dói: é o primeiro estado que o cliente nomeou
+// («indico a situação: parado, em andamento, concluído»), tem cor, tem coluna na grade, sai
+// no quadro e no relatório — e o único lugar onde não se conseguia PÔR era a grade, que é o
+// instrumento que ele pediu para pintar. Achado ao escrever o manual; conferido pelo jarvisIV.
+//
+// O preço está medido e declarado: voltar ao início custa cinco cliques em vez de quatro. O
+// jarvisIV tem razão em dizer que ciclo não escala com número de estado, e a saída para isso
+// é o pincel — a barra escolhe a situação, o clique aplica. Está proposta no canal com o
+// custo; não entra na véspera de o cliente olhar a tela.
+const CICLO = ['', 'C', 'E', 'PA', 'S', 'NA'];
 
 // Abas registradas pelos módulos. A ordem é numérica para um módulo novo poder entrar
 // entre dois existentes sem que ninguém renumere nada: mapa 10 · matriz 20 · croqui 30 ·
 // resumo 40 · relatório 50.
+// `registraAba()` foi REMOVIDA em 23/08. Nunca teve uma chamada em código nenhum, e mesmo
+// assim o `COORDENACAO.md` a anunciava como «a maneira de criar aba sem mexer no index.html».
+// Contrato que promete API morta é pior que contrato nenhum: quem precisou de uma vista nova
+// — o painel — leu a promessa, não achou como usá-la, e criou o `#vPainel` na mão.
+//
+// A lista fica, vazia: `montaAbas()` e `ordemAba()` a percorrem, e é ela que sustentaria vista
+// registrada por módulo. Hoje toda vista nasce no HTML. Se voltar a fazer sentido registrar
+// por código, o lugar é aqui — com chamada de verdade, não com promessa no documento.
 const ABAS = [];
-function registraAba(a){
-  if (ABAS.some(x => x.id === a.id)) throw new Error('aba repetida: ' + a.id);
-  ABAS.push(a);
-  ABAS.sort((x, y) => x.ordem - y.ordem);
-  if (document.readyState !== 'loading') montaAbas();
-}
 function montaAbas(){
   const barra = $('#abas'), caixa = $('#conteudo');
   if (!barra || !caixa) return;
@@ -43,6 +55,11 @@ const S = {
   cat: null, catId: '', conf: null, acervo: {rodovia: null, ramal: null},
   fonte: 'rodovia', ref: 'km',
   eixo: null, segs: [], svc: [], dados: {},
+  // Data de cada lançamento, em mapa PARALELO a `dados` — e não dentro da célula. São onze
+  // leitores de `S.dados` em sete arquivos: trocar o tipo do valor é a mudança que passa nas
+  // provas e quebra no canto que ninguém abriu. O preço do mapa paralelo é poder divergir,
+  // e o antídoto é `marcaKm()` ser o único lugar que escreve nos dois.
+  datas: {},
   kmIni: 0, kmFim: 0, estOff: 0, obra: '',
   mapa: null, camadas: null, ultimo: null, vista: 'mapa', croqui: null,
   invertido: false,

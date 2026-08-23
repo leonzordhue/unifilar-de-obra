@@ -187,6 +187,24 @@ def main():
                     print("        (toque não avaliado: a faixa não está na área visível — "
                           "o defeito a corrigir é o de layout, acima)")
 
+            # A CELULA DA GRADE E ALVO DE TOQUE, e por isso ela e medida aqui.
+            # Ate 23/08 esta prova passava verde com a celula a 24 px: `campo.css` mandava
+            # 34 px, mas a regra do `<style>` do index vinha depois com a mesma
+            # especificidade e vencia. A folha existia, o comentario explicava, e o dedo
+            # continuava com o alvo pequeno — ninguem media a celula da matriz, so a da faixa.
+            cel = pg.evaluate("""() => {
+                if (typeof mostra === 'function') mostra('matriz');
+                const c = document.querySelector('#vMatriz td.cel');
+                if (!c) return null;
+                const r = c.getBoundingClientRect();
+                return {l: Math.round(r.width), a: Math.round(r.height)}; }""")
+            pg.wait_for_timeout(500)
+            if cel:
+                ok(cel["a"] >= ALVO_MIN - 6 and cel["l"] >= ALVO_MIN - 6,
+                   "a celula da grade e alvo de toque, nao alvo de mouse",
+                   f"{cel['l']}x{cel['a']} px")
+
+
             if GUARDAR:
                 pg.screenshot(path=os.path.join(TMP, f"campo-{nome.replace(' ', '-')}.png"),
                               full_page=False)

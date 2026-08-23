@@ -252,10 +252,14 @@ def main():
         }""")
         pg.wait_for_timeout(700)
         ex = pg.evaluate("quadroObra().find(x => x.svc === 'EROSÕES').excedeContrato")
-        ok(ex is True, "o quadro marca o serviço que passou do contratado", str(ex))
+        # o CALCULO do excedente continua vivo: o contrato saiu da tela nesta fase, por ordem
+        # do cliente, e volta noutro projeto sobre o dado que ja esta guardado
+        ok(ex is True, "o quadro ainda calcula o serviço que passou do contratado", str(ex))
         html = pg.evaluate("tabelaQuadroObra()")
-        ok("acima do" in html and "⚠" in html,
-           "e escreve por extenso o que aquilo significa")
+        ok("Contratado" not in html and "% do contrato" not in html,
+           "e as colunas de contrato NAO aparecem nesta fase")
+        ok("menos avançado" in html and "mesma base da matriz" in html,
+           "o quadro explica por extenso a base do numero que mostra")
         pg.evaluate("""() => {
             S.svc.find(x => x.nome === 'EROSÕES').km_contratado = 3;
             render();

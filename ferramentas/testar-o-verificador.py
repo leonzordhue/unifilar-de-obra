@@ -137,20 +137,70 @@ caso('recorte volta a excluir segmento parcial (perde a ponta da obra)',
      injeta_recorte_estrito, 'perde', 'testar-estaca-e-trecho.mjs')
 
 
-# 7. o avanco volta a contar celula em vez de ponderar por extensao
-def injeta_pct_por_celula(base):
-    p = os.path.join(base, 'app', '06-matriz.js')
+# 7. duas bases de avanco convivendo: o quadro por extensao e a matriz por contagem.
+#
+# Ate 23/08 este caso injetava «o pct voltou a contar celula». A base MUDOU por decisao do
+# coordenador -- a equipe do cliente conta quadradinho -- e o caso antigo passou a injetar o
+# comportamento CORRETO, o que fez a injecao nao achar mais a linha e o autoteste parar.
+#
+# O risco que sobrou nao e' qual base; e' DUAS bases ao mesmo tempo. Tres telas mostram
+# avanco -- matriz, painel e quadro da obra -- e se uma divergir das outras a plataforma
+# exibe dois avancos da mesma obra, cada um defensavel sozinho. E' esse o defeito injetado
+# agora: o quadro volta para extensao e as outras duas ficam em contagem.
+def injeta_duas_bases(base):
+    p = os.path.join(base, 'app', '15-contrato.js')
     s = io.open(p, encoding='utf-8', newline='').read()
     antes = s
-    s = s.replace('r.pct = r.kmVal > 0 ? r.kmC / r.kmVal : null;',
-                  'r.pct = r.val > 0 ? r.C / r.val : null;', 1)
+    s = s.replace('q.pctTrecho = q.trechos > 0 ? q.C / q.trechos : null;',
+                  'q.pctTrecho = q.kmTrecho > 0 ? q.km.C / q.kmTrecho : null;', 1)
     if s == antes:
-        raise SystemExit('injecao 7 nao achou o r.pct ponderado — revisar o caso')
+        raise SystemExit('injecao 7 nao achou o pctTrecho por contagem — revisar o caso')
     io.open(p, 'w', encoding='utf-8', newline='').write(s)
 
 
-caso('avanco volta a contar celula em vez de km',
-     injeta_pct_por_celula, 'difere do avanço real', 'testar-estaca-e-trecho.mjs')
+caso('quadro e matriz mostram avanco em bases diferentes',
+     injeta_duas_bases, 'base diferente da matriz', 'testar-estaca-e-trecho.mjs')
+
+
+# 7-B. a declaracao do vies some do relatorio.
+#
+# A contagem foi adotada com uma mitigacao: quando o recorte tem quilometro parcial, o
+# relatorio declara que o percentual e' otimista em relacao a extensao medida em campo.
+# Declarado, o vies e' escolha; apagado, vira defeito esperando auditoria -- e apagar uma
+# frase numa limpeza de relatorio e' o tipo de coisa que ninguem nota.
+def injeta_vies_calado(base):
+    p = os.path.join(base, 'app', '07-relatorio.js')
+    s = io.open(p, encoding='utf-8', newline='').read()
+    antes = s
+    s = s.replace('entram parcialmente', 'entram no recorte', 1)
+    if s == antes:
+        raise SystemExit('injecao 7-B nao achou a declaracao do vies — revisar o caso')
+    io.open(p, 'w', encoding='utf-8', newline='').write(s)
+
+
+caso('o relatorio para de declarar o vies da contagem',
+     injeta_vies_calado, 'parou de declarar o viés', 'testar-estaca-e-trecho.mjs')
+
+
+# 7-C. funcao declarada e nunca chamada.
+#
+# O passo 6 do varredor nasceu em 23/08 de um caso real: `marcaColuna()` vivia no
+# `06-matriz.js`, rolava a grade ate a coluna do quilometro, e ninguem a chamava -- enquanto o
+# manual prometia o gesto. Cinco rodadas de suite verde por cima, porque nenhuma prova media
+# navegacao. Na estreia o passo achou mais duas: `registraAba()`, que o COORDENACAO.md
+# anunciava havia dois dias como «a maneira de criar aba», e `removeDoAcervoLocal()`, que
+# deixava o acervo local sem porta de saida.
+#
+# Portao novo sem autoteste e' promessa: este caso injeta o defeito que ele existe para pegar.
+def injeta_funcao_morta(base):
+    p = os.path.join(base, 'app', '00-estado.js')
+    s = io.open(p, encoding='utf-8', newline='').read()
+    s += '\n\nfunction gestoQueNinguemLiga(x){ return x; }\n'
+    io.open(p, 'w', encoding='utf-8', newline='').write(s)
+
+
+caso('funcao declarada e nunca chamada',
+     injeta_funcao_morta, 'declarada e nunca usada', 'testar-modulos.mjs')
 
 
 # 8. chamada dentro de INTERPOLACAO de template.
@@ -191,9 +241,16 @@ def injeta_plural_em_template(base):
     p = os.path.join(base, 'app', '13-faixa.js')
     s = io.open(p, encoding='utf-8', newline='').read()
     b = chr(96)
+    #
+    # A CHAMADA no fim nao e' enfeite: o passo 6 («funcao declarada e nunca usada») entrou em
+    # 23/08 e passou a acusar este fixture, porque a funcao injetada nao era chamada por
+    # ninguem. O controle negativo virava falso positivo do portao novo -- e o furo era do
+    # fixture, nao do portao: funcao real nasce com chamador, e um fixture que nao imita isso
+    # nao imita codigo de verdade. Com a chamada, ele volta a testar so o que veio testar.
     linha = ('\nfunction textoPlural(n){ return ' + b
              + '${n} ensaio(s), ${n} registro(s), Ambos (dois lados) e ${'
-             + b + 'aninhado ${n} vez(es)' + b + '}' + b + '; }\n')
+             + b + 'aninhado ${n} vez(es)' + b + '}' + b + '; }\n'
+             + 'const _plural = textoPlural(1);\n')
     io.open(p, 'w', encoding='utf-8', newline='').write(s + linha)
 
 

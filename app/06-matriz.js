@@ -24,7 +24,7 @@ const segsNoTrecho = () => S.segs.filter(dentroTrecho);
 // O último quilômetro de um eixo costuma ter menos de 1 km, e num trecho curto de obra
 // contar célula em vez de extensão distorce o avanço em pontos percentuais inteiros.
 function resumoLinha(l){
-  const r = {C: 0, E: 0, S: 0, NA: 0, P: 0, val: 0, total: 0,
+  const r = {C: 0, E: 0, PA: 0, S: 0, NA: 0, P: 0, val: 0, total: 0,
              kmC: 0, kmVal: 0, kmTotal: 0};
   segsNoTrecho().forEach(sg => {
     const v = S.dados[chave(l, sg.id)] || '';
@@ -33,9 +33,21 @@ function resumoLinha(l){
     if (v === 'NA'){ r.NA++; return; }
     r.val++; r.kmVal += km;
     if (v === 'C'){ r.C++; r.kmC += km; }
-    else if (v === 'E') r.E++; else if (v === 'S') r.S++; else r.P++;
+    // PARALISADO TEM DE SER CONTADO COMO PARALISADO. Até 23/08 o `else` final engolia o
+    // `PA`: cinco quilômetros com dois parados saíam da grade como «3 previstos» e do quadro
+    // logo abaixo como «2 paralisados + 1 previsto». Obra que parou virando obra que vai
+    // acontecer é paralisação sumindo do resumo — achado do jarvisIV, medido.
+    else if (v === 'E') r.E++; else if (v === 'PA') r.PA++;
+    else if (v === 'S') r.S++; else r.P++;
   });
-  r.pct = r.kmVal > 0 ? r.kmC / r.kmVal : null;
+  // ACOMPANHAMENTO CONTA QUILÔMETRO, NÃO EXTENSÃO. A equipe do cliente trabalha numa
+  // planilha de uma linha por quilômetro, e conta linhas: «257 km concluídos» são 257
+  // quadradinhos. Somar extensão fazia o último quilômetro do eixo — que tem a sobra, 0,062
+  // km na AM-010 — devolver 256,06 onde a planilha deles diz 257, e foi essa diferença que
+  // o cliente leu como «ele acha que tem mais km do que eu marquei».
+  // A extensão continua aqui em `kmC`/`kmVal`: ela vale para geodésia, croqui e medição —
+  // medição que, por ordem do cliente, é outro projeto.
+  r.pct = r.val > 0 ? r.C / r.val : null;
   return r;
 }
 function pintaMatriz(){
@@ -46,12 +58,31 @@ function pintaMatriz(){
     return;
   }
   const segs = S.segs;
-  let h = '<div class="wrapmat"><table class="mat"><thead><tr><th class="sv">Serviço / lado</th>'
-    + '<th class="g" title="Quilômetros concluídos">C</th><th class="g" title="Em andamento">E</th>'
+  // A legenda mora na faixa, que está na outra aba: quem pinta na grade via cor sem tabela
+  // de cor. Entra aqui como linha discreta em cima da planilha — sem controle novo, só a
+  // leitura do que cada cor quer dizer.
+  let h = '<div class="legGrade">' + S.cat.status.map(st =>
+      `<span><i style="background:${st.cor}"></i>${esc(st.nome)}</span>`).join('')
+    + '<span><i class="hachura"></i>fora do trecho em obra</span>'
+    // a instrução do gesto mora junto do gesto: esta frase vivia na vista do mapa, onde
+    // não há grade desde que as abas viraram três
+    + '<span class="comoPinta">clique gira o estado · arraste repete · shift+clique '
+    + 'preenche a faixa · botão direito limpa</span></div>';
+  h += '<div class="wrapmat"><table class="mat"><thead><tr><th class="sv">Serviço / lado</th>'
+    + '<th class="g" title="Quilômetros concluídos (contagem)">C</th><th class="g" title="Em andamento">E</th>'
+    + '<th class="g" title="Paralisado">PA</th>'
     + '<th class="g" title="Sem planejamento">S</th><th class="g" title="Não se aplica">NA</th>'
     + '<th class="g" title="Percentual executado">%</th>';
+  // Marca a cada 10 km: numa grade de 269 colunas iguais, o olho perde o lugar entre uma
+  // coluna e outra. A régua de 10 em 10 é o que a planilha da casa faz com borda mais grossa,
+  // e é o que permite dizer «estou no km 130» sem contar coluna por coluna.
+  const marco = sg => Math.abs(sg.ini / 10 - Math.round(sg.ini / 10)) < 1e-6;
   segs.forEach(sg => {
-    h += `<th${dentroTrecho(sg) ? '' : ' style="opacity:.45"'} title="${esc(rotuloSeg(sg))} · ${fmt(sg.ext, 3)} km">${rotuloCurto(sg)}</th>`;
+    // «KM 12» e não «12»: o número nu no cabeçalho é o que fez o cliente ler posição como
+    // quantidade. Aqui ele é sempre posição, e a quantidade só aparece nas colunas de resumo.
+    h += `<th class="${marco(sg) ? 'm10' : ''}"${dentroTrecho(sg) ? '' : ' style="opacity:.45"'
+      } title="${esc(rotuloSeg(sg))} · ${fmt(sg.ext, 3)} km">${
+      S.ref === 'est' ? 'E&nbsp;' : 'KM&nbsp;'}${rotuloCurto(sg)}</th>`;
   });
   h += '</tr></thead><tbody>';
   let grp = null;
@@ -59,25 +90,26 @@ function pintaMatriz(){
     if (l.grupo !== grp){
       grp = l.grupo;
       h += `<tr class="gr"><th class="sv">${esc(grp)}</th>`
-        + `<td colspan="${5 + segs.length}"></td></tr>`;
+        + `<td colspan="${6 + segs.length}"></td></tr>`;
     }
     const r = resumoLinha(l);
     h += `<tr><th class="sv"><span class="lado">${esc(l.lado)}</span>${esc(l.svc)}</th>`
-      + `<td>${r.C || ''}</td><td>${r.E || ''}</td><td>${r.S || ''}</td><td>${r.NA || ''}</td>`
+      + `<td>${r.C || ''}</td><td>${r.E || ''}</td><td>${r.PA || ''}</td>`
+      + `<td>${r.S || ''}</td><td>${r.NA || ''}</td>`
       + `<td><b>${r.pct == null ? '—' : fmt(100 * r.pct, 0) + '%'}</b></td>`;
     segs.forEach(sg => {
       if (!dentroTrecho(sg)){ h += '<td class="fora"></td>'; return; }
       const v = S.dados[chave(l, sg.id)] || '';
-      h += `<td class="cel" data-l="${i}" data-id="${sg.id}"
-        style="background:${v ? corStatus(v) : '#fff'};color:${v ? txtStatus(v) : 'transparent'}"
+      h += `<td class="cel${marco(sg) ? ' m10' : ''}" data-l="${i}" data-id="${sg.id}"
+        style="${v ? 'background:' + corStatus(v) + ';color:' + txtStatus(v) : 'color:transparent'}"
         title="${esc(l.svc)} · ${esc(l.lado)} · ${esc(rotuloSeg(sg))}">${v}</td>`;
     });
     h += '</tr>';
   });
-  h += '</tbody><tfoot><tr><th class="sv">% concluído no quilômetro</th><td colspan="5"></td>';
+  h += '</tbody><tfoot><tr><th class="sv">% concluído neste quilômetro</th><td colspan="6"></td>';
   segs.forEach(sg => {
     const p = dentroTrecho(sg) ? pctSeg(sg.id) : null;
-    h += `<td>${p === null ? '' : fmt(p * 100, 0)}</td>`;
+    h += `<td class="${marco(sg) ? 'm10' : ''}">${p === null ? '' : fmt(p * 100, 0)}</td>`;
   });
   h += '</tr></tfoot></table></div>';
   alvo.innerHTML = h;
@@ -85,15 +117,81 @@ function pintaMatriz(){
   // com ela — senão o número de cima envelhece enquanto a matriz embaixo está fresca, que é
   // o pior tipo de tela: duas verdades ao mesmo tempo.
   if (typeof juntaVistas === 'function') juntaVistas();
+  // NAVEGAR 269 COLUNAS: a grade abre no quilômetro que a pessoa marcou na faixa ou no mapa,
+  // em vez de sempre no KM 0. `marcaColuna()` existia desde o refactor e não era chamada por
+  // ninguém — o manual prometia «clicar num quilômetro no mapa leva à coluna correspondente»
+  // e a promessa estava morta. A coluna de serviço é `sticky`, então rolar para o km 130 não
+  // custa perder de vista qual serviço se está lançando.
+  if (S.sel && S.sel.size) marcaColuna([...S.sel][0]);
+  // ARRASTO NA GRADE — a planilha se pinta arrastando, e é o gesto que o cliente pediu
+  // («as pinturas já era pra ser feita por quadradinhos como se fosse uma planilha»).
+  //
+  // Não é modo novo nem tela nova: o clique continua fazendo o que fazia, e o arrasto REPETE
+  // nas células seguintes o valor que o clique acabou de aplicar — a mesma regra do shift,
+  // que já existia. Quem lança 40 km deixa de dar 40 cliques.
+  //
+  // O padrão de ponteiro é o da faixa (`13-faixa.js`): `elementFromPoint` + captura, para
+  // dedo, caneta e mouse entrarem pelo mesmo caminho. Reusar o padrão em vez de inventar o
+  // segundo é o que impede a plataforma de ter dois jeitos de arrastar.
+  //
+  // Só mouse e caneta: no toque, arrastar é como se rola a tabela de 269 colunas, e roubar
+  // esse gesto deixaria a matriz presa no tablet. No toque valem o toque na célula, o
+  // «Selecionar o trecho» e a faixa — que é onde a seleção em lote já mora.
+  const celDe = ev => {
+    const e = document.elementFromPoint(ev.clientX, ev.clientY);
+    return e && e.classList && e.classList.contains('cel') ? e : null;
+  };
+  let pintando = false, ultimoTd = null;
+  const repete = td => {
+    if (!td || td === ultimoTd) return;
+    ultimoTd = td;
+    const idx = +td.dataset.l, id = +td.dataset.id, l = linhas[idx];
+    if (!l || !S.ultimo || S.ultimo.v == null) return;
+    if ((S.dados[chave(l, id)] || '') === S.ultimo.v) return;
+    marcaKm(l, id, S.ultimo.v);
+    atualizaCelulas(alvo, linhas, idx, l, segs, [id]);
+    if (S.vista !== 'matriz') render();
+    salvaLocal();
+  };
+  alvo.onpointerdown = ev => {
+    if (ev.pointerType === 'touch' || ev.button) return;
+    const td = celDe(ev);
+    if (!td) return;
+    // o clique que vem depois deste ponteiro não pode repetir o gesto e girar o estado duas
+    // vezes; o clique programático das provas não passa por aqui e continua valendo
+    td.dataset.ponteiro = '1';
+    td.onclick(ev);
+    pintando = true; ultimoTd = td;
+    if (alvo.setPointerCapture) try { alvo.setPointerCapture(ev.pointerId); } catch (e){}
+  };
+  alvo.onpointermove = ev => { if (pintando) repete(celDe(ev)); };
+  const soltaGrade = () => { pintando = false; ultimoTd = null; };
+  alvo.onpointerup = soltaGrade;
+  document.addEventListener('pointerup', soltaGrade);
+
+  // LIMPAR EM UM GESTO. Com seis estados no giro, voltar uma celula a vazio custa ate cinco
+  // cliques — e cinco cliques para desfazer e o que faz a pessoa desistir do estado certo e
+  // deixar o errado, que e o dado mentindo por conveniencia. O botao direito limpa. Nao ocupa
+  // alvo novo na tela, nao concorre com o toque em campo (onde se usa a barra e a selecao), e
+  // o custo de descobrir e uma linha na legenda da grade. Levantado pelo jarvisIV ao entrar o
+  // «Paralisado» no ciclo.
+  alvo.querySelectorAll('td.cel').forEach(td => td.oncontextmenu = ev => {
+    ev.preventDefault();
+    const idx = +td.dataset.l, id = +td.dataset.id;
+    marcaKm(linhas[idx], id, '');
+    S.ultimo = {l: idx, id, v: ''};
+    atualizaCelulas(alvo, linhas, idx, linhas[idx], segs, [id]);
+  });
+
   alvo.querySelectorAll('td.cel').forEach(td => td.onclick = ev => {
+    if (td.dataset.ponteiro && ev.type === 'click'){ delete td.dataset.ponteiro; return; }
     const idx = +td.dataset.l, id = +td.dataset.id, l = linhas[idx];
     const alterados = [];
     if (ev.shiftKey && S.ultimo && S.ultimo.l === idx){
       const a = Math.min(S.ultimo.id, id), b = Math.max(S.ultimo.id, id);
       segsNoTrecho().forEach(sg => {
         if (sg.id >= a && sg.id <= b){
-          if (S.ultimo.v) S.dados[chave(l, sg.id)] = S.ultimo.v;
-          else delete S.dados[chave(l, sg.id)];
+          marcaKm(l, sg.id, S.ultimo.v);
           alterados.push(sg.id);
         }
       });
@@ -101,7 +199,7 @@ function pintaMatriz(){
       alterados.push(id);
       const k = chave(l, id);
       const prox = CICLO[(CICLO.indexOf(S.dados[k] || '') + 1) % CICLO.length];
-      if (prox) S.dados[k] = prox; else delete S.dados[k];
+      marcaKm(l, id, prox);
       S.ultimo = {l: idx, id, v: prox};
     }
     // MEDIDO ANTES DE MEXER, na AM-010 (269 km × 22 linhas = 5.918 células):
@@ -124,21 +222,24 @@ function atualizaCelulas(alvo, linhas, idx, l, segs, ids){
     if (!td) return;
     const v = S.dados[chave(l, id)] || '';
     td.textContent = v;
-    td.style.background = v ? corStatus(v) : '#fff';
+    // sem lançamento, o fundo volta a ser o da folha de estilo — é o que deixa a zebra da
+    // grade aparecer. Fixar '#fff' aqui apagava a zebra a cada célula tocada.
+    td.style.background = v ? corStatus(v) : '';
     td.style.color = v ? txtStatus(v) : 'transparent';
   });
   const tr = alvo.querySelector(`td.cel[data-l="${idx}"]`);
   if (tr && tr.parentElement){
     const r = resumoLinha(l), tds = tr.parentElement.querySelectorAll('td');
-    if (tds.length >= 5){
+    if (tds.length >= 6){
       tds[0].textContent = r.C || '';
       tds[1].textContent = r.E || '';
-      tds[2].textContent = r.S || '';
-      tds[3].textContent = r.NA || '';
-      tds[4].innerHTML = `<b>${r.pct == null ? '—' : fmt(100 * r.pct, 0) + '%'}</b>`;
+      tds[2].textContent = r.PA || '';
+      tds[3].textContent = r.S || '';
+      tds[4].textContent = r.NA || '';
+      tds[5].innerHTML = `<b>${r.pct == null ? '—' : fmt(100 * r.pct, 0) + '%'}</b>`;
     }
   }
-  // O rodapé começa com um `td` de colspan 5, que ocupa as colunas de contagem: a primeira
+  // O rodapé começa com um `td` de colspan 6, que ocupa as colunas de contagem: a primeira
   // coluna de quilômetro é `pe[1]`, não `pe[0]`. Escrever em `pe[col]` jogava o percentual do
   // primeiro quilômetro no espaçador e deslocava todos os outros uma coluna à esquerda — a
   // repintura parcial mostrava o número do vizinho. Achado pelo bloco 12 do

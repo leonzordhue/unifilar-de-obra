@@ -106,7 +106,11 @@ def main():
         sums = pg.evaluate("""() => [...document.querySelectorAll('summary')]
                                     .map(s => s.textContent.trim())""")
         for nome in ["Sentido e estaqueamento", "Ensaios contratados", "Acrescentar serviço",
-                     "Objeto, valor e vigências", "Quantidade contratada por serviço"]:
+                     "Objeto, valor e vigências"]:
+        # «Quantidade contratada por serviço» saiu desta lista de propósito: o cliente
+        # mandou tirá-la da tela — «é pra gente organizar o andamento da obra e não
+        # fazer a medição no momento». Remoção pedida não é remoção em silêncio, e
+        # esta prova cobra a segunda, não a primeira.
             ok(nome in sums, f"«{nome}» está na tela, recolhido", "")
         print(f"         blocos recolhidos encontrados: {len(sums)} → {sums}")
 

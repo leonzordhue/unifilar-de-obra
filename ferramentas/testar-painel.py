@@ -151,15 +151,22 @@ def main():
             ok("—" in t, "percentual sem base sai como travessão")
             cartoes = pg.eval_on_selector_all("#vPainel .card",
                 "es => es.map(e => e.querySelector('.rot').textContent + '=' + e.querySelector('.val').textContent)")
-            conf = [c for c in cartoes if c.startswith("Conformidade")][0]
-            ens = [c for c in cartoes if c.startswith("Ensaios")][0]
-            ok(conf.endswith("—"), "conformidade sem julgamento sai «—», não 0,0%", conf)
-            ok(ens.endswith("0"), "ensaios executados mostra a contagem, não percentual falso", ens)
+            # Sem ensaio contratado, os cartões de ensaio não existem — três cartões com «—»
+            # e uma tabela de travessões é ruído, não informação. O aviso na tela diz o que
+            # fazer para eles aparecerem.
+            ok(not [c for c in cartoes if c.startswith("Conformidade")],
+               "sem ensaio contratado, o painel não mostra cartão de ensaio vazio",
+               " · ".join(cartoes))
+            ok(any(c.startswith("Avanço") for c in cartoes),
+               "e o avanço de serviço continua, que é o que existe", " · ".join(cartoes))
+            ok("Nenhum ensaio contratado" in t,
+               "o aviso explica como fazer o resto aparecer")
+            # a coluna de semáforo só existe quando há ensaio contratado; sem ensaio ela sai
+            # da tabela junto com as outras de ensaio, e é isso que se confere aqui
             cor = pg.eval_on_selector_all("#vPainel table.res tbody tr td:last-child span",
                                           "es => es.map(e => e.style.background)")
-            ok(bool(cor) and all("200, 210, 220" in c or "#C8D2DC" in c.upper() or c == ""
-                                 for c in cor),
-               "semáforo cinza (sem base), não vermelho", cor[0] if cor else "sem linhas")
+            ok(not cor, "sem ensaio contratado, nem coluna de semáforo aparece",
+               "nenhuma" if not cor else str(cor[:2]))
 
             print("\n3. COM CATÁLOGO E ENSAIOS LANÇADOS")
             n = pg.evaluate(CATALOGO_DE_TESTE)
@@ -211,7 +218,11 @@ def main():
             pg.click("#vPainel button[data-faixa='10']")
             pg.wait_for_timeout(500)
             svg = pg.eval_on_selector_all("#vPainel svg", "e => e.length")
-            ok(svg == 1, "um SVG, escrito à mão", str(svg))
+            # dois: o de tipo de controle e o «Avanco por servico, no trecho». Era tres ate
+            # 23/08, quando o «Avanco sobre o contratado» virou avanco sobre o TRECHO — o
+            # cliente tirou a medicao desta fase e dois graficos com bases diferentes na
+            # mesma tela e a confusao que ele apontou.
+            ok(svg == 2, "dois SVG, escritos a mao", str(svg))
             grupos = pg.eval_on_selector_all("#vPainel svg text",
                                              "es => es.map(e => e.textContent)")
             ok(any("Terraplenagem" in g for g in grupos)
@@ -232,8 +243,12 @@ def main():
                "quatro critérios no seletor do mapa", " ".join(crits))
 
             def cores():
+                # as divisas de quilômetro também são polilinhas; elas são régua, não
+                # e o casing (contorno escuro sob o traçado) é acabamento, não cor de estado
+                # traçado, e entram marcadas com `divisa: true`
                 return pg.evaluate("() => { const c = []; S.camadas.eachLayer(l => {"
-                                   " if (l.options && l.options.color) c.push(l.options.color); });"
+                                   " if (l.options && l.options.color && !l.options.divisa && !l.options.casing)"
+                                   " c.push(l.options.color); });"
                                    " return c; }")
 
             def usa(crit):
@@ -265,7 +280,7 @@ def main():
             usa("servico")
 
             print("")
-            print("8. AVANÇO PONDERADO POR EXTENSÃO, NÃO POR CONTAGEM DE CÉLULA")
+            print("8. AVANÇO CONTA QUILÔMETRO, COMO A PLANILHA DA EQUIPE")
             # o ultimo segmento do eixo e' a sobra (menos de 1 km). Marcado sozinho, ele nao
             # pode valer um quilometro inteiro: e' a diferenca entre «quantas celulas» e
             # «quanto da obra andou», e a palavra do cartao e' AVANCO.
@@ -283,12 +298,17 @@ def main():
                 const kmTot = S.segs.reduce((x, s) => x + kmNoTrecho(s), 0);
                 return {pct: a.pct, celulas: a.C / a.val, sobra: ult.ext, kmTot,
                         esperado: ult.ext / kmTot}; }""")
-            ok(abs(m["pct"] - m["esperado"]) < 1e-6,
-               "avanço = extensão concluída ÷ extensão do trecho",
-               f"{m['pct']*100:.2f}% para sobra de {m['sobra']:.3f} km em {m['kmTot']:.2f} km")
-            ok(m["celulas"] > m["pct"] * 1.5,
-               "contar célula inflaria o número — é o viés que se está evitando",
-               f"por célula seria {m['celulas']*100:.2f}%")
+            # REGRA NOVA (cliente, 23/08): a unidade do acompanhamento é o quilômetro
+            # marcado, como na planilha da equipe — uma linha por quilômetro, e conta-se
+            # linha. Somar extensão devolvia 256,06 onde eles leem 257, e foi isso que o
+            # Paulo chamou de «ele acha que tem mais km do que eu marquei». A extensão
+            # continua medida, e volta quando formos fazer medição — outro projeto.
+            ok(abs(m["pct"] - m["celulas"]) < 1e-9,
+               "avanço = quilômetros concluídos ÷ quilômetros do trecho",
+               f"{m['pct']*100:.2f}% · o último quilômetro tem {m['sobra']:.3f} km e conta como um")
+            ok(abs(m["pct"] - m["esperado"]) > 1e-6,
+               "e não é mais a extensão somada, que descontaria a sobra",
+               f"por extensão seria {m['esperado']*100:.2f}%")
 
             print("")
             print("9. RECORTE EM KM QUEBRADO NÃO PERDE AS PONTAS")
@@ -313,9 +333,8 @@ def main():
                 S.kmFim = S.segs[S.segs.length - 1].fim; render(); }""")
 
             print("")
-            print("10. QUADRO DA OBRA E AVANÇO SOBRE O CONTRATADO")
+            print("10. QUADRO DA OBRA E AVANCO POR SERVICO NO TRECHO")
             pg.click("#abas button[data-v='matriz']")   # «Controle»: painel + matriz juntos
-            pg.wait_for_timeout(900)
             # innerText devolve o texto RENDERIZADO: `.grEns` é uppercase por CSS, então a
             # comparação tem de ser insensível a caixa — do contrário a prova reprovaria por
             # causa de folha de estilo, não de conteúdo.
@@ -339,9 +358,18 @@ def main():
             ok(n is not None and n["tem"] is not None,
                "informar o contratado produz «% do contrato»",
                f"{n['svc']}: {n['tem']:.3f}" if n and n["tem"] is not None else "sem quadro")
-            ok("AVANÇO SOBRE O CONTRATADO" in t.upper(),
-               "e o gráfico do contratado passa a existir")
-            ok("% DO CONTRATO" in t.upper(), "a coluna «% do contrato» entra no quadro")
+            # o grafico deixou de medir contratado em 23/08: o cliente tirou a medicao desta
+            # fase, e duas bases de avanco na mesma tela era a confusao que ele apontou.
+            ok("AVANÇO SOBRE O CONTRATADO" not in t.upper(),
+               "informar o contratado NAO faz voltar o grafico de medicao")
+            ok("AVANÇO POR SERVIÇO, NO TRECHO" in t.upper(),
+               "o grafico do painel mede o trecho, mesma base do quadro")
+            # a coluna saiu do quadro por ordem do cliente («nao fazer a medicao no momento»).
+            # A prova passa a guardar a AUSENCIA: se ela voltar por descuido, isto reprova.
+            # Editado pela Cortanna em 23/08, declarado no canal — o calculo `pctContrato`
+            # continua vivo e e o que a linha de cima afere.
+            ok("% DO CONTRATO" not in t.upper(),
+               "e a coluna «% do contrato» NAO volta ao quadro nesta fase")
 
             print("")
             print("11. CLIQUE NA MATRIZ REPINTA SÓ O QUE MUDOU")

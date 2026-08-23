@@ -146,12 +146,19 @@ function eixoKML(){
     a tabela removida, no lugar onde o rodapé manda procurar. */
 function faixasCSV(){
   const sep = ';';
-  const out = [['SERVICO', 'LADO', 'KM_INICIAL', 'KM_FINAL', 'EXTENSAO_KM',
-                'SITUACAO'].join(sep)];
-  linhasMatriz().forEach(l => faixasDe(l).forEach(f => {
-    out.push([l.svc, l.lado, fmt(f.ini, 3), fmt(f.fim, 3), fmt(f.fim - f.ini, 3),
-              nomeStatus(f.v)].join(sep));
-  }));
+  const out = [['SERVICO', 'LADO', 'FORA_DO_CATALOGO', 'KM_INICIAL', 'KM_FINAL',
+                'EXTENSAO_KM', 'SITUACAO', 'LANCADO_ATE'].join(sep)];
+  const segs = segsNoTrecho();
+  linhasMatriz().forEach(l => {
+    const fora = (S.svc.find(s => s.nome === l.svc) || {}).foraCatalogo ? 'SIM' : '';
+    faixasDe(l).forEach(f => {
+      // LANCADO_ATE é a data MAIS RECENTE dos quilômetros da faixa: uma faixa de 12 km não
+      // foi lançada num dia só, e uma coluna «DATA» fingiria que foi.
+      const dentro = segs.filter(sg => sg.ini >= f.ini - 1e-9 && sg.fim <= f.fim + 1e-9);
+      out.push([l.svc, l.lado, fora, fmt(f.ini, 3), fmt(f.fim, 3), fmt(f.fim - f.ini, 3),
+                nomeStatus(f.v), ultimaData(dentro.map(sg => chave(l, sg.id)))].join(sep));
+    });
+  });
   return out.join('\r\n');
 }
 
@@ -215,6 +222,14 @@ function leiaMe(){
   L.push('  fotos/ .............. as fotos dos ensaios, nomeadas por quilômetro e ensaio');
   L.push('  05-croqui.png ....... o traçado sobre imagem de satélite, quando gerado');
   L.push('');
+  const orfaos = S.svc.filter(s => s.on && s.foraCatalogo).map(s => s.nome);
+  if (orfaos.length){
+    L.push('SERVIÇO FORA DO CATÁLOGO DESTA OBRA');
+    L.push('  Vieram do projeto aberto e não constam do catálogo escolhido. Contam no quadro');
+    L.push('  e no relatório, e estão marcados com SIM na coluna FORA_DO_CATALOGO dos CSV:');
+    orfaos.forEach(n => L.push('  - ' + n));
+    L.push('');
+  }
   L.push('DE ONDE SAIU CADA NÚMERO');
   L.push('  Extensão de cada quilômetro: cálculo geodésico sobre o traçado — fórmula inversa');
   L.push('  de Vincenty, elipsoide GRS-80. Não é comprimento planar, que em coordenadas');

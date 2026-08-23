@@ -388,6 +388,61 @@ if (nulos.size) {
   erro('seletor devolveu null no carregamento: ' + [...nulos].join(', '));
 } else ok('nenhum id ausente foi consultado durante a carga');
 
+/* ------------------------------------------ 6. função declarada e nunca usada */
+//
+// O passo 4 pergunta «quem e' chamado sem existir». Esta e' a pergunta INVERSA, e ela
+// nasceu de um caso real: `marcaColuna(id)` vivia no `06-matriz.js` desde o refactor,
+// rolava a grade ate a coluna do quilometro, e NINGUEM a chamava. Zero referencias no
+// codigo inteiro. O manual prometia o gesto («clicar num quilometro no mapa leva a coluna
+// correspondente»), a funcao estava la, a frase estava la, e nada acontecia -- por cinco
+// rodadas de suite verde, porque nenhuma prova media navegacao.
+//
+// Funcao morta nao quebra nada: ela deixa uma PROMESSA sem dono. E promessa sem dono num
+// manual e' pior que codigo faltando, porque quem le acredita.
+//
+// Conservador de proposito: so acusa quando o nome nao aparece em NENHUM outro lugar do
+// `app/` nem do `index.html`. Referencia sem chamada conta como uso -- `onclick = abreObras`
+// e' uso legitimo, e acusar isso ensinaria a ignorar a saida, que e' o erro que este arquivo
+// ja cometeu duas vezes.
+console.log('\n6. FUNÇÃO DECLARADA E NUNCA USADA');
+if (quebrou) {
+  nota('pulado: a carga parou em ' + quebrou);
+} else {
+  const html = fs.readFileSync(path.join(RAIZ, 'index.html'), 'utf8');
+  const fontes = mods.map(m => [m, fs.readFileSync(path.join(RAIZ, m), 'utf8')]);
+  const orfas = [];
+  for (const [m, bruto] of fontes) {
+    for (const r of bruto.matchAll(/^function\s+([A-Za-z_$][\w$]*)\s*\(/gm)) {
+      const nome = r[1];
+      let usos = 0;
+      for (const [, outro] of fontes) {
+        for (const u of outro.matchAll(
+            new RegExp(`(?<![.\\w$])${nome}(?![\\w$])`, 'g'))) { void u; usos++; }
+      }
+      // a propria declaracao conta 1; o index.html pode chamar por atributo
+      const noHtml = new RegExp(`(?<![.\\w$])${nome}(?![\\w$])`).test(html);
+      if (usos <= 1 && !noHtml) orfas.push(`${m}: \`${nome}()\` é declarada e nunca usada`);
+    }
+  }
+  if (orfas.length) {
+    // PORTAO, desde 23/08 14h00.
+    //
+    // Nasceu como ACHADO e nao como reprovacao: os dois casos que ele encontrou na estreia
+    // -- `registraAba()` e `removeDoAcervoLocal()` -- eram anteriores a ele, e travar a fila
+    // dos outros por defeito recem-descoberto seria decidir a prioridade alheia.
+    //
+    // Os dois fecharam no mesmo dia: uma ganhou o botao que faltava, a outra foi apagada
+    // depois de dois dias sendo anunciada no COORDENACAO.md como «a maneira de criar aba».
+    // Com o placar em zero, o passo passa a reprovar -- porque daqui em diante toda funcao
+    // morta e' REGRESSAO de alguem, nao heranca.
+    for (const o of orfas) erro(o);
+    nota('função morta não quebra nada — deixa uma promessa sem dono. Se o gesto foi');
+    nota('abandonado, apague; se foi esquecido, ligue. As duas coisas são entrega.');
+  } else {
+    ok('toda função declarada é usada em algum lugar');
+  }
+}
+
 console.log('\n' + (falhas ? `RESULTADO: FALHOU — ${falhas} problema(s) de carga.`
                            : 'RESULTADO: OK — a plataforma carrega.'));
 process.exit(falhas ? 1 : 0);

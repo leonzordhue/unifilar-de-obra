@@ -45,7 +45,8 @@ const ctx = {
 };
 ctx.globalThis = ctx; ctx.self = ctx;
 vm.createContext(ctx);
-for (const f of ['00-estado.js', '01-motor.js', '04-mapa.js', '06-matriz.js']) {
+for (const f of ['00-estado.js', '01-motor.js', '04-mapa.js', '06-matriz.js',
+                 '11-painel.js', '13-faixa.js', '15-contrato.js']) {
   const p = path.join(RAIZ, 'app', f);
   vm.runInContext(fs.readFileSync(p, 'utf8'), ctx, { filename: 'app/' + f });
 }
@@ -55,9 +56,10 @@ for (const f of ['00-estado.js', '01-motor.js', '04-mapa.js', '06-matriz.js']) {
 // copia para fora. (Mesmo detalhe que me pegou no Divisor de Descontos.)
 vm.runInContext(
   'globalThis.__X = {S, segmentar, estacaDe, dentroTrecho, kmNoTrecho,' +
-  ' segsNoTrecho, resumoLinha, chave, EST_M, geod, extKm};', ctx, { filename: 'ponte.js' });
+  ' segsNoTrecho, resumoLinha, chave, EST_M, geod, extKm,' +
+  ' quadroObra, avancoEm};', ctx, { filename: 'ponte.js' });
 const { S, segmentar, estacaDe, dentroTrecho, kmNoTrecho, segsNoTrecho,
-        resumoLinha, chave, EST_M, geod, extKm } = ctx.__X;
+        resumoLinha, chave, EST_M, geod, extKm, quadroObra, avancoEm } = ctx.__X;
 
 /* ---- eixo sintético: reta no equador, comprimento controlado ----------- */
 // 1 grau de longitude no equador ~ 111,3195 km. Uma reta em lat 0 dá o
@@ -175,17 +177,133 @@ console.log('\n4. O AVANÇO É PONDERADO POR EXTENSÃO?');
   nota(`marcado apenas o último segmento, de ${ult.ext.toFixed(3)} km`);
   nota(`percentual que a plataforma mostra:              ${pctCelula.toFixed(1)}%`);
   nota(`percentual por quilômetro (o avanço real):         ${pctKm.toFixed(1)}%`);
-  const dif = pctCelula - pctKm;
-  if (Math.abs(dif) > 1) {
-    erro(`o percentual difere do avanço real em ${dif.toFixed(1)} ponto(s)`,
-         'o r.pct de resumoLinha deixou de ser ponderado por extensão — voltou a ' +
-         `contar célula, e a última vale ${ult.ext.toFixed(3)} km, não 1 km`);
-    nota('num eixo longo isso é ruído; num trecho curto de obra, não.');
-    nota('o avanço da matriz e o do painel têm de sair da MESMA base, senão a');
-    nota('plataforma mostra dois avanços da mesma obra.');
+  nota(`diferença entre as duas bases:                  ${(pctCelula - pctKm).toFixed(1)} pontos`);
+
+  // 23/08: a base do avanco passou a ser CONTAGEM, por decisao do HAL9000 -- a equipe do
+  // cliente conta quadradinho, e somar extensao devolvia 256,06 onde a planilha diz 257.
+  // Eu defendi extensao por causa do recorte fracionario do exemplo fundador (km 3 a 5 de
+  // uma rodovia de 12) e perdi a discussao. A prova acompanha a decisao: guardar objecao
+  // vencida como se fosse defeito tranca o commit de todos por teimosia.
+  //
+  // O que ela passa a guardar e' o que SOBROU de risco, e sao tres coisas:
+  //   (a) os TRES lugares que mostram avanco usam a MESMA base -- matriz, painel e quadro.
+  //       Duas bases convivendo sem guarda dura ate o proximo que mexer, e ai a plataforma
+  //       mostra dois avancos da mesma obra;
+  //   (b) a extensao continua recuperavel, para o croqui e para o dia da medicao;
+  //   (c) o vies da contagem continua DECLARADO no relatorio. Declarado, e' escolha;
+  //       apagado, vira defeito esperando auditoria.
+  const porContagem = r.val > 0 ? r.C / r.val : null;
+  if (Math.abs(pctCelula - 100 * porContagem) > 0.001) {
+    erro('a matriz não está na base decidida (contagem)',
+         `pct=${pctCelula.toFixed(1)}% vs contagem=${(100 * porContagem).toFixed(1)}%`);
   } else {
-    ok('o avanço da plataforma é ponderado por extensão',
-       `${pctCelula.toFixed(1)}% da plataforma vs ${pctKm.toFixed(1)}% medido aqui`);
+    ok('a matriz usa a base decidida: contagem de posições',
+       `${pctCelula.toFixed(1)}%`);
+  }
+
+  const ids = segs.map(x => x.id);
+  const av = avancoEm(ids);
+  const pctPainel = av.val > 0 ? 100 * av.C / av.val : null;
+  if (pctPainel == null || Math.abs(pctPainel - pctCelula) > 0.001) {
+    erro('o painel mostra avanço em base diferente da matriz',
+         `painel=${pctPainel == null ? '—' : pctPainel.toFixed(1) + '%'} vs matriz=${pctCelula.toFixed(1)}%`);
+  } else {
+    ok('o painel usa a mesma base da matriz', `${pctPainel.toFixed(1)}%`);
+  }
+
+  S.kmIni = 0; S.kmFim = 10.4;
+  // o quadro pinta a linha com a cor do grupo do servico; sem catalogo carregado o
+  // `corServico` estoura. Catalogo minimo, so para a cor ter onde procurar.
+  S.cat = S.cat || { grupos: [], conjuntos: [{ id: 'recuperacao', nome: 'teste', servicos: [] }] };
+  const q = (quadroObra() || []).find(x => x.svc === 'BASE');
+  const pctQuadro = q && q.pctTrecho != null ? 100 * q.pctTrecho : null;
+  if (pctQuadro == null || Math.abs(pctQuadro - pctCelula) > 0.001) {
+    erro('o quadro da obra mostra avanço em base diferente da matriz',
+         `quadro=${pctQuadro == null ? '—' : pctQuadro.toFixed(1) + '%'} vs matriz=${pctCelula.toFixed(1)}%`);
+  } else {
+    ok('o quadro da obra usa a mesma base', `${pctQuadro.toFixed(1)}%`);
+  }
+
+  // (c) a mitigacao tem de continuar existindo. Grep e' guarda fraca, mas pega o caso que
+  // importa: alguem apagar a frase numa limpeza de relatorio e ninguem notar.
+  const rel = fs.readFileSync(path.join(RAIZ, 'app', '07-relatorio.js'), 'utf8');
+  if (!/entram parcialmente/.test(rel) || !/otimista/.test(rel)) {
+    erro('o relatório parou de declarar o viés da contagem',
+         'sem a frase «entram parcialmente … o percentual é otimista», o número volta a ' +
+         'ter viés escondido — e viés escondido é defeito esperando auditoria');
+  } else {
+    ok('o relatório continua declarando o viés da contagem no recorte parcial');
+  }
+
+  // A prova protegia METADE do contrato: ela pegava «o percentual virou contagem» e nao
+  // pegaria «a contagem virou extensao». Em 23/08 as duas bases passaram a conviver de
+  // proposito -- contagem para o quadro, porque a equipe conta quadradinho; extensao para o
+  // percentual, porque o recorte do cliente comeca no meio do quilometro. Convivencia sem
+  // guarda dura ate o proximo que mexer, entao a guarda e' nos dois sentidos.
+  const inteiro = n => Number.isInteger(n);
+  if (!(inteiro(r.C) && inteiro(r.val) && inteiro(r.total) && r.C === 1 && r.val === 11)) {
+    erro('a contagem de resumoLinha deixou de ser contagem de posições',
+         `C=${r.C} val=${r.val} total=${r.total} — esperado C=1, val=11, inteiros. ` +
+         'A equipe do cliente conta quadradinho: o último quilômetro do eixo é uma linha ' +
+         'da planilha e vale 1, mesmo tendo 0,400 km.');
+  } else {
+    ok('a contagem é de posições, e inteira', `C=${r.C} de val=${r.val}`);
+  }
+  if (!(r.kmC > 0 && r.kmC < 1)) {
+    erro('a extensão de resumoLinha deixou de ser extensão',
+         `kmC=${r.kmC} — esperado ${ult.ext.toFixed(3)} km, a sobra do eixo`);
+  } else {
+    ok('a extensão continua disponível ao lado da contagem',
+       `kmC=${r.kmC.toFixed(3)} km · kmVal=${r.kmVal.toFixed(3)} km`);
+  }
+}
+
+console.log('\n5. E QUANDO O SERVIÇO TEM DOIS LADOS? — o ponto cego que o HAL9000 achou à mão');
+{
+  // O bloco 4 usa um servico de UM lado, e com um lado so as tres contas coincidem
+  // trivialmente: nao ha o que colapsar. Foi por isso que ele passou verde enquanto o painel
+  // e o quadro divergiam de 19,1% para 24,4% no projeto real -- «3.228 quilometros» que eram
+  // 12 linhas x 269 colunas, cada quilometro contado uma vez por lado.
+  //
+  // Prova que nao distingue as duas regras nao guarda nenhuma delas. O caso minimo que as
+  // separa: um servico com DOIS lados em estados diferentes.
+  const segs = segmentar(reta(4));
+  S.segs = segs; S.kmIni = 0; S.kmFim = 4;
+  S.svc = [{ nome: 'BASE', on: true, lados: ['LD', 'LE'] }];
+  S.catId = 'recuperacao';
+  S.cat = S.cat || { grupos: [], conjuntos: [{ id: 'recuperacao', nome: 'teste', servicos: [] }] };
+  S.dados = {};
+  S.dados[chave({ svc: 'BASE', lado: 'LD' }, segs[0].id)] = 'C';   // km 0: os dois lados
+  S.dados[chave({ svc: 'BASE', lado: 'LE' }, segs[0].id)] = 'C';
+  S.dados[chave({ svc: 'BASE', lado: 'LD' }, segs[1].id)] = 'C';   // km 1: só um lado
+
+  const av = avancoEm(segs.map(x => x.id));
+  const pctPainel = av.val > 0 ? 100 * av.C / av.val : null;
+  const q = (quadroObra() || []).find(x => x.svc === 'BASE');
+  const pctQuadro = q && q.pctTrecho != null ? 100 * q.pctTrecho : null;
+  const txt = v => v == null ? '—' : v.toFixed(1) + '%';
+
+  nota('4 km, 1 serviço, 2 lados. Concluído nos dois lados do km 0; só num lado do km 1.');
+  nota('quilômetros realmente prontos: 1 de 4 = 25,0% — o km 1 tem um lado pendente');
+  nota(`painel (avancoEm, lado a lado) .............. ${txt(pctPainel)}`);
+  nota(`quadro (colapsa pelo lado menos avançado) ... ${txt(pctQuadro)}`);
+
+  if (pctQuadro == null || Math.abs(pctQuadro - 25) > 0.001) {
+    erro('o quadro deixou de colapsar os lados pelo estado menos avançado',
+         `${txt(pctQuadro)} — esperado 25,0%: meio serviço não é serviço inteiro`);
+  } else {
+    ok('o quadro conta o quilômetro uma vez, pelo lado menos avançado', '25,0%');
+  }
+  if (pctPainel == null || Math.abs(pctPainel - pctQuadro) > 0.001) {
+    erro('painel e quadro divergem quando o serviço tem dois lados',
+         `painel=${txt(pctPainel)} vs quadro=${txt(pctQuadro)} — o painel conta célula ` +
+         '(serviço × lado), e o mesmo quilômetro entra duas vezes');
+    nota('achado do HAL9000 em 23/08, à mão, no projeto real: 19,1% no cartão contra');
+    nota('24,4% no quadro, com «3.228 quilômetros» que eram 12 × 269 células.');
+    nota('esta prova tinha ponto cego: o bloco 4 usa serviço de UM lado, e aí as duas');
+    nota('regras coincidem por acidente. Uma prova que não distingue não guarda.');
+  } else {
+    ok('painel e quadro concordam também com dois lados', txt(pctPainel));
   }
 }
 

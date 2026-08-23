@@ -20,8 +20,9 @@ próprio navegador e o projeto fica no `localStorage` até ser salvo em arquivo.
 
 | | |
 |---|---|
-| **Pacote CDE** | Um `.zip` para o ambiente comum de dados: eixo em GeoJSON e em KML colorido, matriz e ensaios em CSV, fotos, croqui e o projeto reabrível — e um `LEIA-ME` que declara de onde saiu cada número. «Abrir» aceita o pacote direto. |
+| **Pacote CDE** | Um `.zip` para o ambiente comum de dados: eixo em GeoJSON e em KML colorido, matriz, faixas e ensaios em CSV, fotos, croqui e o projeto reabrível — e um `LEIA-ME` que declara de onde saiu cada número, inclusive o serviço que entrou fora do catálogo. «Abrir» aceita o pacote direto. |
 | **Acervo local** | Um KMZ carregado fica guardado no navegador e vira a quarta origem de traçado, sem regerar dado e sem depender de ninguém. |
+| **Grade de controle** | Uma linha por serviço e lado, uma coluna por quilômetro, situação por cor — a planilha que a equipe já lê, na tela. Clique gira o estado, **arrastar pinta o caminho**, a coluna de serviço fica fixa e a marca de 10 em 10 km orienta em eixos de 269 colunas. Marcar um quilômetro na faixa leva a grade até ele. |
 | **Faixa unifilar** | O traçado esticado numa linha reta embaixo do mapa, dividido em quilômetro ou estaca, com divisa preta entre eles. Seleciona-se (inclusive quilômetros não vizinhos) e aplica-se o serviço em lote; a cor do serviço aparece na faixa e no mapa. |
 | **Obra por contrato** | O projeto é guardado sob o número do contrato e reaberto pela busca: traçado, serviços, lançamentos e ensaios como estavam. |
 | **Controle tecnológico** | Ficha técnica por quilômetro: ensaio, norma de referência, medição, critério aplicado, resultado, responsável e foto. O critério fica gravado dentro do registro — alteração posterior do catálogo não reprova ensaio já aceito. |
@@ -31,7 +32,8 @@ próprio navegador e o projeto fica no `localStorage` até ser salvo em arquivo.
 | **Serviços por lado** | Dois catálogos da planilha da SEINFRA — recuperação (12 serviços, padrão AM-010) e implantação (9 serviços, padrão AM-070) — cada serviço com os lados que fazem sentido (único, faixa direita/esquerda, acostamento direito/esquerdo). |
 | **Croqui em satélite** | Imagem do trecho sobre imagem de satélite, gerada na hora, com marcação de quilômetro, escala e crédito — para quem lê o relatório se localizar. |
 | **Relatório** | Localização do trecho, avanço geral, situação por serviço, o unifilar impresso (uma barra por serviço e lado, cor por situação) e notas técnicas, pronto para imprimir ou salvar em PDF pelo navegador. A relação faixa a faixa continua completa no CSV e no pacote CDE. |
-| **Acervo base** | 34 rodovias estaduais (3.456,7 km de traçado, dos quais **1.146,6 km implantados**) e 905 ramais (6.262,1 km), do cadastro do Departamento Rodoviário. |
+| **Acervo base** | 34 rodovias estaduais (3.456,7 km de traçado, dos quais **1.146,6 km implantados**) e 905 ramais (6.262,1 km), do cadastro do Departamento Rodoviário. Na lista aparecem as **23 que têm pista implantada**: rodovia só planejada não entra — não há pista onde medir —, e a tela declara quantas ficaram fora. |
+| **Data do lançamento** | Cada quilômetro lançado guarda **quando foi lançado**, carimbado na mudança de estado (girar o ciclo de volta ao mesmo valor não reescreve a data). Sai no CSV da matriz e no `06-faixas.csv` do pacote CDE. É o que vai sustentar o acompanhamento por período — ritmo, saldo e previsão. |
 | **Implantado x planejado** | O cadastro registra trecho que ainda não existe no chão. A plataforma separa os dois: diz quanto do eixo é implantado e em que quilômetros está o planejado. |
 
 ## Como abrir
@@ -97,6 +99,11 @@ ferramentas/
   testar-fotos-no-recarregamento.py  a foto do trabalho em curso sobrevive ao recarregar
   testar-troca-de-obra.py        trocar de contrato não descarta o dia de campo em silêncio
   testar-nada-sumiu.py           o que saiu da tela continua alcançável
+  testar-pedidos-do-cliente.py   cada frase da reprovação do cliente virou asserção
+  testar-contagem-km.py          o projeto real do cliente, contado como a planilha conta
+  testar-arrasto-na-grade.py     arrastar pinta, o clique gira, o toque rola, a grade navega
+  testar-data-do-lancamento.py   a data é carimbada na mudança e chega ao pacote CDE
+  rodar-todas.py                 roda a suíte inteira e dá um veredito só
   testar-importacao.py           importa a planilha viva do DMOB e confere o avanço
   testar-prova-de-vazamento.py   lançamento não vaza entre catálogos de serviço
   testar-o-verificador.py        autoteste: o verificador reprova defeito injetado
@@ -269,8 +276,9 @@ sem procedência num sistema de fiscalização é pior do que número ausente.
   plataforma declara que não verificou e oferece o botão de inverter.
 - **Extensão**: a apurada na geometria e a do cadastro aparecem lado a lado. Para medição
   contratual vale a do cadastro.
-- **Executado acima do contratado** é marcado com aviso: não é avanço acima de 100%, é
-  quantidade contratada errada ou serviço lançado fora do contrato.
+- **Quantidade contratada** está fora desta versão, por decisão do cliente: a plataforma
+  acompanha o andamento, não faz medição. O número que já foi informado continua guardado no
+  projeto — e com ele volta a conferência de executado acima do contratado.
 
 ## Imagem de satélite
 

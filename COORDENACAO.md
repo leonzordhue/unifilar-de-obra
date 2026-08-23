@@ -99,7 +99,11 @@ agentes salvando o mesmo arquivo se sobrescrevem em silêncio.
 **Precisa mexer em arquivo que não é seu?** Escreva o pedido em *Pedidos ao dono do arquivo*,
 no fim. Não edite.
 
-**Não precisa mexer em `index.html` para criar aba.** Existe registro de abas (item 4).
+**Vista nova entra pelo `index.html`.** O botão da aba e o contêiner da vista nascem no
+HTML, como todos os que existem hoje. O item 4 anunciava um `registraAba()` que nunca teve
+chamador — esta linha era a segunda metade da mesma promessa, e ficou de pé meia hora
+depois de a primeira cair: **consertar o código sem consertar o contrato deixa o contrato
+mentindo sozinho.** (jarvisIV, 23/08)
 
 **Numeração dos módulos.** `00` a `14` são definições; **`99-montagem.js` é a montagem e
 carrega por último** — é ela que roda `inicia()`. O `09-app.js` virou `99-montagem.js` por
@@ -117,16 +121,20 @@ Implementado por Cortanna em `app/10-ensaios.js` e `app/00-estado.js`. Não dupl
 se precisar de um número que não está aqui, peça a função em vez de recalcular por fora —
 dois cálculos de conformidade divergentes num mesmo relatório é defeito, não redundância.
 
-### Registro de aba (dispensa editar o HTML)
+### ~~Registro de aba (dispensa editar o HTML)~~ — NÃO EXISTE, e nunca existiu
 
-```js
-registraAba({
-  id: 'painel',            // vira a vista `S.vista` e o contêiner `#vPainel`
-  titulo: 'Painel',
-  ordem: 15,               // mapa 10 · painel 15 · matriz 20 · croqui 30 · resumo 40 · relatório 50
-  pinta: () => { /* preenche document.querySelector('#vPainel') */ }
-});
-```
+**Esta seção prometeu por dois dias uma API sem chamador.** `registraAba()` foi declarada
+em `app/00-estado.js` e **nunca teve uma única chamada em todo o código**; quem precisou de
+vista nova — o painel — leu esta promessa, não achou como usá-la, e montou o contêiner na
+mão. O comentário do `11-painel.js` diz isso desde então: «o contêiner é criado aqui porque
+não há mais registro de aba para criá-lo».
+
+Achada em 23/08 pelo passo 6 do `ferramentas/testar-modulos.mjs` («função declarada e nunca
+usada»), desativada pela Cortanna no mesmo dia. **Para criar vista nova hoje: a lista `ABAS`,
+que o `montaAbas()` percorre.**
+
+Fica registrada e riscada em vez de apagada: apagar esconderia que o contrato desta casa
+mentiu por dois dias, e foi lendo esta seção que alguém perdeu tempo.
 
 ### Estado
 
@@ -288,6 +296,8 @@ Atualize a sua linha no mesmo commit do código. Data no formato dd/mm hh:mm.
 
 | Frente | Dono | Situação | Atualizado em |
 |---|---|---|---|
+| **Tela se contradiz na AM-326 e na AM-366** | dono do `03-acervo.js` | **aberta** — `textoSituacao()` decide pela GEOMETRIA e escreve «o cadastro não registra nenhum trecho implantado», e o `textoExtensao()` logo abaixo diz que o cadastro registra 27,84 e 17,00 km. O conselho «não há pista para medir recuperação» é o oposto da verdade em Tefé. Guarda de dado em `conferir-acervo-vs-cadastro.py`; conserto proposto em `_canal/JARVISIV.md` 12h55 | 23/08 13h10 |
+| Filtro do acervo por pista implantada | Cortanna | **conferido por mim ao vivo** — 34 → 23 rodovias, e AM-326, AM-366 e AM-363 continuam na lista com o aviso de traçado faltando. Os 44,8 km de estrada real não sumiram | 23/08 12h50 |
 | **PRONTO, condição 4 — declaração do jarvisIV** | jarvisIV | **entregue** — reconferi os 5 achados que abri (os 5 caíram) e digo pronto na minha frente. **Um impedimento só, e não é meu de fechar: nada commitado, e o Pages serve o `f262177` de ontem.** Lista em `_canal/JARVISIV.md`, item 14 | 22/08 22:50 |
 | PRONTO, condição 1 — suíte inteira verde | jarvisIV | **conferido** — `python ferramentas/rodar-todas.py`: **20 portões verdes em ~6 min**, mais 1 relatório fora da conta. Descobre as provas sozinho; não aceita como verde quem imprime «FALHA(S)» e sai 0, nem quem não dá veredito nenhum (a `testar-sentido-por-ramal.py` é relatório e eu a estava contando como verde) | 22/08 23:00 |
 | PRONTO, condição 3 — nada removido em silêncio | jarvisIV | **provado** — a tabela «saiu da tela / onde está» virou `ferramentas/testar-nada-sumiu.py`: 21 conferências no DOM vivo, verde. Declaração em Markdown envelhece em silêncio; prova não | 22/08 22:50 |
@@ -304,7 +314,7 @@ Atualize a sua linha no mesmo commit do código. Data no formato dd/mm hh:mm.
 | Grau de compactação do subleito ausente do catálogo | jarvisIV | **corrigido** — a 137, 7.2 c, exige **100%**, não os 95% do aterro: quem lançasse no item do aterro **aceitava serviço que a norma rejeita**. Entrou `GC-SUBLEITO` | 22/08 |
 | Junção de normas reabria lacuna já fechada | jarvisIV | **corrigido** — a declaração vive na fatia de quem abriu e voltava a cada junção. Regra `resolvidos: ["COD"]` na própria fatia, com recusa de declaração falsa (provada) | 22/08 |
 | Painel não repintava no «Controle» | HAL9000 | **corrigido e provado** — `juntaVistas()` no fim de `pintaMatriz()`, com guarda de `typeof` e trava de reentrância. `testar-painel.py` verde | 22/08 22:40 |
-| Registro de abas e contrato de dados | Cortanna | **pronto** — `registraAba()` e as funções do item 4 | 21/08 16:40 |
+| Registro de abas | Cortanna | **desativado em 23/08** — `registraAba()` nunca teve chamador e o item 4 a anunciava como «a maneira de criar aba». Vista nova entra pela lista `ABAS`. Achado pelo passo 6 do `testar-modulos.mjs` | 23/08 13h45 |
 | Faixa unifilar, seleção de KM e cor por serviço | Cortanna | **pronto e provado** (`testar-obra.py`) | 21/08 16:40 |
 | Obra guardada e reaberta por nº de contrato | Cortanna | **pronto e provado** (`testar-obra.py`) | 21/08 16:40 |
 | Ficha técnica por segmento (ensaio, norma, medição, responsável, foto) | Cortanna | **pronto e provado**, e o relatório leva os ensaios (seção 5, «Controle tecnológico») | 21/08 17:55 |
@@ -312,7 +322,7 @@ Atualize a sua linha no mesmo commit do código. Data no formato dd/mm hh:mm.
 | Painel, gráfico e mapa por critério | HAL9000 | painel e seletor de critério prontos; falta pôr `tabelaQuadroObra()` no painel | 21/08 18:40 |
 | Impressão do relatório (`estilo/impressao.css`) | HAL9000 | **disparada** — arquivo criado e ligado com `media="print"`; ver `_canal/HAL9000.md` | 21/08 18:40 |
 | Desempenho da matriz (`app/06-matriz.js` passa a ser dele) | HAL9000 | **disparada** — medir antes de corrigir | 21/08 18:40 |
-| Contrato, quantidade contratada e quadro por serviço | Cortanna | **pronto e provado** (`testar-obra.py`, bloco 5a) | 21/08 18:40 |
+| Contrato e quadro por serviço | Cortanna | **pronto e provado** (`testar-obra.py`, bloco 5a). A **quantidade contratada saiu da tela em 23/08 por ordem do cliente** — o dado e o cálculo continuam; a exibição volta com a medição, e só com a data em que cada quantidade foi informada | 23/08 14:10 |
 | Conferência contra a planilha viva do DMOB | Cortanna | **pronta** — `importar-camada-de-km.py` é ferramenta de conferência, não fluxo de uso | 21/08 18:40 |
 | Catálogo de ensaios com normas | jarvisIV | **prioridade 1** — 20 itens, zero confirmados; o «pendente de confirmação» sai dentro do pacote CDE | 21/08 21:40 |
 | Medição de desempenho da matriz | jarvisIV | despachada — o «antes», em `testar-desempenho.py` | 21/08 21:40 |
@@ -408,8 +418,15 @@ critério entra como **alternativa escolhida pelo usuário**, não como substitu
 
 Pedido do cliente: «não gostei de como ficou, muito confuso, era pra ser algo simples».
 Meta do coordenador: interativos visíveis **<= 45** e **<= 5** cliques até o primeiro
-lançamento. Régua: `ferramentas/medir-simplicidade.py` (a definição de «interativo
+lançamento. Régua: `ferramentas/testar-simplicidade.py` (a definição de «interativo
 visível» está escrita dentro do script, para a conferência do jarvisIV usar a mesma).
+
+> A régua era a `medir-simplicidade.py`, **apagada em 23/08**: ela e a `testar-simplicidade.py`
+> mediam a mesma coisa, com o mesmo `checkVisibility`, a mesma janela e a mesma meta — uma como
+> relatório, a outra como portão. Régua dupla dá dois números e ninguém sabe qual vale, que é
+> o defeito que mais custou tempo neste projeto. Ficou a que reprova. A ironia está registrada
+> porque ela ensina: o aviso contra régua dupla estava escrito **dentro** do arquivo que virou
+> a régua dupla. Achado do jarvisIV, que propôs apagar a própria conferência dele.
 
 Medido, AM-151 carregada: **94 → 41** interativos visíveis; lateral **68 → 23** controles
 e **6 → 3** blocos; topo **5 → 2** botões; ajuda **909 → 356** caracteres, dos quais
@@ -426,7 +443,7 @@ escolher a situação, aplicar).
 | Ensaios contratados (marcar/desmarcar + lista) | `<details>` «Ensaios contratados», passo 2 |
 | Acrescentar serviço fora do catálogo | `<details>`, passo 3 |
 | Objeto, valor e vigências do contrato | `<details>` «Objeto, valor e vigências», passo 2 |
-| Quantidade contratada por serviço | `<details>`, passo 2 |
+| ~~Quantidade contratada por serviço~~ | **REMOVIDA por ordem do cliente na rodada 2** — «é pra gente organizar o andamento da obra e não fazer a medição no momento». Não está mais na tela nem no `<details>`; o dado continua no projeto salvo (`km_contratado` dentro do serviço), e a medição volta em outro projeto. Remoção pedida não é remoção em silêncio — mas **precisa estar declarada aqui**, e ficou 6 h dizendo o contrário |
 | Bloco «Legenda» | linha discreta dentro da faixa unifilar |
 | Ajuda longa dos campos de KM e da estaca | atributo `title=` do próprio controle |
 
@@ -499,3 +516,34 @@ situação, salva com o número do contrato.*
 
 `index.html` é editado **por região**: `<header>` e `<aside>` são da Cortanna; a barra de abas
 e as vistas são do HAL9000. Quem entrar na região do outro avisa no canal antes.
+
+
+---
+
+## Contrato fora da tela — o que precisa acontecer quando ele voltar (23/08, Cortanna + jarvisIV)
+
+Por ordem do cliente, a **quantidade contratada por serviço** saiu da tela nesta rodada: «é
+pra gente organizar o andamento da obra e não fazer a medição no momento». Saiu o campo de
+digitar, saíram as colunas `Contratado (km)` e `% do contrato` do quadro. **Não saiu o dado:**
+`km_contratado` continua dentro de cada serviço, viaja no projeto salvo e no pacote CDE, e o
+`pctContrato` continua sendo calculado.
+
+**No projeto real do cliente há 11 serviços com quantidade preenchida** (de 13), digitados em
+agosto de 2026. Eles estão hoje invisíveis e não editáveis.
+
+**Condição para religar a coluna, e ela não é opcional:** mostrar **quando** cada quantidade
+foi informada. Sem isso, o percentual mede avanço de hoje contra contrato de um ano atrás sem
+avisar — é o mesmo princípio da data no lançamento, aplicado ao outro lado da divisão. Achado
+do jarvisIV em 23/08, registrado aqui porque o canal é longo e isto vale para quem vier depois.
+
+**~~Ponta solta conhecida~~ — JÁ FECHADA, e a linha nasceu velha.** Registrou-se aqui que o
+`graficoContrato()` ainda desenhava «Avanço sobre o contratado» ao lado de um quadro sem essa
+coluna. Conferido em 23/08 13h45: **a função não existe mais.** Virou `graficoServicos()`, com
+base em `pctTrecho`, título «Avanço por serviço, no trecho», e o motivo escrito no próprio
+arquivo. Medido ao vivo com o projeto do Paulo às 12h12: os percentuais saíram de 146,3% e
+262,5% para valores todos abaixo de 100%, numa base só.
+
+Fica riscado em vez de apagado porque a lição é a mesma das outras quatro deste documento, com
+o sinal trocado: aqui a declaração não ficou para trás afirmando que algo funciona — ficou
+para trás afirmando que algo está **quebrado**. Ponta solta falsa custa igual: alguém vai
+abrir o arquivo para consertar o que já está consertado.

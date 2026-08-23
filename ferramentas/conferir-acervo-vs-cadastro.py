@@ -215,5 +215,33 @@ else:
     print('IMPLANTADO: todos os eixos comuns fecham dentro da tolerância.')
 for a in avisos:
     print('  ! ' + a)
+
+# EIXO QUE FAZ A TELA SE CONTRADIZER
+#
+# `textoSituacao()` decide pela GEOMETRIA (`eixo.km_implantado < 0,05`) e escreve «o cadastro
+# nao registra nenhum trecho implantado». Logo abaixo, `textoExtensao()` le o CADASTRO e diz
+# quantos km implantados ele registra. Quando as duas fontes discordam, a mesma caixa afirma
+# as duas coisas -- e a frase errada e' a primeira, que ainda aconselha «nao ha pista para
+# medir recuperacao. O que se controla aqui e' obra de implantacao».
+#
+# Na AM-366 esse conselho e' o oposto da verdade: sao 17 km pavimentados em Tefe.
+#
+# A guarda e' de DADO, nao de texto: ela acha a CONDICAO que produz a contradicao, sem abrir
+# navegador. Nao pega alguem reescrevendo a frase -- pega o caso em que a frase mente, que e'
+# o que importa. Declarado aqui para ninguem confundir uma coisa com a outra.
+contradiz = []
+for nome, r in registro.items():
+    if (r.get('implantado_trena') or 0) < 0.05 and (r.get('implantado_cadastro') or 0) > 0:
+        contradiz.append((nome, r['implantado_cadastro']))
+if contradiz:
+    print()
+    print(f'{len(contradiz)} eixo(s) fazem a tela se CONTRADIZER — geometria sem pista, '
+          'cadastro com pista:')
+    for nome, km in contradiz:
+        print(f'  {nome}: a tela diz «o cadastro nao registra nenhum trecho implantado» E '
+              f'«o cadastro registra {km:.2f} km implantados», na mesma caixa')
+    print('  conserto proposto em _canal/JARVISIV.md (23/08 12h55): calar a primeira frase '
+          'quando o cadastro contradiz, e dizer «a geometria» no lugar de «o cadastro» nas '
+          'demais planejadas.')
 print('=' * 100)
 sys.exit(1 if falhas else 0)

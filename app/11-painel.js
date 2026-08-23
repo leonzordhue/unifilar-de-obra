@@ -11,14 +11,18 @@
 
 // O painel deixou de ser aba: ele abre junto com a matriz, na vista «Controle». O
 // contêiner é criado aqui porque não há mais registro de aba para criá-lo.
+//
+// A GRADE VEM PRIMEIRO. Enquanto o painel abria por cima, a planilha de quadradinhos —
+// que é o que o cliente pediu para pintar — começava a 1.779 px de rolagem, atrás de um
+// painel de 1.684 px. Quem abre a obra tem de ver os quilômetros, não o resumo deles.
 function caixaPainel(){
   let d = document.querySelector('#vPainel');
   if (!d){
     d = document.createElement('div');
     d.id = 'vPainel';
     d.className = 'hidden';
-    const alvo = document.querySelector('#conteudo');
-    if (alvo) alvo.insertBefore(d, document.querySelector('#vMatriz'));
+    const alvo = document.querySelector('#conteudo'), matriz = document.querySelector('#vMatriz');
+    if (alvo) alvo.insertBefore(d, matriz ? matriz.nextSibling : null);
   }
   return d;
 }
@@ -56,14 +60,24 @@ function faixasPainel(km){
 function avancoEm(ids){
   const set = new Set(ids), r = {C: 0, val: 0, kmC: 0, kmVal: 0};
   const segs = S.segs.filter(sg => set.has(sg.id));
-  linhasMatriz().forEach(l => segs.forEach(sg => {
-    const v = S.dados[chave(l, sg.id)] || '';
+  // UM QUILÔMETRO CONTA UMA VEZ POR SERVIÇO, e os lados colapsam pelo estado menos avançado
+  // — a regra mora em `estadoDoKm` (app/15-contrato.js) e é a mesma do quadro da obra.
+  //
+  // Até 23/08 este laço percorria `linhasMatriz()`, que é serviço × lado: o mesmo quilômetro
+  // entrava duas vezes e o cartão dizia «616 de 3.228 quilômetros» num trecho de 269, com
+  // 19,1% ao lado dos 24,4% do quadro. Duas contas do mesmo número em telas diferentes é
+  // defeito, não redundância — por isso a regra é chamada daqui, nunca copiada.
+  const svcs = S.svc.filter(s => s.on).map(s => s.nome);
+  svcs.forEach(nome => segs.forEach(sg => {
+    const v = estadoDoKm(nome, sg.id);
     if (v === 'NA') return;
     const km = kmNoTrecho(sg);
     r.val++; r.kmVal += km;
     if (v === 'C'){ r.C++; r.kmC += km; }
   }));
-  r.pct = r.kmVal > 0 ? r.kmC / r.kmVal : null;
+  // A extensão fica em `kmC`/`kmVal` para quem precisar dela — o croqui precisa; o
+  // acompanhamento, não.
+  r.pct = r.val > 0 ? r.C / r.val : null;
   return r;
 }
 
@@ -108,15 +122,17 @@ function pintaPainel(){
   alvo.innerHTML = `
     <div class="cards">
       ${card('Avanço físico', pct(av.pct),
-             `${av.C} de ${av.val} posições · ponderado por extensão · ${fmt(kmTr, 1)} km`)}
-      ${card('Conformidade', pct(en.pctConformidade),
+             `${av.C} de ${av.val} quilômetro(s) de serviço concluído(s) · trecho de ${
+               segs.length} km`)}
+      ${semCatalogo ? '' : card('Conformidade', pct(en.pctConformidade),
              en.pctConformidade == null ? 'nenhum ensaio com critério julgado'
                : `${en.conformes} conforme(s) de ${en.conformes + en.naoConformes} julgado(s)`)}
-      ${card('Ensaios executados', en.previstos == null ? String(en.executados) : pct(en.pctExecutado),
+      ${semCatalogo ? '' : card('Ensaios executados',
+             en.previstos == null ? String(en.executados) : pct(en.pctExecutado),
              en.previstos == null
                ? `${en.executados} lançado(s) · sem frequência no catálogo para prever`
                : `${en.executados} de ${fmt(en.previstos, 0)} previstos`)}
-      ${card('Não conformidades', abertas.length,
+      ${semCatalogo ? '' : card('Não conformidades', abertas.length,
              abertas.length ? 'em aberto, sem reensaio conforme' : 'nenhuma em aberto')}
     </div>
     ${semCatalogo ? `<div class="aviso" style="margin:0 14px 12px"><b>Nenhum ensaio
@@ -141,7 +157,7 @@ function pintaPainel(){
         data-faixa="${k}" style="${k === faixaKm ? 'font-weight:700' : ''}">${k} km</button>`).join('')}
     </div>
     ${tabelaFaixas()}
-    ${graficoContrato()}
+    ${graficoServicos()}
     ${graficoGrupos(ids)}`;
 
   $$('#vPainel button[data-faixa]').forEach(b => b.onclick = () => {
@@ -151,25 +167,27 @@ function pintaPainel(){
 }
 
 function tabelaFaixas(){
+  const temEns = catalogoEnsaios().length > 0;
   const fs = faixasPainel(faixaKm);
   if (!fs.length) return '<div class="aviso" style="margin:0 14px">Nenhum quilômetro no trecho em obra.</div>';
   return `<div style="padding:0 14px 16px"><table class="res">
     <thead><tr>
-      <th>Faixa</th><th>Extensão</th><th>Avanço</th><th>Ensaios</th><th>Previstos</th>
-      <th>% exec.</th><th>Conformes</th><th>Não conf.</th><th>Conformidade</th><th></th>
+      <th>Faixa</th><th>Extensão</th><th>Avanço</th>${temEns ? `<th>Ensaios</th>
+      <th>Previstos</th><th>% exec.</th><th>Conformes</th><th>Não conf.</th>
+      <th>Conformidade</th><th></th>` : ''}
     </tr></thead><tbody>${fs.map(f => {
       const av = avancoEm(f.ids), en = resumoEnsaios(f.ids);
       return `<tr>
         <td><b>KM ${fmt(f.ini, 0)} – ${fmt(f.fim, 0)}</b></td>
         <td>${fmt(f.ext, 3)} km</td>
         <td>${pct(av.pct)}</td>
-        <td>${en.executados}</td>
+        ${temEns ? `<td>${en.executados}</td>
         <td>${en.previstos == null ? '—' : fmt(en.previstos, 0)}</td>
         <td>${pct(en.pctExecutado)}</td>
         <td>${en.conformes}</td>
         <td${en.naoConformes ? ' style="color:#D9534F;font-weight:700"' : ''}>${en.naoConformes}</td>
         <td><b>${pct(en.pctConformidade)}</b></td>
-        <td>${semaforo(en.pctConformidade)}</td>
+        <td>${semaforo(en.pctConformidade)}</td>` : ''}
       </tr>`;
     }).join('')}</tbody></table></div>`;
 }
@@ -177,40 +195,39 @@ function tabelaFaixas(){
 /* ---------------------------------------------------------------- gráfico */
 /** Barras por tipo de controle, em SVG escrito à mão — sem biblioteca de gráfico: a
     plataforma serve tudo da própria pasta e abre sem internet. */
-/** Avanço por serviço contra o contratado, quando a quantidade contratada foi informada.
-    `pctContrato` vem de `quadroObra()` e é `null` quando ninguém informou o contratado —
-    nesse caso o serviço simplesmente não entra neste gráfico, em vez de aparecer zerado. */
-function graficoContrato(){
+/** Avanço por serviço DENTRO DO TRECHO EM OBRA — quilômetros concluídos sobre os
+    quilômetros do trecho. Foi «Avanço sobre o contratado» até 23/08: o cliente tirou a
+    quantidade contratada desta fase («é pra organizar o andamento da obra e não fazer a
+    medição»), e um gráfico de medição ao lado de um quadro sem medição dava duas respostas
+    para «avanço de quê». A base agora é a mesma da matriz, do quadro e do croqui: uma só. */
+function graficoServicos(){
   if (typeof quadroObra !== 'function') return '';
-  const q = quadroObra().filter(x => x.pctContrato != null);
+  const q = quadroObra().filter(x => x.pctTrecho != null);
   if (!q.length) return '';
   const L = 200, W = 620, H = 22, GAP = 8, TOPO = 34;
   const larg = W - L - 92;
   const alt = TOPO + q.length * (H + GAP) + 14;
   const barras = q.map((x, i) => {
     const y = TOPO + i * (H + GAP);
-    const p = Math.max(0, Math.min(1, x.pctContrato));
-    // acima de 100% do contratado a barra satura, e o número ao lado conta a verdade: o
-    // escritório reporta execução além da quantidade contratada, e esconder isso seria
-    // apagar justamente o que precisa de aditivo ou de explicação na medição.
+    const p = Math.max(0, Math.min(1, x.pctTrecho));
     return `
       <text x="${L - 8}" y="${y + 15}" text-anchor="end" font-size="11" fill="#3A4A5A">${esc(x.svc)}</text>
       <rect x="${L}" y="${y}" width="${larg}" height="${H}" rx="3" fill="#EEF2F6"/>
       <rect x="${L}" y="${y}" width="${(p * larg).toFixed(1)}" height="${H}" rx="3"
-            fill="${x.pctContrato > 1.001 ? '#8C6D3F' : (x.cor || '#1F4E79')}"/>
+            fill="${x.cor || '#1F4E79'}"/>
       <text x="${L + larg + 8}" y="${y + 15}" font-size="11" fill="#1F2933">${
-        fmt(x.pctContrato * 100, 1)}%</text>
-      <title>${esc(x.svc)}: ${fmt(x.C, 1)} km concluídos de ${fmt(x.contratado, 1)} km contratados</title>`;
+        fmt(x.pctTrecho * 100, 1)}%</text>
+      <title>${esc(x.svc)}: ${fmt(x.C, 0)} de ${fmt(x.kmTrecho, 0)} quilômetro(s) do trecho</title>`;
   }).join('');
   return `<div style="padding:0 14px 18px">
     <svg viewBox="0 0 ${W} ${alt}" width="100%" height="${alt}" role="img"
-         aria-label="Avanço por serviço sobre a quantidade contratada">
-      <text x="14" y="18" font-size="13" font-weight="700" fill="#1F4E79">Avanço sobre o contratado</text>
+         aria-label="Avanço por serviço no trecho em obra">
+      <text x="14" y="18" font-size="13" font-weight="700" fill="#1F4E79">Avanço por serviço, no trecho</text>
       <line x1="${L}" y1="${TOPO - 6}" x2="${W - 92}" y2="${TOPO - 6}" stroke="#D4DBE2"/>
       ${barras}
     </svg>
-    <div class="dica">Quilômetros concluídos ÷ quantidade contratada do serviço. Serviço sem
-      quantidade contratada informada não entra aqui — é ausência de base, não zero.</div>
+    <div class="dica">Quilômetros concluídos ÷ quilômetros do trecho em obra. Mesma base do
+      quadro acima — acompanhamento, não medição.</div>
   </div>`;
 }
 function graficoGrupos(ids){
@@ -356,7 +373,9 @@ function juntaVistas(){
   if (S.vista === 'matriz'){
     if (!juntaVistas.dentro){ juntaVistas.dentro = true; pintaPainel(); juntaVistas.dentro = false; }
     painel.classList.remove('hidden');
-    painel.style.borderBottom = '1px solid #D4DBE2';
+    painel.style.borderTop = '1px solid #D4DBE2';
+    // a ordem pode ter sido invertida por quem criou a matriz depois do painel
+    if (painel.previousElementSibling !== matriz) matriz.after(painel);
   } else if (S.vista !== 'painel'){
     painel.classList.add('hidden');
   }
