@@ -208,7 +208,7 @@ function secaoEnsaios(segs){
         <td class="t">${esc(r.data)}${r.resp ? ' · ' + esc(r.resp) : ''}</td>
         <td>${r.foto && S.fotos[r.foto]
           ? `<img src="${S.fotos[r.foto]}" style="width:64px;height:46px;object-fit:cover;border:1px solid #D4DBE2;border-radius:3px">`
-          : '—'}</td></tr>`;
+          : r.semFoto ? 'foto não coube' : '—'}</td></tr>`;
     }).join('')}</tbody></table>
 
     ${fora ? `<div class="meta">${fora} ensaio(s) lançado(s) fora do trecho em obra não
@@ -226,45 +226,76 @@ function secaoEnsaios(segs){
 /* ---------------------------------------------------------------- detalhamento por faixa */
 const LIMITE_FAIXAS = 40;      // por serviço e lado; acima disto o corte é declarado
 
-/** Detalhamento por faixa, enxugado sem esconder nada.
+/** Detalhamento por faixa: um unifilar impresso, não 38 páginas de tabela.
 
-    Na AM-010 importada, o relatório saía com 48 páginas: cada serviço rendia uma tabela com
-    uma linha por faixa contígua, e com as frentes alternando quilômetro a quilômetro isso dá
-    centenas de linhas. Relatório que ninguém imprime não é relatório. */
+    Medido no relatório da AM-010: 47 páginas, das quais **38 eram esta seção**. Com 22 linhas
+    de controle e frentes alternando quilômetro a quilômetro, uma tabela de faixas por serviço
+    vira centenas de linhas — e relatório que ninguém imprime não instrui medição nenhuma.
+
+    A referência é a própria planilha da casa: uma linha por serviço, uma coluna por
+    quilômetro, cor por situação. É isso que se desenha aqui, em SVG escrito à mão. O que se
+    perde da tabela — o número exato de cada faixa — continua no CSV e no pacote CDE, e isso
+    está declarado no rodapé da seção, não implícito. */
 function secaoFaixas(linhas){
-  const blocos = [];
-  let totalFaixas = 0, semVariacao = 0, cortadas = 0;
-  linhas.forEach(l => {
-    const fx = faixasDe(l);
-    totalFaixas += fx.length;
-    // serviço inteiro numa só situação: o quadro por serviço já diz isso, e a tabela de uma
-    // linha só ocupa página sem informar
-    if (fx.length <= 1){ semVariacao++; return; }
-    const mostra = fx.slice(0, LIMITE_FAIXAS);
-    const resto = fx.length - mostra.length;
-    if (resto > 0) cortadas += resto;
-    blocos.push(`<table><thead>
-        <tr><th colspan="3" class="t">${esc(l.svc)} — ${esc(l.lado)}
-          <span style="font-weight:400">· ${fx.length} faixa(s)</span></th></tr>
-        <tr><th class="t">Faixa</th><th>Extensão</th><th class="t">Situação</th></tr></thead>
-      <tbody>${mostra.map(f => `<tr><td class="t">${S.ref === 'est'
-            ? `E ${fmt(estacaDe(f.ini), 0)} a E ${fmt(estacaDe(f.fim), 0)}`
-            : `KM ${fmt(f.ini, 0)} ao KM ${fmt(f.fim, 0)}`}</td>
-          <td>${fmt(f.fim - f.ini, 3)} km</td>
-          <td class="t">${nomeStatus(f.v)}</td></tr>`).join('')}
-        ${resto > 0 ? `<tr><td colspan="3" class="t"><b>Mais ${resto} faixa(s)</b> deste
-          serviço não estão listadas aqui, a partir do KM ${fmt(mostra[mostra.length - 1].fim, 0)}.
-          A relação completa está no CSV exportado.</td></tr>` : ''}
-      </tbody></table>`);
-  });
-  const nota = [];
-  nota.push(`${totalFaixas} faixa(s) contígua(s) no trecho`);
-  if (semVariacao) nota.push(`${semVariacao} linha(s) de controle sem variação de situação, `
-    + 'omitida(s) — o quadro por serviço acima já as resume');
-  if (cortadas) nota.push(`${cortadas} faixa(s) além do limite de ${LIMITE_FAIXAS} por `
-    + 'serviço, declaradas em cada tabela');
-  return (blocos.length
-    ? `<div class="meta">${nota.join(' · ')}.</div>` + blocos.join('')
-    : '<div class="meta">Nenhum serviço tem variação de situação ao longo do trecho: o '
-      + 'quadro por serviço acima já traz o quadro completo.</div>');
+  const segs = segsNoTrecho();
+  if (!linhas.length || !segs.length)
+    return '<div class="meta">Nenhuma linha de controle no trecho.</div>';
+  const ini = segs[0].ini, fim = segs[segs.length - 1].fim, ext = Math.max(0.001, fim - ini);
+  const L = 236, W = 1000, H = 14, GAP = 3, TOPO = 26;
+  const larg = W - L - 56;
+  const x = km => L + ((km - ini) / ext) * larg;
+  const alt = TOPO + linhas.length * (H + GAP) + 34;
+
+  let grupo = null;
+  const barras = linhas.map((l, i) => {
+    const y = TOPO + i * (H + GAP);
+    const faixas = faixasDe(l).map(f => {
+      const x0 = x(f.ini), x1 = x(f.fim);
+      const larguraFaixa = Math.max(0.6, x1 - x0);
+      // A cor é a leitura rápida, mas ela some numa impressão em preto e branco — e o
+      // relatório vai para processo, onde se imprime no que houver. Quando a faixa é larga
+      // o bastante, a sigla do estado entra dentro dela e o desenho continua legível sem cor.
+      const sigla = f.v && larguraFaixa >= 11
+        ? `<text x="${(x0 + larguraFaixa / 2).toFixed(1)}" y="${y + 10.5}" font-size="8"
+             text-anchor="middle" fill="${txtStatus(f.v)}">${esc(f.v)}</text>` : '';
+      return `<rect x="${x0.toFixed(1)}" y="${y}" width="${larguraFaixa.toFixed(1)}"
+        height="${H}" fill="${f.v ? corStatus(f.v) : '#F2F5F8'}"
+        stroke="#fff" stroke-width="0.3"><title>${esc(l.svc)} · ${esc(l.lado)} · KM ${
+        fmt(f.ini, 0)}–${fmt(f.fim, 0)} · ${esc(nomeStatus(f.v))}</title></rect>${sigla}`;
+    }).join('');
+    const r = resumoLinha(l);
+    return `<text x="${L - 6}" y="${y + 10.5}" text-anchor="end" font-size="10.5" fill="#14202B"
+              >${esc(l.svc)} · ${esc(l.lado)}</text>${faixas}
+            <text x="${W - 50}" y="${y + 10.5}" font-size="10.5" fill="#14202B">${
+              r.pct == null ? '—' : fmt(100 * r.pct, 0) + '%'}</text>`;
+  }).join('');
+
+  // régua de quilômetro: sem ela o desenho é bonito e ilegível
+  const passo = ext > 200 ? 50 : (ext > 80 ? 20 : (ext > 30 ? 10 : 5));
+  let regua = '';
+  for (let k = Math.ceil(ini / passo) * passo; k <= fim; k += passo){
+    regua += `<line x1="${x(k).toFixed(1)}" y1="${TOPO - 4}" x2="${x(k).toFixed(1)}"
+        y2="${alt - 30}" stroke="#D4DBE2" stroke-width="0.4"/>
+      <text x="${x(k).toFixed(1)}" y="${alt - 20}" font-size="8" text-anchor="middle"
+        fill="#5A6B7B">${S.ref === 'est' ? 'E ' + fmt(estacaDe(k), 0) : fmt(k, 0)}</text>`;
+  }
+  const legenda = S.cat.status.map((st, i) =>
+    `<rect x="${L + i * 120}" y="${alt - 13}" width="9" height="9" fill="${st.cor}"
+       stroke="#B8C2CC" stroke-width="0.3"/>
+     <text x="${L + i * 120 + 13}" y="${alt - 5}" font-size="8" fill="#14202B">${esc(st.nome)}</text>`).join('');
+
+  const totalFaixas = linhas.reduce((a, l) => a + faixasDe(l).length, 0);
+  return `<svg viewBox="0 0 ${W} ${alt}" width="100%" style="max-height:150mm" role="img"
+      aria-label="Unifilar de situação por serviço ao longo do trecho">
+      <text x="0" y="12" font-size="9.5" fill="#5A6B7B">Situação de cada serviço ao longo do
+        trecho — ${S.ref === 'est' ? 'estaca' : 'quilômetro'} no eixo horizontal</text>
+      ${regua}${barras}${legenda}
+    </svg>
+    <div class="meta">${linhas.length} linha(s) de controle · ${totalFaixas} faixa(s)
+      contígua(s) no trecho. O desenho acima é o mesmo controle da planilha: uma linha por
+      serviço e lado, situação por cor ao longo do eixo. <b>A relação faixa a faixa, com
+      início, fim, extensão e situação de cada uma, sai completa no pacote CDE, no arquivo
+      <code>06-faixas.csv</code></b>; o CSV da matriz traz a situação de cada serviço
+      quilômetro a quilômetro. Não está resumida aqui: está onde se confere em número.</div>`;
 }
+

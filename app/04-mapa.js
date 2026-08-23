@@ -79,12 +79,15 @@ function ctrlCriterio(){
   const c = L.control({position: 'topleft'});
   c.onAdd = () => {
     const d = L.DomUtil.create('div', 'leaflet-bar');
-    d.style.cssText = 'background:#fff;padding:6px 8px;font:12px system-ui;line-height:1.5';
-    d.innerHTML = '<label style="font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;'
-      + 'color:#5A6B7B">Colorir por</label><br>'
-      + `<select id="selCrit" style="font:12px system-ui;max-width:190px">${
+    d.style.cssText = 'background:#fff;padding:3px 6px;font:12px system-ui;line-height:1.4;'
+      + 'border-radius:6px';
+    // Compacto de propósito: é um seletor de leitura do mapa, não um painel. Ocupava um
+    // retângulo com título e legenda permanentes em cima do traçado — que é o que a pessoa
+    // veio ver. A legenda só aparece quando há semáforo para explicar.
+    d.innerHTML = `<select id="selCrit" title="Critério de cor do eixo"
+        style="font:12px system-ui;max-width:190px;border:0;background:transparent">${
           CRITERIOS.map(x => `<option value="${x.id}">${x.nome}</option>`).join('')}</select>`
-      + '<div id="legCrit" style="margin-top:5px"></div>';
+      + '<div id="legCrit" style="margin-top:4px"></div>';
     L.DomEvent.disableClickPropagation(d);
     return d;
   };
@@ -97,7 +100,7 @@ function pintaLegendaCrit(){
   const alvo = document.querySelector('#legCrit');
   if (!alvo) return;
   if (criterioMapa === 'servico'){
-    alvo.innerHTML = '<span style="color:#5A6B7B">Cor do serviço lançado no quilômetro.</span>';
+    alvo.innerHTML = '';          // a cor do serviço já tem legenda na faixa, logo abaixo
     return;
   }
   const cor = v => typeof corConformidade === 'function' ? corConformidade(v) : corPct(v);

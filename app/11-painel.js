@@ -9,7 +9,19 @@
    por cento. Quilometro que ninguem mandou ensaiar sai cinza e escrito «sem base» — pintar
    de vermelho o que nao foi pedido e informacao falsa dentro de fiscalizacao de contrato. */
 
-registraAba({id: 'painel', titulo: 'Painel', ordem: 15, pinta: () => pintaPainel()});
+// O painel deixou de ser aba: ele abre junto com a matriz, na vista «Controle». O
+// contêiner é criado aqui porque não há mais registro de aba para criá-lo.
+function caixaPainel(){
+  let d = document.querySelector('#vPainel');
+  if (!d){
+    d = document.createElement('div');
+    d.id = 'vPainel';
+    d.className = 'hidden';
+    const alvo = document.querySelector('#conteudo');
+    if (alvo) alvo.insertBefore(d, document.querySelector('#vMatriz'));
+  }
+  return d;
+}
 
 const FAIXAS_KM = [1, 5, 10, 20];
 let faixaKm = 10;
@@ -233,3 +245,122 @@ function graficoGrupos(ids){
       controle sem ensaio julgado aparece como «sem base».</div>
   </div>`;
 }
+
+/* ------------------------------------------------- três abas em vez de seis */
+/* O Paulo abriu a plataforma e disse: «muito confuso, era pra ser algo simples». Medido:
+   88 elementos interativos visíveis numa tela cujo trabalho é escolher a rodovia, marcar o
+   quilômetro e dizer o serviço.
+
+   O corte das abas é este, e a ordem é a do trabalho real:
+
+     Obra ......... o mapa e a faixa — onde se lança
+     Controle ..... o painel e a matriz juntos: o quadro em cima, a planilha embaixo
+     Relatório .... o documento que vai para o processo
+
+   Croqui, Resumo e Painel deixam de ser abas: o croqui é gerado de dentro do relatório, o
+   painel passou a abrir junto com a matriz, e o resumo era a mesma informação do quadro da
+   obra contada em posições em vez de quilômetros — duas telas para o mesmo número é o tipo
+   de coisa que faz uma plataforma parecer difícil.
+
+   Os botões antigos continuam no DOM, ocultos: as provas que os acionam por
+   `element.click()` seguem funcionando, e desfazer isto é apagar esta seção. */
+const ABAS_OCULTAS = ['croqui', 'resumo', 'painel'];
+const ROTULOS = {mapa: 'Obra', matriz: 'Controle', rel: 'Relatório'};
+
+function reorganizaAbas(){
+  const barra = $('#abas');
+  if (!barra || barra.dataset.simples) return;
+  barra.dataset.simples = '1';
+  caixaPainel();
+  $$('#abas button[data-v]').forEach(b => {
+    const v = b.dataset.v;
+    if (ABAS_OCULTAS.includes(v)) b.style.display = 'none';
+    if (ROTULOS[v]) b.textContent = ROTULOS[v];
+    b.addEventListener('click', () => setTimeout(juntaVistas, 0));
+  });
+  agrupaExportacoes();
+  juntaVistas();
+}
+
+/** Exportar CSV, Pacote CDE e Imprimir viram um menu só.
+
+    São três saídas do mesmo trabalho e ficavam permanentemente na barra, ao lado das abas,
+    competindo com o gesto principal. Agora ficam atrás de «Exportar», que é onde a pessoa
+    procura quando quer sair com o resultado. Os botões continuam sendo os MESMOS nós — os
+    ids, os eventos e as provas que os acionam por `element.click()` seguem valendo. */
+function botaoCroquiPNG(){
+  const b = document.createElement('button');
+  b.className = 'mini';
+  b.id = 'btCroquiPNG';
+  b.textContent = 'Croqui em PNG';
+  b.onclick = async () => {
+    if (!S.eixo){ alert('Escolha um eixo antes de gerar o croqui.'); return; }
+    const antes = b.textContent;
+    b.textContent = 'montando a imagem…';
+    b.disabled = true;
+    try {
+      if (!S.croqui && typeof geraCroqui === 'function') S.croqui = await geraCroqui();
+      if (!S.croqui){ alert('Não foi possível montar a imagem do croqui.'); return; }
+      const a = document.createElement('a');
+      a.href = S.croqui.url;
+      a.download = `croqui-${(S.obra || S.eixo.nome).replace(/[^\w\-]+/g, '-').toLowerCase()}.png`;
+      document.body.appendChild(a); a.click(); a.remove();
+    } finally {
+      b.textContent = antes;
+      b.disabled = false;
+    }
+  };
+  return b;
+}
+function agrupaExportacoes(){
+  const barra = $('#abas');
+  const alvos = ['#btCSV', '#btCDE', '#btImprimir'].map(x => $(x)).filter(Boolean);
+  if (!barra || alvos.length < 2 || $('#menuExportar')) return;
+  const caixa = document.createElement('div');
+  caixa.id = 'menuExportar';
+  caixa.style.cssText = 'position:absolute;right:10px;top:100%;z-index:60;background:#fff;'
+    + 'border:1px solid #D4DBE2;border-radius:8px;padding:6px;display:none;'
+    + 'box-shadow:0 8px 24px rgba(15,26,38,.16);min-width:190px';
+  const bt = document.createElement('button');
+  bt.className = 'mini';
+  bt.id = 'btExportar';
+  bt.textContent = 'Exportar ▾';
+  bt.onclick = () => {
+    const aberto = caixa.style.display === 'block';
+    caixa.style.display = aberto ? 'none' : 'block';
+  };
+  document.addEventListener('click', ev => {
+    if (!caixa.contains(ev.target) && ev.target !== bt) caixa.style.display = 'none';
+  });
+  // A Cortanna achou isto ao reescrever o manual: com a aba «Croqui» oculta, o gesto
+  // «Baixar PNG» ficou sem porta. A imagem continuava no relatório e no pacote CDE — a
+  // informação estava preservada —, mas o ARQUIVO que se anexa a ofício não tinha como ser
+  // obtido. Ele volta aqui, ao lado das outras saídas, que é onde a pessoa procura.
+  alvos.push(botaoCroquiPNG());
+  alvos.forEach(b => {
+    b.style.display = 'block';
+    b.style.width = '100%';
+    b.style.textAlign = 'left';
+    b.style.marginBottom = '4px';
+    caixa.appendChild(b);
+  });
+  barra.style.position = 'relative';
+  barra.appendChild(bt);
+  barra.appendChild(caixa);
+}
+
+/** «Controle» mostra painel e matriz na mesma rolagem: o quadro da obra e a planilha. */
+function juntaVistas(){
+  const painel = caixaPainel(), matriz = $('#vMatriz');
+  if (!painel || !matriz) return;
+  if (S.vista === 'matriz'){
+    if (!juntaVistas.dentro){ juntaVistas.dentro = true; pintaPainel(); juntaVistas.dentro = false; }
+    painel.classList.remove('hidden');
+    painel.style.borderBottom = '1px solid #D4DBE2';
+  } else if (S.vista !== 'painel'){
+    painel.classList.add('hidden');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => setTimeout(reorganizaAbas, 0));
+if (document.readyState !== 'loading') setTimeout(reorganizaAbas, 0);

@@ -120,15 +120,10 @@
   color: #5A6B7B;
   text-align: center;
 }
-#rodapeImpressao {
-  position: fixed;
-  bottom: 6mm;
-  left: 0;
-  right: 0;
-  font-size: 8pt;
-  color: #14202B;
-  text-align: center;
-}
+/* O `#rodapeImpressao` existe para quem lê o relatório NA TELA saber de que obra é. No papel
+   ele sairia duas vezes, porque o `::after` acima já leva o mesmo texto em toda página — e
+   rodapé repetido em dobro é ruído no documento que vai para o processo. */
+#rodapeImpressao { display: none; }
 
 /* Nada da interface de operação entra no documento: o que sobrar aqui vira ruído no processo. */
 .rel .mini, .rel button, .rel select, .rel input { display: none !important; }

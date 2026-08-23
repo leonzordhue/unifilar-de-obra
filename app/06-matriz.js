@@ -81,6 +81,10 @@ function pintaMatriz(){
   });
   h += '</tr></tfoot></table></div>';
   alvo.innerHTML = h;
+  // Na vista «Controle» o quadro da obra abre junto com a planilha, e tem de ser repintado
+  // com ela — senão o número de cima envelhece enquanto a matriz embaixo está fresca, que é
+  // o pior tipo de tela: duas verdades ao mesmo tempo.
+  if (typeof juntaVistas === 'function') juntaVistas();
   alvo.querySelectorAll('td.cel').forEach(td => td.onclick = ev => {
     const idx = +td.dataset.l, id = +td.dataset.id, l = linhas[idx];
     const alterados = [];
