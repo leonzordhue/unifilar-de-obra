@@ -36,23 +36,27 @@ function pintaContrato(){
   const d = dadosContrato();
   const ligados = S.svc.filter(s => s.on);
   cx.innerHTML = `
-    <div class="campo">
+    <details class="avancado">
+      <summary>Objeto, valor e vigências</summary>
+      <div class="campo">
       ${CAMPOS_CONTRATO.map(c => `<label class="rotCampo">${esc(c.rot)}
         <input type="${c.tipo}" ${c.tipo === 'number' ? 'step="any"' : ''} data-ct="${c.k}"
           value="${esc(d[c.k] == null ? '' : d[c.k])}"
           placeholder="${esc(c.dica)}"></label>`).join('')}
-    </div>
-    <div class="campo">
-      <label>Quantidade contratada por serviço</label>
+      </div>
+    </details>
+    <details class="avancado">
+      <summary>Quantidade contratada por serviço</summary>
+      <div>
       ${ligados.length ? `<table class="tabQt"><tbody>${ligados.map(s => `<tr>
           <td>${esc(s.nome)}</td>
           <td><input type="number" step="any" min="0" data-qt="${esc(s.nome)}"
             value="${s.km_contratado == null ? '' : s.km_contratado}" placeholder="km"></td>
         </tr>`).join('')}</tbody></table>`
         : '<div class="dica">Marque serviços para informar a quantidade de cada um.</div>'}
-      <div class="dica">Em quilômetros, como no quadro de controle da obra. Serviço sem
-        quantidade informada é medido só contra o trecho.</div>
-    </div>`;
+      <div class="dica">Em quilômetros. Serviço sem quantidade é medido só contra o trecho.</div>
+      </div>
+    </details>`;
   $$('#blocoContrato [data-ct]').forEach(i => i.oninput = () => {
     const v = i.value.trim();
     dadosContrato()[i.dataset.ct] = i.type === 'number' ? (v === '' ? null : +v) : v;

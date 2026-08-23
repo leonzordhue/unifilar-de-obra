@@ -133,6 +133,28 @@ function eixoKML(){
     + estilos.join('') + marcas.join('') + '</Document></kml>';
 }
 
+/** A relação faixa a faixa, com início, fim e extensão em número.
+
+    Nasce de uma auditoria do corte do relatório: as 38 páginas de tabela viraram um
+    unifilar desenhado, e o rodapé passou a dizer que «a relação faixa a faixa, com início,
+    fim e extensão de cada uma, sai completa no CSV exportado e no pacote CDE». Só que não
+    saía: o `03-matriz-de-controle.csv` traz a situação por quilômetro, sem extensão, e a
+    extensão estava só no GeoJSON, por quilômetro, exigindo juntar dois arquivos e emendar
+    quilômetros de mesma situação para reconstruir a faixa.
+
+    Promessa escrita no documento é promessa a cumprir, não a reinterpretar: este arquivo é
+    a tabela removida, no lugar onde o rodapé manda procurar. */
+function faixasCSV(){
+  const sep = ';';
+  const out = [['SERVICO', 'LADO', 'KM_INICIAL', 'KM_FINAL', 'EXTENSAO_KM',
+                'SITUACAO'].join(sep)];
+  linhasMatriz().forEach(l => faixasDe(l).forEach(f => {
+    out.push([l.svc, l.lado, fmt(f.ini, 3), fmt(f.fim, 3), fmt(f.fim - f.ini, 3),
+              nomeStatus(f.v)].join(sep));
+  }));
+  return out.join('\r\n');
+}
+
 /** Um registro de ensaio por linha, com a norma e o critério que valeram no aceite. */
 function ensaiosCSV(){
   const sep = ';';
@@ -152,7 +174,7 @@ function ensaiosCSV(){
       r.lim_max == null ? '' : fmt(r.lim_max, 3),
       textoConforme(r), r.data || '', r.resp || '',
       (r.obs || '').replace(/[;\r\n]+/g, ' '),
-      r.foto && S.fotos[r.foto] ? nomeFoto(r, i) : ''].join(sep));
+      r.foto && S.fotos[r.foto] ? nomeFoto(r, i) : (r.semFoto ? 'FOTO NAO COUBE' : '')].join(sep));
   });
   return linhas.join('\r\n');
 }
@@ -189,6 +211,7 @@ function leiaMe(){
   L.push('  02-eixo.kml ......... o mesmo eixo colorido, para o Google Earth');
   L.push('  03-matriz-de-controle.csv .. serviço × lado × quilômetro');
   L.push('  04-ensaios.csv ...... um registro de ensaio por linha, com norma e critério');
+  L.push('  06-faixas.csv ....... a relação faixa a faixa: início, fim, extensão e situação');
   L.push('  fotos/ .............. as fotos dos ensaios, nomeadas por quilômetro e ensaio');
   L.push('  05-croqui.png ....... o traçado sobre imagem de satélite, quando gerado');
   L.push('');
@@ -259,6 +282,7 @@ async function exportaCDE(){
     zip.file('02-eixo.kml', eixoKML());
     zip.file('03-matriz-de-controle.csv', '﻿' + textoCSV());
     if (S.reg.length) zip.file('04-ensaios.csv', '﻿' + ensaiosCSV());
+    zip.file('06-faixas.csv', '﻿' + faixasCSV());
     S.reg.slice().sort((a, b) => a.seg - b.seg).forEach((r, i) => {
       const d = r.foto && S.fotos[r.foto];
       if (d) zip.file(nomeFoto(r, i), d.split(',')[1], {base64: true});

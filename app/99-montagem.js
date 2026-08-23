@@ -147,6 +147,11 @@ function liga(){
   $('#fileProjeto').onchange = async () => {
     const f = $('#fileProjeto').files[0];
     if (!f) return;
+    // abrir arquivo descarta a tela igual a abrir obra guardada: mesma pergunta
+    if (typeof podeDescartar === 'function' && !podeDescartar('Abrir «' + f.name + '»')){
+      $('#fileProjeto').value = '';
+      return;
+    }
     try {
       // Aceita o projeto solto e o pacote CDE: quem recebe o pacote não deveria ter de
       // descompactar para achar o json lá dentro.

@@ -245,6 +245,7 @@ function pintaFicha(){
       <td>${esc(r.data)}<br><span class="min">${esc(r.resp || '—')}</span></td>
       <td>${r.foto && S.fotos[r.foto]
         ? `<img class="mini-foto" src="${S.fotos[r.foto]}" data-foto="${esc(r.foto)}" alt="Foto do ensaio">`
+        : r.semFoto ? '<span class="min" style="color:var(--vermelho)">foto não coube</span>'
         : '<span class="min">sem foto</span>'}</td>
       <td><button class="mini" data-apaga="${esc(r.id)}">Apagar</button></td></tr>`;
   }).join('') || `<tr><td colspan="7" class="vazio">Nenhum ensaio lançado neste quilômetro.</td></tr>`;
@@ -332,9 +333,11 @@ async function lancaEnsaio(){
       guardaFoto(r.id, d);
       r.foto = r.id;
     } catch (e){
-      av.innerHTML = '<b>Ensaio não lançado:</b> ' + esc(e.message);
-      S.seqReg -= 1;
-      return;
+      // A medição instrui o processo; a foto é prova acessória. Recusar as duas porque a
+      // imagem não coube inverte a prioridade: medição perdida não tem volta, foto tem.
+      // O registro fica marcado, e a marca sai na ficha, no CSV e no relatório.
+      r.semFoto = e.message;
+      av.innerHTML = '<b>Ensaio lançado sem a foto.</b> ' + esc(e.message);
     }
   }
   S.reg.push(r);

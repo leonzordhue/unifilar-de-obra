@@ -20,10 +20,57 @@ function projetoAtual(){
     fotos: S.reg.reduce((a, r) => (r.foto && S.fotos[r.foto] ? (a[r.foto] = S.fotos[r.foto], a) : a), {})
   };
 }
+// O `catch` vazio que estava aqui custou 15 lançamentos numa medição do jarvisIV, sem um
+// único aviso: a tela mostrava o trabalho e o navegador já tinha parado de gravar. A falha
+// passa a ter três degraus — grava tudo, grava sem as fotos, ou avisa e deixa marca na tela.
+let avisouCota = false;
+function gravaProjetoLocal(txt){
+  try { localStorage.setItem(CHAVE_LOCAL, txt); return true; } catch (e){ /* tenta liberar */ }
+  // segunda tentativa liberando o espaço do próprio projeto: sem remover antes, o navegador
+  // precisa caber o novo valor ao lado do antigo
+  const antigo = localStorage.getItem(CHAVE_LOCAL);
+  try { localStorage.removeItem(CHAVE_LOCAL); localStorage.setItem(CHAVE_LOCAL, txt); return true; }
+  catch (e2){
+    // não coube nem assim: devolve o que havia. Senão a tentativa de salvar teria apagado o
+    // último estado bom — falhar é ruim, falhar destruindo o que estava guardado é pior.
+    if (antigo != null) { try { localStorage.setItem(CHAVE_LOCAL, antigo); } catch (e3){} }
+    return false;
+  }
+}
 function salvaLocal(){
   S.obra = $('#nomeObra').value;
-  try { localStorage.setItem(CHAVE_LOCAL, JSON.stringify(projetoAtual())); }
-  catch (e){ /* traçado grande estoura o armazenamento local; salvar em arquivo continua valendo */ }
+  const p = projetoAtual();
+  if (gravaProjetoLocal(JSON.stringify(p))) { marcaSalvamento('ok'); return; }
+  // as fotos em base64 são o que estoura a cota, e elas têm chave própria (CHAVE_FOTOS):
+  // perder a foto do ensaio é ruim, perder o quilômetro lançado é perder a obra
+  // `fotosOmitidas` diz a quem reabrir que este projeto NÃO é um projeto sem fotos: elas
+  // ficaram na chave própria. Sem essa distinção, reabrir apagaria a foto do trabalho em
+  // curso — as duas correções de hoje se cruzavam, e eu medi o cruzamento antes de fechar.
+  if (gravaProjetoLocal(JSON.stringify(Object.assign({}, p, {fotos: {}, fotosOmitidas: true})))) {
+    marcaSalvamento('semfoto'); return;
+  }
+  marcaSalvamento('nao');
+  if (!avisouCota){
+    avisouCota = true;
+    alert('O navegador recusou guardar o projeto: o armazenamento local está cheio.'
+        + '\n\nO que você lançar a partir de agora existe só nesta aba — fechar ou '
+        + 'recarregar a página perde o trabalho.\n\nUse SALVAR para gerar o arquivo do '
+        + 'projeto; o traçado vai dentro dele.');
+  }
+}
+// A marca fixa na tela importa mais que o alerta: alerta se fecha e se esquece, e quem
+// chegou depois na máquina não viu nenhum.
+function marcaSalvamento(estado){
+  const m = $('#marcaSalvo');
+  if (!m) return;
+  if (estado === 'ok'){ avisouCota = false; m.className = 'hidden'; m.textContent = ''; return; }
+  const semFoto = estado === 'semfoto';
+  m.className = 'marcaSalvo' + (semFoto ? ' atencao' : ' ruim');
+  m.textContent = semFoto ? 'Fotos sem espaço — salve em arquivo'
+                          : 'NÃO ESTÁ SENDO GUARDADO — salve em arquivo';
+  m.title = semFoto
+    ? 'O projeto está guardado neste navegador, mas as fotos dos ensaios não couberam.'
+    : 'O armazenamento local está cheio. O trabalho existe só nesta aba até ser salvo em arquivo.';
 }
 function migraChaves(dados, catId){
   const out = {};
@@ -39,7 +86,13 @@ function aplicaProjeto(p){
   // ensaios: o projeto reaberto tem de trazer de volta o que foi medido, e a foto junto
   S.reg = Array.isArray(p.reg) ? p.reg : [];
   S.seqReg = p.seqReg || S.reg.length;
-  if (p.fotos) { Object.assign(S.fotos, p.fotos); salvaFotos(); }
+  // TROCA o conjunto de fotos, não acrescenta: com `Object.assign` a foto da obra fechada
+  // continuava no navegador e comia o teto (LIMITE_FOTOS) da obra recém-aberta — quem levava
+  // a recusa era quem não tinha culpa. Achado do jarvisIV, medido em obra sem ensaio nenhum.
+  // A exceção é o projeto gravado sem as fotos por falta de espaço (`fotosOmitidas`): ali as
+  // fotos estão na chave própria e são deste mesmo trabalho — trocar apagaria o que se
+  // tentou proteger.
+  if (!p.fotosOmitidas){ S.fotos = p.fotos || {}; salvaFotos(); }
   montaEns();
   if (Array.isArray(p.ens)) p.ens.forEach(e => {
     const x = S.ens.find(y => y.cod === e.cod);

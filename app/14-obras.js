@@ -48,9 +48,30 @@ function guardaObra(){
   return true;
 }
 
+/** Quanto trabalho está na tela agora — lançamento e ensaio. É a conta que decide se
+    descartar exige pergunta. */
+const trabalhoNaTela = () => Object.keys(S.dados || {}).length + (S.reg || []).length;
+
+/** Pergunta antes de descartar o que está na tela, com o número na frente.
+
+    Quatro caminhos descartam trabalho e três já perguntavam; este, que é o mais usado —
+    pesquisar o contrato e carregar o perfil, a rotina que o cliente descreveu —, não
+    perguntava. Achado do jarvisIV, medido: 6 lançamentos sumiram sem uma pergunta. */
+function podeDescartar(motivo){
+  const n = Object.keys(S.dados || {}).length, e = (S.reg || []).length;
+  if (!n && !e) return true;
+  const oque = [n ? n + ' lançamento(s)' : '', e ? e + ' ensaio(s)' : ''].filter(Boolean).join(' e ');
+  return confirm(motivo + ' descarta o que está na tela: ' + oque + '.'
+    + '\n\nPara manter, guarde a obra atual (Obras > Guardar esta obra) ou gere o arquivo '
+    + 'com Salvar. Descartar mesmo assim?');
+}
+
 function abreObra(num){
   const o = obrasGuardadas()[chaveContrato(num)];
   if (!o){ alert('Nenhuma obra guardada com este número de contrato.'); return; }
+  // reabrir a MESMA obra não descarta nada: é recarregar o que já está na tela
+  const mesma = chaveContrato($('#contrato').value) === chaveContrato(num);
+  if (!mesma && !podeDescartar('Abrir a obra do contrato ' + o.contrato)) return;
   aplicaProjeto(o.projeto);
   $('#contrato').value = o.contrato;
   S.contrato = o.contrato;
