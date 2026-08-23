@@ -15,20 +15,23 @@ commit do código.
 Página estática, sem etapa de compilação, servida como está. Divide um eixo rodoviário em
 quilômetros por cálculo geodésico e controla serviço por quilômetro e por lado.
 
-Provado por três suítes, todas verdes em 21/08:
+Provada por **20 portões**, num comando só:
 
 ```
-node ferramentas/testar-motor.mjs        cálculo, costura e sentido do eixo
-python ferramentas/testar-interface.py   caminho principal num Chromium real
-python ferramentas/testar-fluxos.py      KMZ, salvar/reabrir, CSV, ramal, limites
+python ferramentas/rodar-todas.py        a suíte inteira, ~6 min
+python ferramentas/rodar-todas.py -r     só as de node, 3 s
+python ferramentas/rodar-todas.py cde    só as que casam com o nome
 ```
 
-Mais as ferramentas de conferência que o HAL9000 e o jarvisIV acrescentaram
-(`conferir-acervo-vs-cadastro.py`, `testar-modulos.mjs`, `testar-sentido-por-ramal.py`,
-`testar-o-verificador.py`, `testar-prova-de-vazamento.py`).
+Ele descobre as provas sozinho (`ferramentas/testar-*.py` e `.mjs`), então prova nova entra
+na suíte só por existir. Não aceita como verde quem imprime «FALHA(S)» e sai com código 0,
+nem quem não dá veredito nenhum — `testar-sentido-por-ramal.py` é relatório, não portão, e
+sai como `RELATO`, fora da conta.
 
-**Regra:** nenhum commit entra com suíte vermelha. Se a sua mudança quebrar uma prova de
-outro, avise no quadro em vez de afrouxar a prova.
+**Regra:** nenhum commit entra com suíte vermelha. Antes, conferir isso custava dezenove
+comandos digitados à mão, e regra que custa caro demais para verificar não é cumprida: é
+lembrada. Se a sua mudança quebrar uma prova de outro, avise no quadro em vez de afrouxar a
+prova.
 
 ---
 
