@@ -48,6 +48,12 @@ sys.stdout.reconfigure(encoding="utf-8")
 from playwright.sync_api import sync_playwright
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Erro de REDE EXTERNA nao e defeito da plataforma: os ladrilhos de satelite vem de
+# fora e falham quando a suite inteira disputa banda. Filtro aplicado em 24/08, depois
+# de tres provas ficarem vermelhas na suite e verdes sozinhas.
+EXTERNO = ("Failed to load resource", "ERR_", "net::", "arcgisonline", "tile")
+
 falhas = []
 
 
@@ -79,7 +85,7 @@ def main():
         ctx = nav.new_context(viewport={"width": 1600, "height": 950})
         pg = ctx.new_page()
         pg.on("console", lambda m: console.append(f"[{m.type}] {m.text}")
-              if m.type == "error" else None)
+              if m.type == "error" and not any(x in m.text for x in EXTERNO) else None)
         pg.on("pageerror", lambda e: console.append(f"[pageerror] {e}"))
         pg.on("dialog", lambda d: d.accept())
         pg.goto(f"http://127.0.0.1:{porta}/index.html", wait_until="domcontentloaded")

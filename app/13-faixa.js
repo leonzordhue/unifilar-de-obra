@@ -45,19 +45,29 @@ function pintaFaixa(){
   }
   const sel = CH_SEL();
   const passo = S.segs.length > 120 ? 20 : (S.segs.length > 60 ? 10 : (S.segs.length > 24 ? 5 : 1));
+  // A FAIXA MOSTRA SITUAÇÃO, NA MESMA COR DA PLANILHA E DO RELATÓRIO.
+  //
+  // Até 24/08 ela pintava a cor do SERVIÇO, e com vários serviços no mesmo quilômetro virava
+  // listra de marrom, azul e roxo. O cliente abriu e disse: «aqui ainda tá 0 intuitivo, já te
+  // falei várias vezes e tu não mudou, e as cores nem batem com o que vai pro relatório».
+  // Estava certo, e o defeito é o que este projeto mais caçou: DUAS LINGUAGENS DE COR na mesma
+  // plataforma — serviço aqui, situação na grade e no documento. Quem lê as duas telas lado a
+  // lado não tem como saber que verde ali e verde aqui querem dizer coisas diferentes.
+  //
+  // Agora a faixa é a régua do SERVIÇO ATIVO da barra de lançamento: mostra, ao longo do eixo,
+  // em que situação aquele serviço está — e usa `corStatus`, a mesma função da grade e do
+  // relatório. Uma cor, um significado, nas três telas.
+  const ativo = S.svcAtivo || (S.svc.find(x => x.on) || {}).nome || '';
   const celulas = S.segs.map((sg, i) => {
-    const svcs = servicosNoSeg(sg.id);
     const dentro = dentroTrecho(sg);
-    // várias cores no mesmo quilômetro viram listras verticais de largura igual
-    const fundo = !svcs.length ? (dentro ? '#E8EDF2' : 'transparent')
-      : svcs.length === 1 ? svcs[0].cor
-      : `linear-gradient(90deg,${svcs.map((s, k) =>
-          `${s.cor} ${100 * k / svcs.length}% ${100 * (k + 1) / svcs.length}%`).join(',')})`;
+    const v = ativo ? (S.dados[`${S.catId}|${ativo}|U|${sg.id}`] || '') : '';
+    const fundo = !dentro ? 'transparent' : corStatus(v || 'P');
     const marco = i === 0 || i === S.segs.length - 1 || Math.round(sg.ini) % passo === 0;
     const rot = marco ? `<span class="rot">${esc(rotuloCurto(sg))}</span>` : '';
+    const outros = servicosNoSeg(sg.id).filter(x => x.svc !== ativo);
     const dica = `${rotuloSeg(sg)} · ${fmt(sg.ext, 3)} km`
-      + (svcs.length ? ' · ' + svcs.map(s => s.svc + ' (' + s.status.map(nomeStatus).join('/') + ')').join(' · ')
-                     : ' · sem lançamento');
+      + (ativo ? ` · ${ativo}: ${nomeStatus(v || 'P')}` : '')
+      + (outros.length ? ' · também: ' + outros.map(x => x.svc).join(', ') : '');
     return `<div class="km${marco ? ' marco' : ''}${sel.has(sg.id) ? ' sel' : ''}${dentro ? '' : ' fora'}"
       data-id="${sg.id}" title="${esc(dica)}" style="background:${fundo}">${rot}</div>`;
   }).join('');
@@ -67,7 +77,8 @@ function pintaFaixa(){
     <div class="faixaCab">
       <b>${esc(S.eixo.nome)}</b>
       <span class="min">${fmt(ext, 3)} km · ${S.segs.length} ${S.ref === 'est' ? 'estacas de controle' : 'quilômetros'}
-        · trecho em obra KM ${fmt(S.kmIni, 0)}–${fmt(S.kmFim, 0)}</span>
+        · trecho em obra KM ${fmt(S.kmIni, 0)}–${fmt(S.kmFim, 0)}${
+        ativo ? ` · mostrando <b>${esc(ativo)}</b>` : ''}</span>
       <div class="sep"></div>
       <span class="min" id="faixaSel"></span>
       <button class="mini" id="btSelTrecho">Selecionar o trecho</button>
@@ -168,16 +179,17 @@ function pintaBarraLanca(){
     <label>Serviço<select id="selSvcAtivo">${ligados.map(s =>
       `<option value="${esc(s.nome)}"${s.nome === S.svcAtivo ? ' selected' : ''}>${esc(s.nome)}</option>`
       ).join('')}</select></label>
-    <span class="amostra" style="background:${corServico(S.svcAtivo)}"></span>
-    ${lados.length > 1 ? `<label>Lado<select id="selLado">
-      <option value="*">Ambos (${esc(lados.join(' e '))})</option>
-      ${lados.map(l => `<option value="${esc(l)}">${esc(l)}</option>`).join('')}</select></label>` : ''}
     <label>Situação<select id="selSit">${S.cat.status.map(st =>
       `<option value="${esc(st.cod === 'P' ? '' : st.cod)}">${esc(st.nome)}</option>`).join('')}</select></label>
     <button class="btn pri" id="btAplica" disabled>Aplicar à seleção</button>
     <div class="sep"></div>
-    <span class="min">Clique marca · arraste pega o intervalo · duplo clique abre a ficha</span>`;
-  $('#selSvcAtivo').onchange = e => { S.svcAtivo = e.target.value; pintaBarraLanca(); atualizaSelecao(); };
+    <span class="min">A faixa mostra a situação do serviço escolhido · clique marca ·
+      arraste pega o intervalo</span>`;
+  // trocar o serviço REPINTA A FAIXA: ela é a régua daquele serviço, e antes só a barra
+  // mudava — a faixa continuava mostrando o anterior sem dizer nada
+  $('#selSvcAtivo').onchange = e => {
+    S.svcAtivo = e.target.value; pintaFaixa(); pintaBarraLanca();
+  };
   $('#btAplica').onclick = aplicaNaSelecao;
   atualizaSelecao();
 }

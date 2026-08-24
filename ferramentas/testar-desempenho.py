@@ -26,6 +26,12 @@ sys.stdout.reconfigure(encoding="utf-8")
 from playwright.sync_api import sync_playwright
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Erro de REDE EXTERNA nao e defeito da plataforma: os ladrilhos de satelite vem de
+# fora e falham quando a suite inteira disputa banda. Filtro aplicado em 24/08, depois
+# de tres provas ficarem vermelhas na suite e verdes sozinhas.
+EXTERNO = ("Failed to load resource", "ERR_", "net::", "arcgisonline", "tile")
+
 PORTA = 8767
 LIMITE_CLIQUE_MS = 400      # acima disto a pessoa toca de novo e lança em dobro
 LIMITE_CARGA_MS = 6000      # abrir a plataforma e ter o acervo na tela
@@ -59,7 +65,7 @@ def main():
         nav = pw.chromium.launch()
         pg = nav.new_context(viewport={"width": 1680, "height": 1000}).new_page()
         pg.on("console", lambda m: console.append(f"[{m.type}] {m.text}")
-              if m.type == "error" else None)
+              if m.type == "error" and not any(x in m.text for x in EXTERNO) else None)
         pg.on("pageerror", lambda e: console.append(f"[pageerror] {e}"))
 
         print("1. CARGA DA PLATAFORMA")

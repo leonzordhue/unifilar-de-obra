@@ -24,6 +24,12 @@ sys.stdout.reconfigure(encoding="utf-8")
 from playwright.sync_api import sync_playwright
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Erro de REDE EXTERNA nao e defeito da plataforma: os ladrilhos de satelite vem de
+# fora e falham quando a suite inteira disputa banda. Filtro aplicado em 24/08, depois
+# de tres provas ficarem vermelhas na suite e verdes sozinhas.
+EXTERNO = ("Failed to load resource", "ERR_", "net::", "arcgisonline", "tile")
+
 CAP = os.path.join(RAIZ, "documentacao", "imagens")
 # Porta EFEMERA, de proposito. Porta fixa + allow_reuse_address deixava duas
 # provas simultaneas subirem servidor na mesma porta, e o Chromium de uma era
@@ -60,8 +66,15 @@ def main():
     with sync_playwright() as p:
         nav = p.chromium.launch()
         pg = nav.new_page(viewport={"width": 1680, "height": 980})
+        # ERRO DE REDE EXTERNA NÃO É DEFEITO DA PLATAFORMA. Os ladrilhos de satélite vêm de
+        # fora; com a suíte inteira rodando junto eles disputam banda e falham, e o
+        # «Failed to load resource» entrava na conta de erros do produto. Sozinha a prova
+        # passava, na suíte não — e falso vermelho custa o tempo de quem vai investigar.
+        # O que a plataforma faz quando o ladrilho não vem já é aferido em outro lugar:
+        # o croqui declara «imagem de satélite indisponível — traçado sobre fundo neutro».
+        externo = ("Failed to load resource", "ERR_", "net::", "arcgisonline", "tile")
         pg.on("console", lambda m: console.append(f"[{m.type}] {m.text}")
-              if m.type == "error" else None)
+              if m.type == "error" and not any(x in m.text for x in externo) else None)
         pg.on("pageerror", lambda e: console.append(f"[pageerror] {e}"))
         pg.on("dialog", lambda d: d.accept())
         pg.goto(f"http://127.0.0.1:{porta}/index.html", wait_until="domcontentloaded")
