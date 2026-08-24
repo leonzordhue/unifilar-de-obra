@@ -16,10 +16,7 @@ function projetoAtual(){
     sel: [...(S.sel || [])],
     // `datas` viaja junto de `dados`: sem isto a data existiria só na aba aberta, e salvar e
     // reabrir devolveria o projeto inteiro com o histórico zerado, sem uma palavra
-    svc: S.svc, dados: S.dados, datas: S.datas,
-    // controle tecnologico: ensaios contratados, registros e as fotos deles
-    ens: S.ens, reg: S.reg, seqReg: S.seqReg,
-    fotos: S.reg.reduce((a, r) => (r.foto && S.fotos[r.foto] ? (a[r.foto] = S.fotos[r.foto], a) : a), {})
+    svc: S.svc, dados: S.dados, datas: S.datas
   };
 }
 // O `catch` vazio que estava aqui custou 15 lançamentos numa medição do jarvisIV, sem um
@@ -43,14 +40,9 @@ function salvaLocal(){
   S.obra = $('#nomeObra').value;
   const p = projetoAtual();
   if (gravaProjetoLocal(JSON.stringify(p))) { marcaSalvamento('ok'); return; }
-  // as fotos em base64 são o que estoura a cota, e elas têm chave própria (CHAVE_FOTOS):
-  // perder a foto do ensaio é ruim, perder o quilômetro lançado é perder a obra
-  // `fotosOmitidas` diz a quem reabrir que este projeto NÃO é um projeto sem fotos: elas
-  // ficaram na chave própria. Sem essa distinção, reabrir apagaria a foto do trabalho em
-  // curso — as duas correções de hoje se cruzavam, e eu medi o cruzamento antes de fechar.
-  if (gravaProjetoLocal(JSON.stringify(Object.assign({}, p, {fotos: {}, fotosOmitidas: true})))) {
-    marcaSalvamento('semfoto'); return;
-  }
+  // Sem as fotos de ensaio, o que sobra no projeto é texto: o estouro de cota deixou de ter
+  // um culpado óbvio para sacrificar. Se ainda assim não couber, avisa — nunca cala, que foi
+  // o defeito que custou 15 lançamentos numa medição.
   marcaSalvamento('nao');
   if (!avisouCota){
     avisouCota = true;
@@ -119,40 +111,58 @@ function migraChaves(dados, catId){
   for (const k in dados) out[k.split('|').length === 3 ? `${catId}|${k}` : k] = dados[k];
   return out;
 }
+/** Projeto gravado quando o serviço tinha lado: LD/LE/AD/AE viram o lado único `U`.
+
+    O cliente tirou o lado do controle em 24/08 («tudo é considerado no KM»). Sem esta
+    migração, todo lançamento antigo ficaria órfão de uma chave que a tela não gera mais — a
+    matriz abriria vazia sem avisar, que é o pior jeito de perder dado, e é o mesmo buraco
+    que a `migraChaves` fechou quando o catálogo entrou na chave.
+
+    Quando os dois lados divergem, vence o MAIS avançado, e a regra é dele: «por mais que
+    seja de um lado, não iremos ver essa diferenciação». Se um lado foi executado, aquele
+    quilômetro tem o serviço. É o contrário do que o quadro fazia enquanto o lado existia,
+    onde o lado pendente segurava o quilômetro — e é o contrário de propósito: lá havia dois
+    lados para comparar, aqui não há mais. */
+const ORDEM_LADO = {C: 5, E: 4, PA: 3, S: 2, P: 1, NA: 0};
+function colapsaLados(dados){
+  const out = {};
+  Object.keys(dados || {}).forEach(k => {
+    const p = k.split('|');
+    if (p.length !== 4){ out[k] = dados[k]; return; }
+    const nova = [p[0], p[1], 'U', p[3]].join('|');
+    const atual = out[nova];
+    if (atual === undefined || ORDEM_LADO[dados[k]] > ORDEM_LADO[atual]) out[nova] = dados[k];
+  });
+  return out;
+}
+
 function aplicaProjeto(p){
   if (!p || p.versao !== 1) throw new Error('arquivo de projeto não reconhecido.');
   $('#nomeObra').value = p.obra || '';
   $('#contrato').value = p.contrato || '';
   S.contrato = p.contrato || '';
   S.contratoDados = p.contratoDados || {};
-  // ensaios: o projeto reaberto tem de trazer de volta o que foi medido, e a foto junto
-  S.reg = Array.isArray(p.reg) ? p.reg : [];
-  S.seqReg = p.seqReg || S.reg.length;
-  // TROCA o conjunto de fotos, não acrescenta: com `Object.assign` a foto da obra fechada
-  // continuava no navegador e comia o teto (LIMITE_FOTOS) da obra recém-aberta — quem levava
-  // a recusa era quem não tinha culpa. Achado do jarvisIV, medido em obra sem ensaio nenhum.
-  // A exceção é o projeto gravado sem as fotos por falta de espaço (`fotosOmitidas`): ali as
-  // fotos estão na chave própria e são deste mesmo trabalho — trocar apagaria o que se
-  // tentou proteger.
-  if (!p.fotosOmitidas){ S.fotos = p.fotos || {}; salvaFotos(); }
-  montaEns();
-  if (Array.isArray(p.ens)) p.ens.forEach(e => {
-    const x = S.ens.find(y => y.cod === e.cod);
-    if (x) x.on = e.on;
-  });
-  pintaEns();
+  // PROJETO ANTIGO COM ENSAIO ABRE E IGNORA. O controle tecnológico saiu em 24/08 e os
+  // campos `ens`, `reg`, `seqReg` e `fotos` deixaram de ser lidos. O arquivo do cliente
+  // continua com eles dentro — abrir e ignorar é aceitável, abrir e explodir não é —, e o
+  // aviso abaixo diz o que a tela não está mostrando, em vez de calar sobre dado que existe.
+  const nEns = Array.isArray(p.reg) ? p.reg.length : 0;
+  if (nEns) console.info(`projeto traz ${nEns} ensaio(s) de uma versão anterior; `
+    + 'esta versão controla apenas o andamento dos serviços.');
   S.sel = new Set(Array.isArray(p.sel) ? p.sel : []);
   S.ref = p.ref || 'km'; S.fonte = p.fonte || 'rodovia';
   S.catId = p.catId || S.cat.conjuntos[0].id;
   pintaCat();
-  if (p.svc && p.svc.length) S.svc = p.svc; else montaSvc();
+  if (p.svc && p.svc.length) S.svc = p.svc.map(x => ({...x, lados: ['U'],
+    ladosCatalogo: x.ladosCatalogo || x.lados}));
+  else montaSvc();
   // Projeto gravado antes de o catalogo entrar na chave tem 3 campos em vez de 4. Sem
   // migrar, reabrir devolveria a matriz vazia sem avisar — o pior jeito de perder dado.
-  S.dados = migraChaves(p.dados || {}, p.catId || S.catId);
+  S.dados = colapsaLados(migraChaves(p.dados || {}, p.catId || S.catId));
   // projeto salvo antes do registro de data abre sem data nenhuma, e isso é fato, não erro:
   // aqueles lançamentos são anteriores ao registro. Carimbar hoje inventaria um pico de
   // produção no dia da migração.
-  S.datas = migraChaves(p.datas || {}, p.catId || S.catId);
+  S.datas = colapsaLados(migraChaves(p.datas || {}, p.catId || S.catId));
   // depois de `S.dados` existir: o que foi lançado e não está no catálogo entra na lista em
   // vez de sumir da tela — projeto do cliente trouxe 10 km assim
   if (typeof adotaServicosOrfaos === 'function' && adotaServicosOrfaos()) pintaSvc();

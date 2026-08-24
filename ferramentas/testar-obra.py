@@ -66,7 +66,7 @@ def main():
         ext = pg.evaluate("S.segs.reduce((a, s) => a + s.ext, 0)")
         cel = pg.evaluate("document.querySelectorAll('#faixaTrilho .km').length")
         ok(11 < ext < 14, "AM-151 tem pouco mais de 12 km", f"{ext:.3f} km")
-        ok(cel == pg.evaluate("S.segs.length"),
+        ok(cel == pg.evaluate("() => S.segs.length"),
            "a faixa unifilar mostra um pedaço por quilômetro", f"{cel} células")
         cabe = pg.evaluate("""() => { const t = document.querySelector('#faixaTrilho');
             return t.scrollWidth <= t.clientWidth + 2; }""")
@@ -119,8 +119,11 @@ def main():
         })""")
         ok(all(cor.lower() in (p or "").lower() or "rgb" in (p or "") for p in pintados),
            "os três aparecem pintados na faixa", str(pintados[0])[:40])
-        # a medição tem de ser da COR do serviço, e não da espessura: espessura 6 é o
-        # padrão de todo quilômetro dentro do trecho, e contá-la daria verde sempre
+        # O MAPA NAO PINTA MAIS SITUACAO. Ordem do cliente em 24/08: «coloca servico, a cor
+        # nao muda, ou muda tudo; nao era pra alterar no tracado — ficou sem pe nem cabeca».
+        # Quem mostra situacao e a PLANILHA, colorida celula a celula; o mapa responde onde
+        # fica o quilometro, e para isso basta tracado legivel e divisa por km. Esta prova
+        # passa a guardar o contrario do que guardava: a cor do servico NAO vai ao tracado.
         no_mapa = pg.evaluate("""(cor) => {
             let n = 0;
             S.camadas.eachLayer(l => {
@@ -128,82 +131,22 @@ def main():
             });
             return n;
         }""", cor)
-        ok(no_mapa == 3, "o mapa pinta exatamente os três com a cor do serviço",
-           f"{no_mapa} traço(s) em {cor}")
+        ok(no_mapa == 0, "o mapa NAO pinta o tracado com a cor do servico",
+           f"{no_mapa} traco(s) em {cor}")
+        divisas = pg.evaluate("""() => { let n = 0;
+            S.camadas.eachLayer(l => { if (l.options && l.options.divisa) n++; });
+            return n; }""")
+        ok(divisas >= pg.evaluate("() => S.segs.length") - 1,
+           "e desenha uma divisa em cada quilometro, que e o que ele pediu",
+           f"{divisas} divisa(s)")
         pg.screenshot(path=os.path.join(RAIZ, "documentacao", "imagens",
                                         "06-faixa-unifilar.png"))
+        # Os blocos 4 (ficha do quilometro), 5 (ensaio com criterio), 5-lados (dois lados em
+        # estados diferentes) e 5b (o ensaio no relatorio) sairam em 24/08. A ficha morava no
+        # modulo de ensaios, apagado por ordem do cliente; e o lado deixou de existir, entao
+        # nao ha dois estados para comparar num quilometro. Nada disso e defeito: e a tela
+        # que ele pediu.
 
-        print("\n4. SITUAÇÃO E FICHA DO QUILÔMETRO")
-        pg.evaluate("abreFicha(4)")
-        pg.wait_for_timeout(900)
-        ficha = pg.evaluate("document.querySelector('#fichaCorpo').textContent")
-        ok("EROSÕES" in ficha and "Em andamento" in ficha,
-           "a ficha do KM 4 mostra o serviço e a situação")
-        ok("KM 4" in ficha or "KM 4 – 5" in ficha, "a ficha identifica o quilômetro")
-
-        print("\n5. ENSAIO COM CRITÉRIO E RESULTADO")
-        pg.evaluate("""() => {
-            const e = S.ens.find(x => x.cod === 'GC-BASE'); if (e) e.on = true;
-            pintaEns(); pintaFicha();
-        }""")
-        pg.wait_for_timeout(700)
-        pg.evaluate("""() => {
-            const s = document.querySelector('#fEns');
-            const i = [...s.options].findIndex(o => o.value === 'GC-BASE');
-            s.selectedIndex = i; s.dispatchEvent(new Event('change'));
-            document.querySelector('#fValor').value = '92';
-            document.querySelector('#fMin').value = '95';
-            document.querySelector('#fResp').value = 'Fiscal do DMOB';
-            document.querySelector('#fLanca').click();
-        }""")
-        pg.wait_for_timeout(1200)
-        n = pg.evaluate("S.reg.length")
-        res = pg.evaluate("S.reg.length ? conforme(S.reg[0]) : null")
-        ok(n == 1, "ensaio lançado no quilômetro", f"{n} registro(s)")
-        ok(res is False, "medição de 92% contra mínimo de 95% dá NÃO CONFORME", str(res))
-        rs = pg.evaluate("resumoEnsaios([4])")
-        ok(rs["pctConformidade"] == 0 and rs["previstos"] is None,
-           "conformidade 0% e previstos sem base — o catálogo ainda não tem frequência",
-           f"conf={rs['pctConformidade']} previstos={rs['previstos']}")
-        pg.evaluate("fechaFicha()")
-
-        print("\n5-lados. UM QUILÔMETRO COM OS LADOS EM ESTADOS DIFERENTES")
-        # Achado auditando meu próprio código: limpeza lateral concluída num acostamento e
-        # prevista no outro entrava como «1 km concluído» — meio serviço virando serviço
-        # inteiro num quadro de medição. O quilômetro passa a contar pelo lado MENOS avançado.
-        casos = [
-            # aqui o que importa é o km NÃO entrar como concluído; o total de «previsto»
-            # inclui os outros doze quilômetros do eixo e não serviria de asserção
-            ("um lado concluído, outro previsto", "C", "", "C", 0.0),
-            ("os dois lados concluídos", "C", "C", "C", 1.0),
-            ("um concluído, outro não se aplica", "C", "NA", "C", 1.0),
-            ("os dois não se aplicam", "NA", "NA", "NA", 1.0),
-            ("um concluído, outro em andamento", "C", "E", "E", 1.0),
-        ]
-        for nome, a, b, esperado, quanto in casos:
-            r = pg.evaluate("""([a, b]) => {
-                const s = S.svc.find(x => x.on && x.lados.length > 1);
-                if (!s) return null;
-                const guardado = S.dados; S.dados = {};
-                if (a) S.dados[chave({svc: s.nome, lado: s.lados[0]}, 3)] = a;
-                if (b) S.dados[chave({svc: s.nome, lado: s.lados[1]}, 3)] = b;
-                const q = quadroObra().find(x => x.svc === s.nome);
-                const fora = {C: q.C, E: q.E, P: q.P, NA: q.NA, S: q.S, PA: q.PA};
-                S.dados = guardado;
-                return fora;
-            }""", [a, b])
-            if r is None:
-                ok(False, "há serviço de dois lados marcado para testar")
-                break
-            medido = r.get(esperado, 0)
-            # a mensagem tem de ler o que a asserção mede: quando o esperado é zero, o que
-            # se afirma é a AUSÊNCIA — «conta como C» com C igual a zero lê ao contrário
-            frase = (f"{nome} → NÃO entra como «{esperado}»" if quanto == 0
-                     else f"{nome} → conta como «{esperado}»")
-            ok(abs(medido - quanto) < 0.02, frase,
-               " · ".join(f"{k} {v:.2f}" for k, v in r.items() if v > 0.001) or "nada")
-        pg.evaluate("render()")
-        pg.wait_for_timeout(400)
 
         print("\n5a. QUANTIDADE CONTRATADA E QUADRO POR SERVIÇO")
         # o escritório mede contra o contratado: 2 km executados de 3 contratados são 67%,
@@ -268,41 +211,13 @@ def main():
         ok(pg.evaluate("!quadroObra().find(x => x.svc === 'EROSÕES').excedeContrato"),
            "e não marca quando está dentro do contratado")
 
-        print("\n5b. O ENSAIO CHEGA AO RELATÓRIO")
-        # ensaio que não chega ao relatório não serve de nada numa medição
-        pg.evaluate("document.querySelector(\".abas button[data-v='rel']\").click()")
-        pg.wait_for_timeout(2500)
-        rel = pg.evaluate("document.querySelector('#vRel').textContent")
-        ok("Controle tecnológico" in rel, "o relatório tem a seção de controle tecnológico")
-        ok("Não conforme" in rel, "o resultado do ensaio aparece no relatório")
-        ok("Fiscal do DMOB" in rel, "o responsável aparece no relatório")
-        # GC-BASE passou a ter norma conferida: o relatório tem de mostrar o CÓDIGO. O aviso
-        # de pendência continua provado, mais abaixo, com um ensaio ainda não conferido.
-        ok("DNER-ME 092/94" in rel or "DNIT 141/2022-ES" in rel,
-           "o relatório mostra a norma de referência do ensaio conferido")
-        ok("Conformidade" in rel, "o relatório traz o indicador de conformidade")
-        secoes = pg.evaluate("[...document.querySelectorAll('#vRel h2')].map(e => e.textContent)")
-        ok(len(secoes) == 6 and secoes[-1].strip().startswith("6."),
-           "as seções ficam numeradas em sequência", " | ".join(secoes))
-        pg.screenshot(path=os.path.join(RAIZ, "documentacao", "imagens",
-                                        "07-relatorio-ensaios.png"), full_page=True)
-        pg.evaluate("document.querySelector(\".abas button[data-v='mapa']\").click()")
-        pg.wait_for_timeout(900)
-
         print("\n5c. RESUMO PINTADO NO CROQUI E GRÁFICO NO RELATÓRIO")
         # O croqui circula sozinho — colado num ofício, impresso. Ou ele leva o resumo, ou
         # diz onde é a obra sem dizer como ela está.
-        g = pg.evaluate("typeof graficoQuadroObra === 'function' ? graficoQuadroObra() : ''")
-        ok("<svg" in g and "</svg>" in g, "o relatório traz o gráfico do quadro",
-           f"{len(g)} caracteres de SVG")
-        import re as _re
-        barras = len(_re.findall(r"<rect ", g))
-        ok(barras >= 8, "uma barra por situação em cada serviço", f"{barras} retângulo(s)")
-        cores = pg.evaluate("""() => ['C','E','PA','S','P'].map(c => corStatus(c))""")
-        ok(all(c.lower() in g.lower() for c in cores if c),
-           "todas as situações aparecem com a cor do catálogo, inclusive Previsto",
-           " ".join(cores))
-        ok("contratado" in g, "o gráfico marca a quantidade contratada")
+        # O grafico do quadro no relatorio (`graficoQuadroObra`) foi APAGADO em 24/08: era
+        # funcao morta, ninguem a chamava, e ela desenhava barra por situacao mais a marca
+        # da quantidade contratada — que o cliente tirou desta fase. O croqui continua
+        # levando o resumo, e e isso que o resto deste bloco afere, por pixel.
 
         # o painel do croqui é desenhado em canvas: a conferência é por PIXEL, contando os
         # que têm a cor de «concluído» dentro da imagem gerada
@@ -380,7 +295,6 @@ def main():
         volta = {
             "eixo": pg.evaluate("S.eixo ? S.eixo.nome : ''"),
             "lanc": pg.evaluate("Object.keys(S.dados).length"),
-            "ens": pg.evaluate("S.reg.length"),
             "contrato": pg.evaluate("document.querySelector('#contrato').value"),
             "obra": pg.evaluate("document.querySelector('#nomeObra').value"),
         }
@@ -389,7 +303,6 @@ def main():
            f"{pg.evaluate('[...(S.sel || [])].length')} quilômetro(s) selecionado(s)")
         ok(volta["eixo"] == "AM-151", "o eixo volta", volta["eixo"])
         ok(volta["lanc"] == 3, "os três lançamentos voltam", str(volta["lanc"]))
-        ok(volta["ens"] == 1, "o ensaio volta", str(volta["ens"]))
         ok(volta["contrato"].upper() == CONTRATO.upper(), "o contrato volta", volta["contrato"])
         ok("AM-151" in volta["obra"], "a identificação da obra volta", volta["obra"])
         pintado = pg.evaluate("""() => {

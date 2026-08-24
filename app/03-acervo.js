@@ -94,15 +94,27 @@ async function pintaAcervo(){
 // O catalogo traz mais de um conjunto de servicos: recuperacao (padrao AM-010) e
 // implantacao (padrao AM-070). Sao obras diferentes e nao se misturam na mesma matriz.
 const conjuntoAtual = () => S.cat.conjuntos.find(c => c.id === S.catId) || S.cat.conjuntos[0];
+// O SERVIÇO É POR QUILÔMETRO, NÃO POR LADO. Ordem do cliente em 24/08: «não estamos levando
+// isso em consideração, o serviço está sendo considerado por trecho… por mais que a erosão
+// seja de um lado, não veremos essa diferenciação, tudo é considerado no KM».
+//
+// O catálogo continua trazendo `lados` (LD/LE/AD/AE) porque a planilha de origem os tem — e
+// se um dia a medição voltar, é dali que ela sai. Aqui eles são colapsados num único lado
+// `U`, e com isso somem da grade (uma linha por serviço, não duas), da barra de lançamento e
+// do relatório. Um lugar só decide; nada mais no código precisou saber do assunto.
+const LADO_UNICO = 'U';
 function montaSvc(){
   S.catId = conjuntoAtual().id;
-  S.svc = conjuntoAtual().servicos.map(s => ({nome: s.nome, grupo: s.grupo, lados: s.lados.slice(),
+  S.svc = conjuntoAtual().servicos.map(s => ({nome: s.nome, grupo: s.grupo,
+                                              lados: [LADO_UNICO], ladosCatalogo: s.lados.slice(),
                                               unidade: s.unidade, cor: s.cor || '', on: true}));
 }
 function pintaCat(){
   $('#selCat').innerHTML = S.cat.conjuntos.map(c =>
     `<option value="${esc(c.id)}"${c.id === S.catId ? ' selected' : ''}>${esc(c.nome)}</option>`).join('');
-  $('#infoCat').textContent = conjuntoAtual().descricao;
+  // A descrição do modelo saiu da lateral em 24/08 («não precisa disso»): ela repetia em
+  // prosa o que a lista de serviços logo abaixo mostra item a item, e ocupava três linhas
+  // fixas no bloco mais usado da tela.
 }
 /** Serviço que existe no lançamento e não no catálogo da obra entra na lista, declarado.
 
@@ -125,8 +137,8 @@ function adotaServicosOrfaos(){
     vistos.get(p[1]).add(p[2]);
   }
   vistos.forEach((lados, nome) => S.svc.push({
-    nome, grupo: 'Fora do catálogo desta obra', lados: [...lados],
-    unidade: 'km', on: true, foraCatalogo: true
+    nome, grupo: 'Fora do catálogo desta obra', lados: [LADO_UNICO],
+    ladosCatalogo: [...lados], unidade: 'km', on: true, foraCatalogo: true
   }));
   return vistos.size;
 }
@@ -139,7 +151,7 @@ function pintaSvc(){
         ? ' <b style="color:var(--ambar)" title="Este serviço veio do projeto aberto e não '
           + 'está no catálogo desta obra. Ele conta no quadro e sai no relatório.">fora do '
           + 'catálogo</b>' : ''}<div class="gr">${esc(s.grupo)}</div></div>
-      <div class="lados">${esc(s.lados.join(' · '))}</div>
+
     </div>`).join('');
   $$('#listaSvc input').forEach(c => c.onchange = () => {
     S.svc[+c.dataset.i].on = c.checked; render(); salvaLocal();

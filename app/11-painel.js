@@ -1,9 +1,8 @@
 /* Painel de conformidade: cartoes, tabela por faixa de quilometros e grafico por tipo de
    controle.
 
-   Este modulo NAO calcula conformidade: pede a `resumoEnsaios` e `resumoPorGrupo`
-   (app/10-ensaios.js, contrato do COORDENACAO.md item 4). Dois calculos do mesmo numero em
-   telas diferentes e defeito, nao redundancia.
+   O controle tecnologico saiu em 24/08 por ordem do cliente: «nao e isso que eu preciso».
+   Este painel mostra ANDAMENTO DE SERVICO, e so.
 
    Regra que atravessa o arquivo inteiro: percentual `null` e AUSENCIA DE BASE, e nao zero
    por cento. Quilometro que ninguem mandou ensaiar sai cinza e escrito «sem base» — pintar
@@ -82,29 +81,6 @@ function avancoEm(ids){
 }
 
 const pct = v => v == null ? '—' : fmt(v * 100, 1) + '%';
-const semaforo = v =>
-  `<span title="${v == null ? 'sem base para calcular' : pct(v)}" style="display:inline-block;
-    width:12px;height:12px;border-radius:50%;background:${corConformidade(v)}"></span>`;
-
-/** Não conformidades ainda sem reensaio conforme no mesmo quilômetro e mesmo ensaio.
-
-    «Posterior» é por data e, na mesma data, pela ordem de lançamento (o `id` é sequencial).
-    Sem o desempate, um ensaio conforme lançado ANTES da reprovação fecharia a não
-    conformidade que veio depois dele — bastaria ter passado uma vez no mesmo dia para o
-    quilômetro parecer regularizado. */
-const seqReg = r => +String(r.id || '').replace(/\D/g, '') || 0;
-const depoisDe = (o, r) => (o.data || '') > (r.data || '')
-  || ((o.data || '') === (r.data || '') && seqReg(o) > seqReg(r));
-function naoConformidadesAbertas(ids){
-  const set = new Set(ids);
-  const regs = S.reg.filter(r => set.has(r.seg));
-  return regs.filter(r => {
-    if (conforme(r) !== false) return false;
-    return !regs.some(o => o.seg === r.seg && o.cod === r.cod && conforme(o) === true
-                           && depoisDe(o, r));
-  });
-}
-
 /* ---------------------------------------------------------------- pintura */
 function pintaPainel(){
   const alvo = $('#vPainel');
@@ -118,35 +94,14 @@ function pintaPainel(){
   const segs = segsNoTrecho(), ids = segs.map(s => s.id);
   // recortada: o quilômetro da ponta entra pelo pedaço que está no trecho
   const kmTr = segs.reduce((a, s) => a + kmNoTrecho(s), 0);
-  const av = avancoEm(ids), en = resumoEnsaios(ids), abertas = naoConformidadesAbertas(ids);
-  const semCatalogo = !catalogoEnsaios().length;
+  const av = avancoEm(ids);
 
   alvo.innerHTML = `
     <div class="cards">
       ${card('Avanço físico', pct(av.pct),
              `${av.C} de ${av.val} quilômetro(s) de serviço concluído(s) · trecho de ${
                segs.length} km`)}
-      ${semCatalogo ? '' : card('Conformidade', pct(en.pctConformidade),
-             en.pctConformidade == null ? 'nenhum ensaio com critério julgado'
-               : `${en.conformes} conforme(s) de ${en.conformes + en.naoConformes} julgado(s)`)}
-      ${semCatalogo ? '' : card('Ensaios executados',
-             en.previstos == null ? String(en.executados) : pct(en.pctExecutado),
-             en.previstos == null
-               ? `${en.executados} lançado(s) · sem frequência no catálogo para prever`
-               : `${en.executados} de ${fmt(en.previstos, 0)} previstos`)}
-      ${semCatalogo ? '' : card('Não conformidades', abertas.length,
-             abertas.length ? 'em aberto, sem reensaio conforme' : 'nenhuma em aberto')}
     </div>
-    ${semCatalogo ? `<div class="aviso" style="margin:0 14px 12px"><b>Nenhum ensaio
-      contratado.</b> Marque os ensaios na lateral: sem eles o painel mostra avanço de
-      serviço, mas não tem base para calcular conformidade nem previsão.</div>` : ''}
-    ${en.previstos == null && !semCatalogo ? `<div class="dica" style="margin:0 14px 12px">Os
-      ensaios contratados não têm frequência (<code>por_km</code>) preenchida no catálogo:
-      o percentual de execução fica sem base e aparece como «—». Não é zero por cento.</div>` : ''}
-    ${en.semCriterio ? `<div class="dica" style="margin:0 14px 12px">${en.semCriterio}
-      registro(s) sem critério numérico não entram na conformidade — ficam declarados como
-      «sem critério» na ficha do quilômetro.</div>` : ''}
-
     ${typeof tabelaQuadroObra === 'function' && tabelaQuadroObra()
       ? `<div style="padding:0 14px 16px">
           <div class="grEns" style="margin-top:0">Quadro da obra — por serviço, em quilômetro</div>
@@ -159,8 +114,7 @@ function pintaPainel(){
         data-faixa="${k}" style="${k === faixaKm ? 'font-weight:700' : ''}">${k} km</button>`).join('')}
     </div>
     ${tabelaFaixas()}
-    ${graficoServicos()}
-    ${graficoGrupos(ids)}`;
+    ${graficoServicos()}`;
 
   $$('#vPainel button[data-faixa]').forEach(b => b.onclick = () => {
     faixaKm = +b.dataset.faixa;
@@ -169,27 +123,17 @@ function pintaPainel(){
 }
 
 function tabelaFaixas(){
-  const temEns = catalogoEnsaios().length > 0;
   const fs = faixasPainel(faixaKm);
   if (!fs.length) return '<div class="aviso" style="margin:0 14px">Nenhum quilômetro no trecho em obra.</div>';
   return `<div style="padding:0 14px 16px"><table class="res">
     <thead><tr>
-      <th>Faixa</th><th>Extensão</th><th>Avanço</th>${temEns ? `<th>Ensaios</th>
-      <th>Previstos</th><th>% exec.</th><th>Conformes</th><th>Não conf.</th>
-      <th>Conformidade</th><th></th>` : ''}
+      <th>Faixa</th><th>Extensão</th><th>Avanço</th>
     </tr></thead><tbody>${fs.map(f => {
-      const av = avancoEm(f.ids), en = resumoEnsaios(f.ids);
+      const av = avancoEm(f.ids);
       return `<tr>
         <td><b>KM ${fmt(f.ini, 0)} – ${fmt(f.fim, 0)}</b></td>
         <td>${fmt(f.ext, 3)} km</td>
         <td>${pct(av.pct)}</td>
-        ${temEns ? `<td>${en.executados}</td>
-        <td>${en.previstos == null ? '—' : fmt(en.previstos, 0)}</td>
-        <td>${pct(en.pctExecutado)}</td>
-        <td>${en.conformes}</td>
-        <td${en.naoConformes ? ' style="color:#D9534F;font-weight:700"' : ''}>${en.naoConformes}</td>
-        <td><b>${pct(en.pctConformidade)}</b></td>
-        <td>${semaforo(en.pctConformidade)}</td>` : ''}
       </tr>`;
     }).join('')}</tbody></table></div>`;
 }
@@ -232,39 +176,6 @@ function graficoServicos(){
       quadro acima — acompanhamento, não medição.</div>
   </div>`;
 }
-function graficoGrupos(ids){
-  const gs = resumoPorGrupo(ids).filter(g => g.executados || g.previstos);
-  if (!gs.length) return '';
-  const L = 168, W = 620, H = 26, GAP = 10, TOPO = 34;
-  const larg = W - L - 92;
-  const alt = TOPO + gs.length * (H + GAP) + 12;
-  const barras = gs.map((g, i) => {
-    const y = TOPO + i * (H + GAP);
-    const j = g.conformes + g.naoConformes;
-    const c = g.pct;
-    const cheio = c == null ? 0 : Math.max(0, Math.min(1, c)) * larg;
-    return `
-      <text x="${L - 8}" y="${y + 17}" text-anchor="end" font-size="12" fill="#3A4A5A">${esc(g.grupo)}</text>
-      <rect x="${L}" y="${y}" width="${larg}" height="${H}" rx="4" fill="#EEF2F6"/>
-      ${c == null ? '' : `<rect x="${L}" y="${y}" width="${cheio.toFixed(1)}" height="${H}" rx="4"
-        fill="${corConformidade(c)}"/>`}
-      <text x="${L + larg + 8}" y="${y + 17}" font-size="12" fill="#1F2933">${
-        c == null ? 'sem base' : fmt(c * 100, 1) + '%'}</text>
-      <title>${esc(g.grupo)}: ${g.executados} ensaio(s), ${j} julgado(s), ${
-        g.naoConformes} não conforme(s)</title>`;
-  }).join('');
-  return `<div style="padding:0 14px 18px">
-    <svg viewBox="0 0 ${W} ${alt}" width="100%" height="${alt}" role="img"
-         aria-label="Conformidade por tipo de controle">
-      <text x="14" y="18" font-size="13" font-weight="700" fill="#1F4E79">Conformidade por tipo de controle</text>
-      <line x1="${L}" y1="${TOPO - 6}" x2="${W - 92}" y2="${TOPO - 6}" stroke="#D4DBE2"/>
-      ${barras}
-    </svg>
-    <div class="dica">Barra cinza cheia é ausência de julgamento, não reprovação: o tipo de
-      controle sem ensaio julgado aparece como «sem base».</div>
-  </div>`;
-}
-
 /* ------------------------------------------------- três abas em vez de seis */
 /* O Paulo abriu a plataforma e disse: «muito confuso, era pra ser algo simples». Medido:
    88 elementos interativos visíveis numa tela cujo trabalho é escolher a rodovia, marcar o

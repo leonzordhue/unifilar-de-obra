@@ -132,7 +132,13 @@ def main(defeito=False):
         print('\n6. "o tracado dividido a cada 1km, a tabela de resumo embaixo do mapa e a'
               ' extensao total"')
         pg.evaluate("() => { S.kmIni = 10; S.kmFim = 40; render(); mostra('croqui'); }")
-        pg.wait_for_timeout(4500)
+        # ESPERA O CROQUI, NÃO O RELÓGIO. Com a suíte inteira rodando junto, a busca dos
+        # ladrilhos de satélite disputa rede e o desenho demora mais — com espera fixa a
+        # prova acusava defeito que não existe, e falso vermelho gasta o tempo de quem vai
+        # investigar. Sozinha ela passava; na suíte, não. O instrumento é que media o
+        # relógio, e não o produto.
+        pg.wait_for_function("() => !!(S.croqui && S.croqui.url)", timeout=90000)
+        pg.wait_for_timeout(600)
         cq = pg.evaluate("""() => { const i = document.querySelector('#vCroqui img');
             return {tem: !!(i && i.src.indexOf('data:image') === 0),
                     alt: i ? i.naturalHeight : 0, larg: i ? i.naturalWidth : 0}; }""")
@@ -176,7 +182,14 @@ def main(defeito=False):
             if (o){ s.value = o.value; s.dispatchEvent(new Event('change')); } }""")
         pg.wait_for_timeout(900)          # o cliente nao espera o croqui: clica
         pg.evaluate("() => mostra('rel')")
-        pg.wait_for_timeout(9000)         # e depois olha o documento
+        # o que se afere é o RESULTADO, não o prazo: espera-se o documento receber a
+        # imagem, com teto generoso. Se ela nunca chegar, `wait_for_function` estoura e a
+        # prova reprova — que é o defeito real («abriu e não tinha mapa»), não o relógio.
+        try:
+            pg.wait_for_function("() => document.querySelectorAll('#vRel img').length > 0",
+                                 timeout=90000)
+        except Exception:
+            pass
         img = pg.evaluate("() => document.querySelectorAll('#vRel img').length")
         ok(img >= 1, "o relatorio traz o mapa mesmo quando aberto antes de o croqui ficar pronto",
            f"{img} imagem(ns)")

@@ -119,8 +119,13 @@ def main(defeito=False):
             return {lanc: Object.keys(S.dados).length, obra: S.obra || '',
                     contrato: S.contrato || '', kmIni: S.kmIni, kmFim: S.kmFim,
                     segs: S.segs.length}; }""", proj)
-        ok(r["lanc"] == len(proj["dados"]),
-           "todos os lançamentos entram", f"{r['lanc']} de {len(proj['dados'])}")
+        # O LADO SAIU EM 24/08: LD e LE do mesmo serviço e quilômetro viram UMA chave, pelo
+        # estado mais avançado. Os 760 lançamentos do cliente viram 380 sem perder um único
+        # quilômetro — e é o quilômetro que esta prova afere, logo abaixo, serviço a serviço.
+        # Comparar o NÚMERO DE CHAVES aqui seria cobrar a forma antiga do dado.
+        ok(r["lanc"] > 0 and r["lanc"] <= len(proj["dados"]),
+           "os lançamentos do cliente entram, com os dois lados fundidos em um",
+           f"{r['lanc']} chave(s) de {len(proj['dados'])} do arquivo antigo")
         ok(r["segs"] > 260, "o eixo da AM-010 é dividido por quilômetro",
            f"{r['segs']} quilômetro(s)")
 

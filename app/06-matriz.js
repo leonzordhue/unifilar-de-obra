@@ -63,6 +63,12 @@ function pintaMatriz(){
   // A legenda mora na faixa, que está na outra aba: quem pinta na grade via cor sem tabela
   // de cor. Entra aqui como linha discreta em cima da planilha — sem controle novo, só a
   // leitura do que cada cor quer dizer.
+  // A GRADE NASCE PREENCHIDA, como a planilha da equipe. Ordem do cliente em 24/08: «a
+  // tabela tem que ficar preenchida igual a planilha, então tem que ir preenchendo por
+  // cores, conforme forem preenchidos os serviços». Quilômetro sem lançamento é PREVISTO —
+  // é o que a conta já fazia (`estadoDoKm` devolve 'P' na ausência) e o que a tela negava,
+  // mostrando branco. Branco lê-se «não sei»; previsto lê-se «ainda não foi feito», que é o
+  // que de fato se sabe daquele quilômetro.
   let h = '<div class="legGrade">' + S.cat.status.map(st =>
       `<span><i style="background:${st.cor}"></i>${esc(st.nome)}</span>`).join('')
     + '<span><i class="hachura"></i>fora do trecho em obra</span>'
@@ -70,7 +76,7 @@ function pintaMatriz(){
     // não há grade desde que as abas viraram três
     + '<span class="comoPinta">clique gira o estado · arraste repete · shift+clique '
     + 'preenche a faixa · botão direito limpa</span></div>';
-  h += '<div class="wrapmat"><table class="mat"><thead><tr><th class="sv">Serviço / lado</th>'
+  h += '<div class="wrapmat"><table class="mat"><thead><tr><th class="sv">Serviço</th>'
     + '<th class="g" title="Quilômetros concluídos (contagem)">C</th><th class="g" title="Em andamento">E</th>'
     + '<th class="g" title="Paralisado">PA</th>'
     + '<th class="g" title="Sem planejamento">S</th><th class="g" title="Não se aplica">NA</th>'
@@ -95,7 +101,7 @@ function pintaMatriz(){
         + `<td colspan="${6 + segs.length}"></td></tr>`;
     }
     const r = resumoLinha(l);
-    h += `<tr><th class="sv"><span class="lado">${esc(l.lado)}</span>${esc(l.svc)}</th>`
+    h += `<tr><th class="sv">${esc(l.svc)}</th>`
       + `<td>${r.C || ''}</td><td>${r.E || ''}</td><td>${r.PA || ''}</td>`
       + `<td>${r.S || ''}</td><td>${r.NA || ''}</td>`
       + `<td><b>${r.pct == null ? '—' : fmt(100 * r.pct, 0) + '%'}</b></td>`;
@@ -103,7 +109,7 @@ function pintaMatriz(){
       if (!dentroTrecho(sg)){ h += '<td class="fora"></td>'; return; }
       const v = S.dados[chave(l, sg.id)] || '';
       h += `<td class="cel${marco(sg) ? ' m10' : ''}" data-l="${i}" data-id="${sg.id}"
-        style="${v ? 'background:' + corStatus(v) + ';color:' + txtStatus(v) : 'color:transparent'}"
+        style="background:${corStatus(v || 'P')};color:${v ? txtStatus(v) : 'transparent'}"
         title="${esc(l.svc)} · ${esc(l.lado)} · ${esc(rotuloSeg(sg))}">${v}</td>`;
     });
     h += '</tr>';
@@ -226,7 +232,7 @@ function atualizaCelulas(alvo, linhas, idx, l, segs, ids){
     td.textContent = v;
     // sem lançamento, o fundo volta a ser o da folha de estilo — é o que deixa a zebra da
     // grade aparecer. Fixar '#fff' aqui apagava a zebra a cada célula tocada.
-    td.style.background = v ? corStatus(v) : '';
+    td.style.background = corStatus(v || 'P');
     td.style.color = v ? txtStatus(v) : 'transparent';
   });
   const tr = alvo.querySelector(`td.cel[data-l="${idx}"]`);
@@ -254,6 +260,18 @@ function atualizaCelulas(alvo, linhas, idx, l, segs, ids){
       pe[col + 1].textContent = p === null ? '' : fmt(p * 100, 0);
     }
   });
+  // O QUADRO ABAIXO DA GRADE TAMBÉM TEM DE ANDAR. A repintura parcial atualizava a célula, a
+  // linha e o rodapé — e deixava o cartão «Avanço físico» e o quadro da obra parados no
+  // número anterior. Medido: grade com 3 quilômetros verdes e o cartão dizendo 0,0%. Duas
+  // respostas na mesma tela, que é o defeito que este projeto mais repetiu.
+  //
+  // Em quadro de milissegundos e não a cada clique: pintar o quadro custa mais que pintar a
+  // célula, e quem arrasta pela grade dispara dezenas de cliques seguidos.
+  clearTimeout(atualizaCelulas.tarefa);
+  atualizaCelulas.tarefa = setTimeout(() => {
+    if (typeof pintaPainel === 'function' && !$('#vPainel').classList.contains('hidden'))
+      pintaPainel();
+  }, 120);
 }
 function marcaColuna(id){
   const cel = $('#vMatriz').querySelector(`td.cel[data-id="${id}"]`);

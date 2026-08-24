@@ -94,26 +94,12 @@ function liga(){
     if (+$('#estOff').value < 0) $('#estOff').value = 0;
     render(); salvaLocal();
   };
-  $('#btTodosEns').onclick = () => { S.ens.forEach(e => e.on = true); pintaEns(); render(); salvaLocal(); };
-  $('#btNenhumEns').onclick = () => { S.ens.forEach(e => e.on = false); pintaEns(); render(); salvaLocal(); };
-  $('#btFechaFicha').onclick = fechaFicha;
   $('#btObras').onclick = abreObras;
   $('#btFechaObras').onclick = fechaObras;
   $('#buscaObra').oninput = pintaObras;
   $('#obras').onclick = ev => { if (ev.target.id === 'obras') fechaObras(); };
   $('#btGuardar').onclick = () => { if (guardaObra()) abreObras(); };
   $('#contrato').oninput = () => { S.contrato = $('#contrato').value; salvaLocal(); };
-  $('#ficha').onclick = ev => { if (ev.target.id === 'ficha') fechaFicha(); };
-  document.addEventListener('keydown', ev => {
-    if (ev.key === 'Escape' && !$('#ficha').classList.contains('hidden')) fechaFicha();
-  });
-  const passaFicha = d => () => {
-    const i = S.segs.findIndex(s => s.id === S.fichaSeg);
-    const j = Math.min(Math.max(i + d, 0), S.segs.length - 1);
-    if (j !== i) abreFicha(S.segs[j].id);
-  };
-  $('#btFichaAnt').onclick = passaFicha(-1);
-  $('#btFichaProx').onclick = passaFicha(1);
   $('#btTodos').onclick = () => { S.svc.forEach(s => s.on = true); pintaSvc(); render(); salvaLocal(); };
   $('#btNenhum').onclick = () => { S.svc.forEach(s => s.on = false); pintaSvc(); render(); salvaLocal(); };
   $('#btAddSvc').onclick = () => {
@@ -217,11 +203,12 @@ function liga(){
   // conferencia externa da extensao: opcional, e a plataforma abre sem ela
   try { S.conf = await carregaJSON('dados/conferencia-extensao.json'); }
   catch (e){ S.conf = null; }
-  // catalogo de ensaios: a plataforma abre sem ele, so nao controla ensaio
-  try { S.catEns = await carregaJSON('dados/catalogo-ensaios.json'); }
-  catch (e){ S.catEns = {itens: [], grupos: []}; }
-  montaSvc(); montaEns(); carregaFotos();
-  pintaCat(); pintaSvc(); pintaEns(); pintaContrato(); pintaLegenda();
+  // O CONTROLE TECNOLOGICO SAIU EM 24/08, por ordem do cliente: «nao e isso que eu preciso».
+  // Foram-se o catalogo de 22 ensaios com as normas do DNIT, a conformidade, a previsao por
+  // frequencia, as fotos e o laudo. A plataforma controla ANDAMENTO DE SERVICO por quilometro
+  // — uma coisa so, que e o que ele pediu desde o inicio.
+  montaSvc();
+  pintaCat(); pintaSvc(); pintaContrato(); pintaLegenda();
   montaAbas(); liga(); iniMapa();
   await pintaAcervo();
   const salvo = localStorage.getItem(CHAVE_LOCAL);

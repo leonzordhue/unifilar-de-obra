@@ -115,11 +115,24 @@ def main():
         pg.evaluate("document.querySelector(\".abas button[data-v='matriz']\").click()")
         pg.wait_for_timeout(2000)
         cols = pg.evaluate("document.querySelectorAll('#vMatriz thead th').length")
-        rows = pg.evaluate("document.querySelectorAll('#vMatriz tbody tr').length")
+        # `tbody tr` conta também as faixas de grupo (PAVIMENTAÇÃO, DRENAGEM…), que não têm
+        # célula nenhuma: com elas na conta, «células = linhas × quilômetros» nunca fecha.
+        rows = pg.evaluate("document.querySelectorAll('#vMatriz tbody tr:not(.gr)').length")
         cels = pg.evaluate("document.querySelectorAll('#vMatriz td.cel').length")
         ok(cols > 200, "colunas de quilômetro no cabeçalho", f"{cols}")
-        ok(rows > 20, "linhas de serviço × lado", f"{rows}")
-        ok(cels > 4000, "células de lançamento", f"{cels:,}".replace(",", "."))
+        # UMA LINHA POR SERVIÇO. O lado saiu em 24/08 («tudo é considerado no KM»), e a
+        # grade deixou de ter duas linhas por serviço. Cobrar «> 20» aqui era cobrar a
+        # forma antiga: o catálogo de recuperação tem 12 serviços.
+        ok(rows >= 12, "uma linha por serviço, sem duplicar por lado", f"{rows}")
+        # O «> 4000» era o mundo com lado: 12 servicos x 2 lados x 269 km. Com o lado fora
+        # (24/08, «tudo e considerado no KM») caiu para metade, e um numero fixo teria de ser
+        # reescrito a cada mudanca de escopo. A regua passa a ser DERIVADA, e por isso afere
+        # mais do que aferia: a grade tem de estar COMPLETA — uma celula para cada servico em
+        # cada quilometro do trecho, sem buraco. «Maior que N» nunca disse isso.
+        emObra = pg.evaluate("segsNoTrecho().length")
+        ok(cels == rows * emObra,
+           "a grade está completa: uma célula por serviço em cada quilômetro do trecho",
+           f"{cels:,}".replace(",", ".") + f" = {rows} serviço(s) × {emObra} km")
         if VER:
             pg.screenshot(path=os.path.join(CAP, "02-matriz-de-controle.png"))
 

@@ -15,7 +15,6 @@ function iniMapa(){
   S.camadas = L.layerGroup().addTo(S.mapa);
   // o passo do rótulo depende do zoom: sem redesenhar, ou some ou vira poluição
   S.mapa.on('zoomend', () => { if (S.eixo) desenhaMapa(); });
-  ctrlCriterio();
 }
 // Sobreposição, e não continência: o quilômetro entra no trecho se qualquer parte dele
 // está dentro. Exigir o quilômetro inteiro fazia quem digita KM 12,5–18,3 perder as duas
@@ -43,75 +42,23 @@ const corPct = p => p === null ? '#8E9AA6' : (p >= 0.999 ? '#2E9E5B' : (p > 0 ? 
 // já se executou, o que passou no ensaio e onde ainda falta ensaiar. Trocar de critério é
 // trocar de pergunta — e o semáforo é o `corConformidade()` da plataforma inteira, para que
 // verde no mapa e verde no painel queiram dizer a mesma coisa.
-const CRITERIOS = [
-  {id: 'servico',      nome: 'Serviço lançado'},
-  {id: 'avanco',       nome: 'Avanço físico'},
-  {id: 'conformidade', nome: 'Conformidade dos ensaios'},
-  {id: 'ensaios',      nome: 'Ensaios executados'}
-];
-let criterioMapa = 'servico';
+// O MAPA NÃO PINTA SITUAÇÃO. Havia um seletor «Colorir por» com quatro critérios — serviço
+// lançado, avanço, conformidade, ensaios — e o traçado mudava de cor conforme o lançamento.
+// O cliente reprovou em 24/08: «coloca serviço, a cor não muda, ou muda tudo; não era pra
+// alterar no traçado — ficou sem pé nem cabeça, confuso e nada intuitivo».
+//
+// Ele tem razão sobre a divisão de trabalho entre as duas telas: quem mostra situação é a
+// GRADE, que é a planilha dele, colorida célula a célula. O mapa responde outra pergunta —
+// «onde fica este quilômetro» — e para isso precisa de traçado legível e divisa de
+// quilômetro, não de semáforo. Quatro critérios sobre um eixo de 269 km davam quatro
+// leituras diferentes do mesmo desenho, e nenhuma delas era a que ele foi buscar ali.
+//
+// O que sai: `CRITERIOS`, `valorCriterio`, `corCriterio`, `textoCriterio`, `ctrlCriterio` e
+// `pintaLegendaCrit` — o seletor e a legenda de semáforo em cima do traçado. O que fica: o
+// eixo em uma cor, o trecho em obra destacado, a seleção realçada e a divisa por quilômetro.
+const COR_EIXO = '#5B3FA8';        // o traçado, dentro do trecho em obra
+const COR_FORA = '#B8C2CC';        // fora do trecho: presente, sem disputar atenção
 
-/** Valor do critério naquele quilômetro. `null` é ausência de base — nunca zero. */
-function valorCriterio(id){
-  if (criterioMapa === 'avanco') return pctSeg(id);
-  if (typeof resumoEnsaios !== 'function') return null;
-  const r = resumoEnsaios([id]);
-  return criterioMapa === 'conformidade' ? r.pctConformidade : r.pctExecutado;
-}
-function corCriterio(sg, dentro){
-  if (!dentro) return '#B8C2CC';
-  if (criterioMapa === 'servico'){
-    const svcs = typeof servicosNoSeg === 'function' ? servicosNoSeg(sg.id) : [];
-    return svcs.length ? svcs[0].cor : corPct(pctSeg(sg.id));
-  }
-  return typeof corConformidade === 'function'
-    ? corConformidade(valorCriterio(sg.id)) : corPct(valorCriterio(sg.id));
-}
-function textoCriterio(sg){
-  if (criterioMapa === 'servico') return '';
-  const v = valorCriterio(sg.id);
-  const rot = (CRITERIOS.find(c => c.id === criterioMapa) || {}).nome;
-  // «Sem base» não é «zero»: quilômetro que ninguém mandou ensaiar não pode aparecer como
-  // reprovado, e é por isso que o texto diz o motivo em vez de mostrar 0%.
-  return `<br>${rot}: ` + (v == null
-    ? (criterioMapa === 'avanco' ? 'sem serviço marcado' : 'sem base para calcular')
-    : `<b>${fmt(v * 100, 1)}%</b>`);
-}
-function ctrlCriterio(){
-  const c = L.control({position: 'topleft'});
-  c.onAdd = () => {
-    const d = L.DomUtil.create('div', 'leaflet-bar');
-    d.style.cssText = 'background:#fff;padding:3px 6px;font:12px system-ui;line-height:1.4;'
-      + 'border-radius:6px';
-    // Compacto de propósito: é um seletor de leitura do mapa, não um painel. Ocupava um
-    // retângulo com título e legenda permanentes em cima do traçado — que é o que a pessoa
-    // veio ver. A legenda só aparece quando há semáforo para explicar.
-    d.innerHTML = `<select id="selCrit" title="Critério de cor do eixo"
-        style="font:12px system-ui;max-width:190px;border:0;background:transparent">${
-          CRITERIOS.map(x => `<option value="${x.id}">${x.nome}</option>`).join('')}</select>`
-      + '<div id="legCrit" style="margin-top:4px"></div>';
-    L.DomEvent.disableClickPropagation(d);
-    return d;
-  };
-  c.addTo(S.mapa);
-  const sel = document.querySelector('#selCrit');
-  sel.value = criterioMapa;
-  sel.onchange = () => { criterioMapa = sel.value; desenhaMapa(); };
-}
-function pintaLegendaCrit(){
-  const alvo = document.querySelector('#legCrit');
-  if (!alvo) return;
-  if (criterioMapa === 'servico'){
-    alvo.innerHTML = '';          // a cor do serviço já tem legenda na faixa, logo abaixo
-    return;
-  }
-  const cor = v => typeof corConformidade === 'function' ? corConformidade(v) : corPct(v);
-  const bolha = (v, t) => `<span style="display:inline-flex;align-items:center;gap:4px;
-    margin-right:7px"><i style="width:10px;height:10px;border-radius:50%;background:${cor(v)};
-    display:inline-block"></i>${t}</span>`;
-  alvo.innerHTML = bolha(1, '≥95%') + bolha(0.9, '≥85%') + bolha(0.8, '≥70%') + bolha(0.2, '<70%')
-    + '<br>' + bolha(null, 'sem base');
-}
 /** Divisa preta no início de cada quilômetro, e o número do marco de tantos em tantos.
 
     Pedido do cliente, com as palavras dele: «os KM no mapa tem que ter uma linha preta de
@@ -127,12 +74,16 @@ function divisaDeKm(sg, latlng, dentro){
   const n = Math.hypot(dLat, dLon) || 1e-9;
   // perpendicular normalizada, com o comprimento em grau corrigido pela latitude
   const cos = Math.cos(a[0] * Math.PI / 180) || 1;
-  const t = 0.00022;                       // ~25 m de cada lado do eixo
+  const t = 0.00034;                       // ~38 m de cada lado do eixo
   const px = (-dLon / n) * t / cos, py = (dLat / n) * t;
   // `divisa: true` para quem lê as camadas saber que isto é régua, não traçado: sem a marca,
   // uma prova que conta polilinhas passa a contar o dobro e acusa defeito onde não há.
   L.polyline([[a[0] - py, a[1] - px], [a[0] + py, a[1] + px]],
-             {color: '#14202B', weight: dentro ? 2 : 1, opacity: dentro ? .95 : .5,
+             // GROSSA, e não pontilhada: o cliente pediu «quando completar 1 km passa uma
+             // linha mais grossa pra demonstrar essa separação». Antes o traço fino somado
+             // ao segmento por segmento deixava o eixo com cara de picotado — «arredondado»,
+             // nas palavras dele. O traçado agora é contínuo e a divisa é que se destaca.
+             {color: '#14202B', weight: dentro ? 4 : 2, opacity: dentro ? 1 : .55,
               interactive: false, divisa: true}).addTo(S.camadas);
   // o número do marco: de 1 em 1 km só quando o mapa está perto o bastante, senão de 10 em 10
   const z = S.mapa ? S.mapa.getZoom() : 10;
@@ -141,9 +92,12 @@ function divisaDeKm(sg, latlng, dentro){
   if (Math.abs(sg.ini - km) < 1e-6 && km % passo === 0){
     L.marker(a, {interactive: false, icon: L.divIcon({
       className: '',
-      html: `<div style="font:700 10px/1.1 system-ui;color:#14202B;background:rgba(255,255,255,.82);
-        border:1px solid #14202B;border-radius:3px;padding:1px 3px;white-space:nowrap;
-        transform:translate(6px,-14px)">${S.ref === 'est' ? 'E ' + fmt(estacaDe(sg.ini), 0)
+      // LEGÍVEL SOBRE SATÉLITE: 10 px translúcido some na imagem, e o cliente abriu o mapa e
+      // disse que não dava para entender nada. Etiqueta opaca, texto maior e afastada do eixo
+      // para não cobrir o traçado que ela está numerando.
+      html: `<div style="font:700 12px/1.2 system-ui;color:#fff;background:#14202B;
+        border-radius:3px;padding:2px 5px;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.4);
+        transform:translate(9px,-16px)">${S.ref === 'est' ? 'E ' + fmt(estacaDe(sg.ini), 0)
                                                          : 'KM ' + km}</div>`,
       iconSize: [0, 0]})}).addTo(S.camadas);
   }
@@ -172,7 +126,7 @@ function desenhaMapa(){
     L.polyline(latlng, {color: '#10202E', weight: esp + 3, opacity: dentro ? .55 : .35,
                         interactive: false, casing: true}).addTo(S.camadas);
     const ln = L.polyline(latlng, {
-      color: corCriterio(sg, dentro),
+      color: dentro ? COR_EIXO : COR_FORA,
       weight: esp, opacity: dentro ? .95 : .65
     }).addTo(S.camadas);
     if (sel) L.polyline(latlng, {color: '#16324F', weight: 2, opacity: 1, dashArray: '4 4'})
@@ -181,7 +135,7 @@ function desenhaMapa(){
       + (svcs.length ? '<br>' + svcs.map(s => esc(s.svc) + ' — '
           + s.status.map(nomeStatus).join(' / ')).join('<br>')
         : p === null ? '' : ` · ${fmt(p * 100, 0)}% concluído`)
-      + textoCriterio(sg), {sticky: true});
+      , {sticky: true});
     // Clicar no mapa seleciona o quilômetro, como na faixa: é o mesmo gesto, no outro
     // desenho do mesmo eixo.
     ln.on('click', () => {
@@ -189,12 +143,11 @@ function desenhaMapa(){
       if (S.sel.has(sg.id)) S.sel.delete(sg.id); else S.sel.add(sg.id);
       pintaFaixa();
     });
-    ln.on('dblclick', () => abreFicha(sg.id));
+
     divisaDeKm(sg, latlng, dentro);
   });
   // O enquadramento só se refaz quando o eixo muda: reenquadrar a cada lançamento tira o
   // mapa do lugar onde o usuário estava trabalhando.
-  pintaLegendaCrit();
   if (todos.length && S.enquadrado !== S.eixo){
     S.mapa.fitBounds(L.latLngBounds(todos), {padding: [24, 24]});
     S.enquadrado = S.eixo;

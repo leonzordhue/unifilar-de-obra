@@ -81,7 +81,6 @@ function eixoGeoJSON(){
     crs: {type: 'name', properties: {name: 'urn:ogc:def:crs:OGC:1.3:CRS84'}},
     features: S.segs.map(sg => {
       const svcs = servicosNoSeg(sg.id);
-      const rs = typeof resumoEnsaios === 'function' ? resumoEnsaios([sg.id]) : {};
       const p = pctSeg(sg.id);
       return {
         type: 'Feature',
@@ -94,11 +93,6 @@ function eixoGeoJSON(){
           avanco: p == null ? null : +(100 * p).toFixed(1),
           servicos: svcs.map(s => s.svc).join(' | '),
           situacoes: svcs.map(s => s.status.map(nomeStatus).join('/')).join(' | '),
-          ensaios_executados: rs.executados || 0,
-          ensaios_conformes: rs.conformes || 0,
-          ensaios_nao_conformes: rs.naoConformes || 0,
-          conformidade: rs.pctConformidade == null ? null
-            : +(100 * rs.pctConformidade).toFixed(1)
         },
         geometry: {type: 'LineString', coordinates: sg.pts.map(q => [q[0], q[1]])}
       };
@@ -109,8 +103,10 @@ function eixoGeoJSON(){
 /** O mesmo eixo em KML, com a cor do quilômetro — é como o croqui aparece no Google Earth. */
 function eixoKML(){
   const cor = sg => {
-    const c = (typeof corCriterio === 'function' ? corCriterio(sg, dentroTrecho(sg))
-                                                 : '#5B9BD5').replace('#', '');
+    // uma cor para o trecho em obra, outra para o resto: o KML mostra onde é a obra, não a
+    // situação de cada quilômetro — essa mora na planilha e sai no CSV do mesmo pacote
+    const c = (dentroTrecho(sg) ? (typeof COR_EIXO !== 'undefined' ? COR_EIXO : '#5B3FA8')
+                                : '#B8C2CC').replace('#', '');
     // KML usa aabbggrr, e não rrggbb
     return 'ff' + c.slice(4, 6) + c.slice(2, 4) + c.slice(0, 2);
   };
@@ -146,7 +142,7 @@ function eixoKML(){
     a tabela removida, no lugar onde o rodapé manda procurar. */
 function faixasCSV(){
   const sep = ';';
-  const out = [['SERVICO', 'LADO', 'FORA_DO_CATALOGO', 'KM_INICIAL', 'KM_FINAL',
+  const out = [['SERVICO', 'FORA_DO_CATALOGO', 'KM_INICIAL', 'KM_FINAL',
                 'EXTENSAO_KM', 'SITUACAO', 'LANCADO_ATE'].join(sep)];
   const segs = segsNoTrecho();
   linhasMatriz().forEach(l => {
@@ -155,38 +151,13 @@ function faixasCSV(){
       // LANCADO_ATE é a data MAIS RECENTE dos quilômetros da faixa: uma faixa de 12 km não
       // foi lançada num dia só, e uma coluna «DATA» fingiria que foi.
       const dentro = segs.filter(sg => sg.ini >= f.ini - 1e-9 && sg.fim <= f.fim + 1e-9);
-      out.push([l.svc, l.lado, fora, fmt(f.ini, 3), fmt(f.fim, 3), fmt(f.fim - f.ini, 3),
+      out.push([l.svc, fora, fmt(f.ini, 3), fmt(f.fim, 3), fmt(f.fim - f.ini, 3),
                 nomeStatus(f.v), ultimaData(dentro.map(sg => chave(l, sg.id)))].join(sep));
     });
   });
   return out.join('\r\n');
 }
 
-/** Um registro de ensaio por linha, com a norma e o critério que valeram no aceite. */
-function ensaiosCSV(){
-  const sep = ';';
-  const cab = ['TRECHO', 'KM_INICIAL', 'KM_FINAL', 'ENSAIO', 'GRUPO', 'CAMADA',
-    'NORMA_METODO', 'NORMA_ESPECIFICACAO', 'MEDICAO', 'UNIDADE', 'LIMITE_MIN',
-    'LIMITE_MAX', 'RESULTADO', 'DATA', 'RESPONSAVEL', 'OBSERVACAO', 'FOTO'];
-  const linhas = [cab.join(sep)];
-  S.reg.slice().sort((a, b) => a.seg - b.seg).forEach((r, i) => {
-    const e = ensaioDe(r.cod) || {};
-    const sg = S.segs.find(x => x.id === r.seg) || {ini: 0, fim: 0};
-    const nm = (e.norma_metodo || {}).codigo || 'pendente de confirmação';
-    const ne = (e.norma_especificacao || {}).codigo || '';
-    linhas.push([rotuloSeg(sg), fmt(sg.ini, 3), fmt(sg.fim, 3), e.nome || r.cod,
-      e.grupo || '', e.camada || '', nm, ne,
-      r.valor == null ? '' : fmt(r.valor, 3), e.unidade || '',
-      r.lim_min == null ? '' : fmt(r.lim_min, 3),
-      r.lim_max == null ? '' : fmt(r.lim_max, 3),
-      textoConforme(r), r.data || '', r.resp || '',
-      (r.obs || '').replace(/[;\r\n]+/g, ' '),
-      r.foto && S.fotos[r.foto] ? nomeFoto(r, i) : (r.semFoto ? 'FOTO NAO COUBE' : '')].join(sep));
-  });
-  return linhas.join('\r\n');
-}
-const nomeFoto = (r, i) => `fotos/ensaio-${pad(i + 1)}-km${pad(Math.floor(
-  (S.segs.find(x => x.id === r.seg) || {ini: 0}).ini), 3)}-${seguro(r.cod)}.jpg`;
 
 function leiaMe(){
   const d = typeof dadosContrato === 'function' ? dadosContrato() : {};
@@ -194,8 +165,6 @@ function leiaMe(){
   const saltos = (S.eixo && S.eixo.meta && S.eixo.meta.saltos_km) || [];
   const geo = S.segs.reduce((a, s) => a + s.ext, 0);
   const cad = (S.eixo && S.eixo.km_cadastro) || 0;
-  const pend = [...new Set(S.reg.map(r => r.cod))]
-    .map(c => ensaioDe(c)).filter(e => e && !e.confirmado).length;
   const L = [];
   L.push('PACOTE PARA AMBIENTE COMUM DE DADOS — CDE');
   L.push('SICOR — Sistema de Controle de Obras Rodoviárias · SEINFRA/AM — DMOB');
@@ -214,12 +183,10 @@ function leiaMe(){
   L.push('O QUE ESTÁ NESTE PACOTE');
   L.push('  LEIA-ME.txt ......... este arquivo');
   L.push('  projeto.json ........ reabre na própria plataforma, com tudo o que está aqui');
-  L.push('  01-eixo.geojson ..... uma feição por quilômetro, com avanço, serviços e ensaios');
+  L.push('  01-eixo.geojson ..... uma feição por quilômetro, com avanço e serviços');
   L.push('  02-eixo.kml ......... o mesmo eixo colorido, para o Google Earth');
   L.push('  03-matriz-de-controle.csv .. serviço × lado × quilômetro');
-  L.push('  04-ensaios.csv ...... um registro de ensaio por linha, com norma e critério');
   L.push('  06-faixas.csv ....... a relação faixa a faixa: início, fim, extensão e situação');
-  L.push('  fotos/ .............. as fotos dos ensaios, nomeadas por quilômetro e ensaio');
   L.push('  05-croqui.png ....... o traçado sobre imagem de satélite, quando gerado');
   L.push('');
   const orfaos = S.svc.filter(s => s.on && s.foraCatalogo).map(s => s.nome);
@@ -260,18 +227,9 @@ function leiaMe(){
     + ' traçado existente, sem somar os vazios.');
   L.push('');
   L.push('  Avanço: medido em quilômetro, e não em número de células. «% do trecho» diz onde');
-  L.push('  a obra está no eixo; «% do contrato» diz quanto falta entregar, e só existe onde');
-  L.push('  a quantidade contratada do serviço foi informada.');
+  L.push('  a obra está no eixo. A quantidade contratada está fora desta versão.');
   L.push('');
-  if (S.reg.length){
-    L.push(`  Ensaios: ${S.reg.length} registro(s). O critério de aceitação gravado em cada um`);
-    L.push('  é o que vigorava no aceite; alteração posterior do catálogo não reprova ensaio');
-    L.push('  já aceito.');
-    if (pend) L.push(`  ATENÇÃO: ${pend} ensaio(s) deste pacote estão com a NORMA DE REFERÊNCIA`
-      + ' PENDENTE de confirmação. Onde se lê «pendente de confirmação», a norma aplicável'
-      + ' deve ser informada pela fiscalização antes do uso em medição.');
-    L.push('');
-  }
+  L.push('');
   L.push('  Imagem de satélite do croqui: Esri World Imagery · Maxar, Earthstar Geographics.');
   L.push('');
   L.push('COMO REABRIR');
@@ -296,12 +254,7 @@ async function exportaCDE(){
     zip.file('01-eixo.geojson', JSON.stringify(eixoGeoJSON(), null, 1));
     zip.file('02-eixo.kml', eixoKML());
     zip.file('03-matriz-de-controle.csv', '﻿' + textoCSV());
-    if (S.reg.length) zip.file('04-ensaios.csv', '﻿' + ensaiosCSV());
     zip.file('06-faixas.csv', '﻿' + faixasCSV());
-    S.reg.slice().sort((a, b) => a.seg - b.seg).forEach((r, i) => {
-      const d = r.foto && S.fotos[r.foto];
-      if (d) zip.file(nomeFoto(r, i), d.split(',')[1], {base64: true});
-    });
     if (!S.croqui) S.croqui = await geraCroqui();
     if (S.croqui && S.croqui.url)
       zip.file('05-croqui.png', S.croqui.url.split(',')[1], {base64: true});

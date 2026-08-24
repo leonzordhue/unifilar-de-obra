@@ -142,7 +142,7 @@ function ligaFaixa(){
   document.addEventListener('pointerup', solta);
   trilho.ondblclick = ev => {
     const id = idDe(ev);
-    if (id != null) abreFicha(id);
+
   };
   $('#btSelLimpa').onclick = () => { CH_SEL().clear(); atualizaSelecao(); };
   $('#btSelTrecho').onclick = () => {

@@ -180,9 +180,14 @@ def main():
         txt = io.open(alvo, encoding="utf-8-sig", newline="").read()
         linhas_csv = [l for l in txt.split("\n") if l.strip()]
         cab = linhas_csv[0].split(";")
-        ok(len(linhas_csv) > 20 and "KM 0" in txt,
-           "CSV sai com cabeçalho por quilômetro",
-           f"{len(linhas_csv)} linha(s) × {len(cab)} coluna(s)")
+        # 24/08: o cliente mandou considerar tudo no KM e o lado saiu. O CSV tinha uma linha
+        # por servico X lado (26) e passou a ter uma por servico (13). O «> 20» de antes
+        # media o mundo com lado; a regua agora e o proprio catalogo, para o numero nao
+        # precisar ser reescrito toda vez que a obra contratar mais um servico.
+        svcs = pg.evaluate("S.svc.filter(s => s.on).length")
+        ok(len(linhas_csv) >= svcs and "KM 0" in txt,
+           "CSV sai com cabeçalho por quilômetro e uma linha por serviço",
+           f"{len(linhas_csv)} linha(s) × {len(cab)} coluna(s) · {svcs} serviço(s) ligados")
         ok(txt.count("Concluído") >= 5, "os lançamentos aparecem no CSV",
            f"{txt.count('Concluído')} célula(s) concluída(s)")
 
@@ -353,7 +358,11 @@ def main():
         }""")
         pg.wait_for_timeout(1200)
         marcou = pg.evaluate("""() => {
-            const l = linhasMatriz().find(x => x.svc === 'BASE' && x.lado === 'LD');
+            // 24/08: o cliente mandou considerar tudo no KM, e o lado foi colapsado em 'U'.
+            // A prova procurava BASE|LD e nao achava mais a linha. O vazamento que ela guarda
+            // nao mudou -- mudou a chave. Procura pelo servico e usa o lado que a linha
+            // tiver, para nao quebrar de novo se o lado voltar um dia.
+            const l = linhasMatriz().find(x => x.svc === 'BASE');
             if (!l) return null;
             const id = S.segs[0].id;
             // chave(l, id) e' a funcao do PRODUTO (app/06-matriz.js), no escopo
@@ -363,7 +372,7 @@ def main():
             S.dados[k] = 'C';
             return { chave: k, total: Object.keys(S.dados).length };
         }""")
-        ok(marcou is not None, "BASE|LD existe no catálogo de recuperação",
+        ok(marcou is not None, "a linha de BASE existe no catálogo de recuperação",
            marcou["chave"] if marcou else "não achou a linha")
 
         # troca para IMPLANTACAO e olha se a marca sobreviveu
@@ -375,7 +384,11 @@ def main():
         pg.wait_for_timeout(1500)
         depois = pg.evaluate("""() => {
             const cat = S.catId || (document.querySelector('#selCat') || {}).value;
-            const l = linhasMatriz().find(x => x.svc === 'BASE' && x.lado === 'LD');
+            // 24/08: o cliente mandou considerar tudo no KM, e o lado foi colapsado em 'U'.
+            // A prova procurava BASE|LD e nao achava mais a linha. O vazamento que ela guarda
+            // nao mudou -- mudou a chave. Procura pelo servico e usa o lado que a linha
+            // tiver, para nao quebrar de novo se o lado voltar um dia.
+            const l = linhasMatriz().find(x => x.svc === 'BASE');
             const id = S.segs[0].id;
             const k = l ? chave(l, id) : null;
             return { cat, achou: !!l, marcado: k ? (S.dados[k] || null) : null,

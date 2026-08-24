@@ -310,6 +310,53 @@ plataforma sem regerar JSON e sem pedir nada a ninguém.
 
 ---
 
+## 8-B. O corte de 24/08 — o que morreu, e por quê
+
+Ordem do cliente, textual: **«a minha ideia era você recomeçar esse trabalho, recomeçar essa
+concepção, o layout, design, repensar tudo»** e, sobre o controle tecnológico, **«não é isso
+que eu preciso»**. O HAL9000 executou o corte; esta seção é o registro, porque a regra da casa
+é que **nada morre em silêncio** — e sem esta lista o corte de hoje seria a maior remoção do
+projeto sem uma linha escrita.
+
+### Produto
+
+| morreu | linhas | por quê |
+|---|---|---|
+| `app/10-ensaios.js` | 345 | módulo inteiro do controle tecnológico |
+| `dados/catalogo-ensaios.json` | 635 | 22 ensaios com norma conferida em fonte primária |
+| ficha do quilômetro | — | era a porta de lançamento de ensaio |
+| lado (`LD`/`LE`/`AD`/`AE`) | — | «tudo é considerado no KM», ordem de 24/08; chave passou a `…\|U\|…` |
+| semáforo de critério no mapa | — | «o mapa é consulta», não pinta situação |
+
+### Provas
+
+| morreu | por quê |
+|---|---|
+| `testar-limite-de-fotos.py` | media o teto de fotos por obra; não há mais foto |
+| `testar-fotos-no-recarregamento.py` | idem |
+| `testar-cde.py` e `testar-impressao.py` | mediam o **dossiê** de fiscalização; viraram `testar-exportacao.py`, porque o pacote deixou de ser dossiê e passou a ser exportação — planilha, croqui, KML e LEIA-ME |
+| `testar-troca-de-obra.py`, bloco 4 | media foto órfã ao trocar de obra; o bloco 3, que guarda «trocar de contrato pergunta antes de descartar», **continua** |
+| `testar-obra.py`, blocos 4, 5, 5-lados, 5a, 5a-bis, 5b | ficha, ensaio, lados divergentes, quantidade contratada e ensaio no relatório |
+| `ferramentas/juntar-normas.py` e `dados/_normas/` | ferramenta e matéria-prima do catálogo morto. **A pesquisa de fonte primária continua recuperável no commit `d9726ed`** |
+
+### O que o corte levou SEM ser controle tecnológico — e é o que precisa de decisão
+
+O relatório é a única parte que o cliente aprovou («a parte de relatorio ficou bom, gostei»).
+Cinco peças dele caíram junto com o corte, e **nenhuma é de ensaio**:
+
+```
+origem da quilometragem       REPOSTA em 24/08, depois do achado do jarvisIV
+extensão cadastrada × geometria     ainda fora
+catálogo de serviços em uso         ainda fora
+descontinuidade no traçado          ainda fora
+gráfico de avanço por serviço       ainda fora — o relatório não tem mais gráfico nenhum
+```
+
+A asserção que cobrava o gráfico saiu da `testar-obra.py` junto. **Fica declarado que as
+quatro restantes não têm decisão escrita**: saíram por arrasto, não por ordem.
+
+---
+
 ## 9. Quadro de situação
 
 Atualize a sua linha no mesmo commit do código. Data no formato dd/mm hh:mm.

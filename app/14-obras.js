@@ -2,7 +2,7 @@
 
    O contrato e a identidade da obra no DMOB: e por ele que se pergunta, se cobra medicao e
    se acha processo. Aqui ele e a chave do projeto — digitar o numero e reabrir o perfil
-   daquela obra, com tracado, servicos, lancamentos e ensaios como estavam.
+   daquela obra, com tracado, servicos e lancamentos como estavam.
 
    Fica no navegador, ao lado do projeto em andamento. Nao substitui salvar em arquivo: o
    armazenamento do navegador e da maquina e do perfil de quem abriu, e uma limpeza de dados
@@ -34,7 +34,7 @@ function guardaObra(){
     todas[num] = {
       contrato: num, obra: p.obra, eixo: S.eixo.nome,
       km: `${fmt(S.kmIni, 0)}–${fmt(S.kmFim, 0)}`,
-      lancamentos: Object.keys(S.dados).length, ensaios: S.reg.length,
+      lancamentos: Object.keys(S.dados).length,
       em: new Date().toLocaleString('pt-BR', {dateStyle: 'short', timeStyle: 'short'}),
       projeto: p
     };
@@ -48,9 +48,8 @@ function guardaObra(){
   return true;
 }
 
-/** Quanto trabalho está na tela agora — lançamento e ensaio. É a conta que decide se
-    descartar exige pergunta. */
-const trabalhoNaTela = () => Object.keys(S.dados || {}).length + (S.reg || []).length;
+/** Quanto trabalho está na tela agora. É a conta que decide se descartar exige pergunta. */
+const trabalhoNaTela = () => Object.keys(S.dados || {}).length;
 
 /** Pergunta antes de descartar o que está na tela, com o número na frente.
 
@@ -58,10 +57,9 @@ const trabalhoNaTela = () => Object.keys(S.dados || {}).length + (S.reg || []).l
     pesquisar o contrato e carregar o perfil, a rotina que o cliente descreveu —, não
     perguntava. Achado do jarvisIV, medido: 6 lançamentos sumiram sem uma pergunta. */
 function podeDescartar(motivo){
-  const n = Object.keys(S.dados || {}).length, e = (S.reg || []).length;
-  if (!n && !e) return true;
-  const oque = [n ? n + ' lançamento(s)' : '', e ? e + ' ensaio(s)' : ''].filter(Boolean).join(' e ');
-  return confirm(motivo + ' descarta o que está na tela: ' + oque + '.'
+  const n = Object.keys(S.dados || {}).length;
+  if (!n) return true;
+  return confirm(motivo + ' descarta o que está na tela: ' + n + ' lançamento(s).'
     + '\n\nPara manter, guarde a obra atual (Obras > Guardar esta obra) ou gere o arquivo '
     + 'com Salvar. Descartar mesmo assim?');
 }
@@ -105,14 +103,13 @@ function pintaObras(){
         : 'Nenhuma obra guardada ainda. Monte o projeto, informe o número do contrato no '
         + 'cabeçalho e use <b>Guardar obra</b>.'}</div>`
     : `<table class="tab"><thead><tr><th>Contrato</th><th>Obra</th><th>Eixo</th><th>Trecho</th>
-        <th class="num">Lanç.</th><th class="num">Ensaios</th><th>Salva em</th><th></th></tr></thead>
+        <th class="num">Lanç.</th><th>Salva em</th><th></th></tr></thead>
       <tbody>${todas.map(o => `<tr>
         <td><b>${esc(o.contrato)}</b></td>
         <td>${esc(o.obra || '—')}</td>
         <td>${esc(o.eixo)}</td>
         <td>KM ${esc(o.km)}</td>
         <td class="num">${o.lancamentos}</td>
-        <td class="num">${o.ensaios || 0}</td>
         <td class="min">${esc(o.em)}</td>
         <td><button class="mini" data-abre="${esc(o.contrato)}">Abrir</button>
             <button class="mini" data-apagaobra="${esc(o.contrato)}">Apagar</button></td>

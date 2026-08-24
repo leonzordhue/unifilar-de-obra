@@ -120,10 +120,11 @@ async function geraCroqui(largura = 1500, altura = 900){
   desenha(5, 'rgba(0,0,0,.40)', sg => !dentroTrecho(sg));
   desenha(2.4, 'rgba(255,255,255,.62)', sg => !dentroTrecho(sg));
   desenha(9, 'rgba(0,0,0,.60)', dentroTrecho);
-  // Mesmo critério de cor do mapa: escolher «Conformidade» na tela e imprimir um croqui
-  // pintado por avanço seria a plataforma se contradizer dentro do mesmo relatório.
-  desenha(5, sg => typeof corCriterio === 'function' ? corCriterio(sg, true)
-                 : corPct(pctSeg(sg.id)), dentroTrecho);
+  // Mesma cor do mapa, e uma só: o croqui mostra ONDE fica o trecho, não como ele está. A
+  // situação vive na planilha. Antes o traçado era pintado pelo critério escolhido na tela, e
+  // o mesmo relatório saía com cores diferentes conforme o seletor que ninguém lembrava de ter
+  // mexido.
+  desenha(5, typeof COR_EIXO !== 'undefined' ? COR_EIXO : '#5B3FA8', dentroTrecho);
 
   const yb = HMAPA - 46;                   // topo da faixa de rodapé do MAPA
   // marcação de quilômetro: ponto e rótulo a cada 10 km e nas pontas
@@ -179,8 +180,7 @@ async function geraCroqui(largura = 1500, altura = 900){
   const kmTot = S.segs.reduce((a, x) => a + x.ext, 0);
   // O critério de cor entra na própria legenda: numa segunda linha, ele caía por cima
   // desta. Quem lê o croqui impresso precisa saber o que a cor significa.
-  const crit = typeof CRITERIOS !== 'undefined'
-    ? (CRITERIOS.find(c => c.id === criterioMapa) || {}).nome : '';
+  const crit = '';
   const cred = vieram ? ATRIB_SAT : 'imagem de satélite indisponível — traçado sobre fundo neutro';
   // As duas legendas dividem a mesma linha; a da esquerda é aparada pelo que sobra, porque
   // numa imagem estreita ela avançava por cima do crédito da imagem.

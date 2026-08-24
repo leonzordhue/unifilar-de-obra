@@ -68,34 +68,17 @@ def main():
             }""", prefixo)
             pg.wait_for_timeout(2600)
 
-        # foto pequena de verdade, gerada pela propria reducao da plataforma
-        foto = pg.evaluate("""() => {
-            const c = document.createElement('canvas');
-            c.width = 320; c.height = 240;
-            const x = c.getContext('2d');
-            x.fillStyle = '#6d6f70'; x.fillRect(0, 0, 320, 240);
-            x.fillStyle = '#e8e4d8'; x.fillRect(150, 0, 8, 240);
-            return c.toDataURL('image/jpeg', 0.72);
-        }""")
-
         print("1. UMA OBRA COM TRABALHO DENTRO, GUARDADA NO CONTRATO 001/2026")
         carrega("AM-151")
-        r = pg.evaluate("""(foto) => {
+        r = pg.evaluate("""() => {
             document.querySelector('#nomeObra').value = 'Erosões AM-151';
             document.querySelector('#contrato').value = '001/2026';
             const l = linhasMatriz()[0];
-            S.segs.slice(0, 4).forEach(s => { S.dados[chave(l, s.id)] = 'C'; });
-            if (!S.ens.length) montaEns();
-            S.ens.forEach(e => e.on = true);
-            const g = novoRegistro(S.segs[0].id, S.ens[0].cod);
-            g.valor = 97; S.reg.push(g);
-            guardaFoto(g.id, foto); g.foto = g.id;
+            S.segs.slice(0, 4).forEach(s => { marcaKm(l, s.id, 'C'); });
             render();
-            return {dados: Object.keys(S.dados).length, reg: S.reg.length,
-                    fotos: Object.keys(S.fotos).length};
-        }""", foto)
+            return {dados: Object.keys(S.dados).length};
+        }""")
         linha("lançamentos na matriz", r["dados"])
-        linha("ensaios com foto", f"{r['reg']} ensaio(s) · {r['fotos']} foto(s)")
         guardou = pg.evaluate("() => guardaObra()")
         linha("obra guardada no contrato", "sim" if guardou else "NÃO")
 
@@ -117,8 +100,7 @@ def main():
         pg.evaluate("() => abreObra('001/2026')")
         pg.wait_for_timeout(1200)
         depois = pg.evaluate("""() => ({dados: Object.keys(S.dados).length,
-                                        obra: document.querySelector('#nomeObra').value,
-                                        fotos: Object.keys(S.fotos).length})""")
+                                        obra: document.querySelector('#nomeObra').value})""")
         linha("perguntou algo antes de trocar", f"{len(dialogos)} pergunta(s)")
         linha("obra na tela agora", depois["obra"])
         linha("lançamentos na tela agora", depois["dados"])
@@ -137,29 +119,15 @@ def main():
         ok(not dialogos, "reabrir a MESMA obra não pergunta nada",
            f"{len(dialogos)} pergunta(s)")
 
-        print("\n4. AS FOTOS DA OBRA ANTERIOR CONTINUAM NA MAQUINA")
-        # abre uma obra sem foto e ve se a foto da primeira ficou para tras
-        pg.evaluate("""() => {
-            document.querySelector('#contrato').value = '002/2026';
-            document.querySelector('#nomeObra').value = 'Obra sem foto';
-            S.reg = []; S.dados = {};
-            guardaObra();
-        }""")
-        pg.wait_for_timeout(400)
-        pg.evaluate("() => abreObra('002/2026')")
-        pg.wait_for_timeout(800)
-        f2 = pg.evaluate("""() => ({fotos: Object.keys(S.fotos).length,
-                                    bytes: tamanhoFotos(),
-                                    reg: S.reg.length,
-                                    orfas: Object.keys(S.fotos)
-                                      .filter(k => !S.reg.some(r => r.foto === k)).length})""")
-        linha("ensaios da obra aberta", f2["reg"])
-        linha("fotos ainda em memória e no navegador", f2["fotos"])
-        linha("dessas, órfãs (sem ensaio na obra atual)", f2["orfas"])
-        linha("espaço que elas ocupam", f"{f2['bytes'] / 1024:,.0f} KB".replace(",", "."))
-        ok(f2["orfas"] == 0,
-           "nenhuma foto da obra anterior ficou ocupando o teto da obra nova",
-           f"{f2['orfas']} órfã(s) · {f2['bytes'] / 1024:,.0f} KB".replace(",", "."))
+        # O BLOCO 4 SAIU EM 24/08. Ele media foto orfa: a foto da obra anterior continuava
+        # ocupando o teto de armazenamento da obra nova, porque o `aplicaProjeto()` fazia
+        # `Object.assign(S.fotos, ...)` em vez de trocar. O controle tecnologico inteiro --
+        # ensaio, foto, norma e conformidade -- saiu por ordem do cliente («nao e isso que
+        # eu preciso»), e com ele o defeito que este bloco guardava: nao ha mais foto para
+        # ficar orfa. O que ele provou fica no historico, em `d9726ed` e no canal de 23/08.
+        #
+        # O bloco 3, acima, continua: descartar a tela ao trocar de contrato nao tem nada a
+        # ver com ensaio, e e' o que esta prova existe para guardar.
 
         print(f"\nERROS DE CONSOLE: {len(console)}")
         for c in console[:5]:

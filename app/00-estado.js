@@ -68,7 +68,8 @@ const S = {
   kmIni: 0, kmFim: 0, estOff: 0, obra: '',
   mapa: null, camadas: null, ultimo: null, vista: 'mapa', croqui: null,
   invertido: false,
-  ens: [], reg: [], fotos: {}, seqReg: 0, fichaSeg: null,
+  // `ens`, `reg`, `fotos`, `seqReg` e `fichaSeg` sairam em 24/08 com o controle
+  // tecnologico: a plataforma controla andamento de servico por quilometro, e mais nada.
   contrato: '', sel: null, svcAtivo: '', responsavel: '', enquadrado: null
 };
 const $ = s => document.querySelector(s);

@@ -105,7 +105,7 @@ def main():
         print("\n2. OS BLOCOS RECOLHIDOS EXISTEM, E COM O NOME DECLARADO")
         sums = pg.evaluate("""() => [...document.querySelectorAll('summary')]
                                     .map(s => s.textContent.trim())""")
-        for nome in ["Sentido e estaqueamento", "Ensaios contratados", "Acrescentar serviço",
+        for nome in ["Sentido e estaqueamento", "Acrescentar serviço",
                      "Objeto, valor e vigências"]:
         # «Quantidade contratada por serviço» saiu desta lista de propósito: o cliente
         # mandou tirá-la da tela — «é pra gente organizar o andamento da obra e não
@@ -124,12 +124,10 @@ def main():
                r.get("dentroDe", "não encontrado")
                + (f" · OCULTO por {r['oculto']}" if r.get("oculto") else ""))
 
-        print("\n4. ENSAIOS CONTRATADOS CONTINUAM MARCAVEIS")
-        r = pg.evaluate(ALCANCA, "#listaEns")
-        n = pg.evaluate("() => document.querySelectorAll('#listaEns input[type=checkbox]').length")
-        ok(r["existe"] and not r["oculto"], "a lista de ensaios está alcançável",
-           r.get("dentroDe", ""))
-        ok(n >= 20, "e traz o catálogo inteiro para marcar", f"{n} ensaio(s)")
+        # O bloco 4 media os ensaios contratados. O controle tecnologico saiu inteiro em
+        # 24/08 por ordem do cliente («nao e isso que eu preciso»): catalogo de 22 ensaios,
+        # conformidade, previsao, fotos e laudo. Nao ha o que continuar alcancavel — a
+        # remocao foi PEDIDA, e prova que guarda tela removida por ordem trava os tres.
 
         print("\n5. A AJUDA LONGA VIROU `title=` DO PROPRIO CONTROLE")
         for sel in ["#kmIni", "#kmFim", "#estOff"]:

@@ -139,68 +139,25 @@ def main():
             pg.wait_for_timeout(600)
             ok("Nada a exibir" in pg.inner_text("#vPainel"),
                "sem eixo, o painel diz o que falta em vez de mostrar zero")
+            # Os blocos 2, 3 e 4 mediam conformidade, ensaios lançados e não conformidade.
+            # O controle tecnológico saiu inteiro em 24/08, por ordem do cliente: «não é
+            # isso que eu preciso». O bloco 6 media o gráfico por tipo de controle e o 7,
+            # o seletor «Colorir por» do mapa — que também saiu, porque o mapa deixou de
+            # pintar situação: quem mostra situação é a planilha.
 
-            print("\n2. SEM ENSAIO PREVISTO — «sem base» e não «zero por cento»")
+
+            print("\n5. FAIXA DA TABELA")
+            # «Controle» é onde o painel vive; os blocos que abriam a vista foram cortados
+            # com os ensaios, então quem abre agora é este.
+            # O eixo entrava no bloco 2, que saiu com os ensaios. Carrega aqui: sem eixo o
+            # painel diz «Nada a exibir» e o botão de faixa nem existe — a prova ficava
+            # esperando um controle que a tela tinha razão de não ter.
             pg.evaluate("""() => { const s = document.querySelector('#selAcervo');
                 const o = [...s.options].find(x => x.textContent.startsWith('AM-070'));
                 s.value = o.value; s.dispatchEvent(new Event('change')); }""")
-            pg.wait_for_timeout(2200)
-            pg.click("#abas button[data-v='matriz']")   # «Controle»: painel + matriz juntos
-            pg.wait_for_timeout(800)
-            t = pg.inner_text("#vPainel")
-            ok("—" in t, "percentual sem base sai como travessão")
-            cartoes = pg.eval_on_selector_all("#vPainel .card",
-                "es => es.map(e => e.querySelector('.rot').textContent + '=' + e.querySelector('.val').textContent)")
-            # Sem ensaio contratado, os cartões de ensaio não existem — três cartões com «—»
-            # e uma tabela de travessões é ruído, não informação. O aviso na tela diz o que
-            # fazer para eles aparecerem.
-            ok(not [c for c in cartoes if c.startswith("Conformidade")],
-               "sem ensaio contratado, o painel não mostra cartão de ensaio vazio",
-               " · ".join(cartoes))
-            ok(any(c.startswith("Avanço") for c in cartoes),
-               "e o avanço de serviço continua, que é o que existe", " · ".join(cartoes))
-            ok("Nenhum ensaio contratado" in t,
-               "o aviso explica como fazer o resto aparecer")
-            # a coluna de semáforo só existe quando há ensaio contratado; sem ensaio ela sai
-            # da tabela junto com as outras de ensaio, e é isso que se confere aqui
-            cor = pg.eval_on_selector_all("#vPainel table.res tbody tr td:last-child span",
-                                          "es => es.map(e => e.style.background)")
-            ok(not cor, "sem ensaio contratado, nem coluna de semáforo aparece",
-               "nenhuma" if not cor else str(cor[:2]))
-
-            print("\n3. COM CATÁLOGO E ENSAIOS LANÇADOS")
-            n = pg.evaluate(CATALOGO_DE_TESTE)
-            ok(n == 2, "catálogo de teste com 2 ensaios contratados", str(n))
-            ids = pg.evaluate("() => S.segs.slice(0, 3).map(s => s.id)")
-            lanca(pg, ids[0], "T1", 97.0)     # conforme
-            lanca(pg, ids[0], "T1", 91.0)     # não conforme
-            lanca(pg, ids[1], "B1", 20.0)     # conforme
-            lanca(pg, ids[2], "B1", 26.0)     # não conforme (acima do máximo)
-            pg.evaluate("() => render()")
-            pg.wait_for_timeout(700)
-            r = pg.evaluate("""() => { const ids = segsNoTrecho().map(s => s.id);
-                const e = resumoEnsaios(ids);
-                return {exec: e.executados, conf: e.conformes, nc: e.naoConformes,
-                        pctC: e.pctConformidade, prev: e.previstos}; }""")
-            ok(r["exec"] == 4 and r["conf"] == 2 and r["nc"] == 2,
-               "4 ensaios: 2 conformes e 2 não conformes",
-               f"{r['exec']}/{r['conf']}/{r['nc']}")
-            ok(abs(r["pctC"] - 0.5) < 1e-9, "conformidade 50%", f"{r['pctC']:.3f}")
-            ok(r["prev"] is not None and r["prev"] > 0,
-               "previstos calculados pela frequência do catálogo", f"{r['prev']:.0f}")
-            t = pg.inner_text("#vPainel")
-            ok("50,0%" in t, "o cartão de conformidade mostra 50,0%")
-            ok("2" in t, "as não conformidades em aberto aparecem")
-
-            print("\n4. NÃO CONFORMIDADE FECHA COM REENSAIO CONFORME")
-            antes = pg.evaluate("() => naoConformidadesAbertas(segsNoTrecho().map(s => s.id)).length")
-            lanca(pg, ids[0], "T1", 96.0, "2026-08-20")   # reensaio conforme, posterior
-            depois = pg.evaluate("() => naoConformidadesAbertas(segsNoTrecho().map(s => s.id)).length")
-            ok(antes == 2 and depois == 1,
-               "reensaio conforme posterior fecha a não conformidade daquele km",
-               f"{antes} → {depois}")
-
-            print("\n5. FAIXA DA TABELA")
+            pg.wait_for_timeout(2600)
+            pg.click("#abas button[data-v='matriz']")
+            pg.wait_for_timeout(900)
             pg.evaluate("() => render()")
             pg.wait_for_timeout(500)
             linhas = {}
@@ -213,72 +170,6 @@ def main():
             n_segs = pg.evaluate("() => segsNoTrecho().length")
             ok(linhas[1] == n_segs, "faixa de 1 km = uma linha por quilômetro",
                f"{linhas[1]} linhas para {n_segs} km")
-
-            print("\n6. GRÁFICO POR TIPO DE CONTROLE")
-            pg.click("#vPainel button[data-faixa='10']")
-            pg.wait_for_timeout(500)
-            svg = pg.eval_on_selector_all("#vPainel svg", "e => e.length")
-            # dois: o de tipo de controle e o «Avanco por servico, no trecho». Era tres ate
-            # 23/08, quando o «Avanco sobre o contratado» virou avanco sobre o TRECHO — o
-            # cliente tirou a medicao desta fase e dois graficos com bases diferentes na
-            # mesma tela e a confusao que ele apontou.
-            ok(svg == 2, "dois SVG, escritos a mao", str(svg))
-            grupos = pg.eval_on_selector_all("#vPainel svg text",
-                                             "es => es.map(e => e.textContent)")
-            ok(any("Terraplenagem" in g for g in grupos)
-               and any("Base e sub-base" in g for g in grupos),
-               "uma barra por tipo de controle com dado", " · ".join(grupos[:4]))
-            externos = pg.evaluate("""() => [...document.querySelectorAll('script[src],link[href]')]
-                .map(e => e.getAttribute('src') || e.getAttribute('href'))
-                .filter(u => /^https?:/i.test(u || ''))""")
-            ok(not externos, "nenhuma biblioteca de gráfico foi acrescentada",
-               "todos locais" if not externos else str(externos))
-
-            print("")
-            print("7. MAPA POR CRITÉRIO DE COR")
-            pg.click("#abas button[data-v='mapa']")
-            pg.wait_for_timeout(1200)
-            crits = pg.eval_on_selector_all("#selCrit option", "es => es.map(e => e.value)")
-            ok(crits == ["servico", "avanco", "conformidade", "ensaios"],
-               "quatro critérios no seletor do mapa", " ".join(crits))
-
-            def cores():
-                # as divisas de quilômetro também são polilinhas; elas são régua, não
-                # e o casing (contorno escuro sob o traçado) é acabamento, não cor de estado
-                # traçado, e entram marcadas com `divisa: true`
-                return pg.evaluate("() => { const c = []; S.camadas.eachLayer(l => {"
-                                   " if (l.options && l.options.color && !l.options.divisa && !l.options.casing)"
-                                   " c.push(l.options.color); });"
-                                   " return c; }")
-
-            def usa(crit):
-                pg.evaluate("(c) => { const s = document.querySelector('#selCrit');"
-                            " s.value = c; s.dispatchEvent(new Event('change')); }", crit)
-                pg.wait_for_timeout(900)
-                return cores()
-
-            base = usa("servico")
-            ok(len(base) > 0, "o eixo é desenhado", f"{len(base)} traço(s)")
-            cf = usa("conformidade")
-            # so os 3 primeiros km receberam ensaio; o resto do eixo nao tem base e tem de sair
-            # cinza-claro — vermelho ali seria acusar quilometro que ninguem mandou ensaiar
-            ok(cf.count("#C8D2DC") >= len(cf) - 4,
-               "quilômetro sem ensaio sai «sem base», não reprovado",
-               f"{cf.count('#C8D2DC')} de {len(cf)} sem base")
-            ok(any(c in cf for c in ("#D9534F", "#F0A32B", "#2E9E5B", "#8CB84B")),
-               "quilômetro com ensaio recebe cor de semáforo",
-               " ".join(sorted(set(c for c in cf if c != "#C8D2DC")))[:60])
-            en = usa("ensaios")
-            ok(en != cf, "trocar o critério muda o desenho")
-            leg = pg.inner_text("#legCrit")
-            ok("sem base" in leg, "a legenda declara o cinza como «sem base»", leg[:60])
-            tip = pg.evaluate("() => { let t = null; S.camadas.eachLayer(l => {"
-                              " if (!t && l.getTooltip && l.getTooltip()) t = l.getTooltip().getContent(); });"
-                              " return t; }")
-            ok("Ensaios executados" in (tip or ""), "o tooltip diz o critério em uso",
-               (tip or "")[:70])
-            usa("servico")
-
             print("")
             print("8. AVANÇO CONTA QUILÔMETRO, COMO A PLANILHA DA EQUIPE")
             # o ultimo segmento do eixo e' a sobra (menos de 1 km). Marcado sozinho, ele nao

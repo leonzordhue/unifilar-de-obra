@@ -117,8 +117,9 @@ table.mat td.cel{width:30px;min-width:30px;height:24px;cursor:pointer;font-size:
 table.mat td.cel:hover{outline:2px solid var(--navy);outline-offset:-2px;position:relative;z-index:1}
 /* Zebra discreta: em 269 colunas o olho escorrega de linha. Só nas células sem lançamento —
    a célula pintada tem cor própria e a zebra não a alcança. */
-table.mat tbody tr:not(.gr):nth-child(even) td.cel{background:#F7F9FB}
-table.mat tbody tr:not(.gr):nth-child(odd) td.cel{background:#fff}
+/* A zebra saiu em 24/08: a grade passou a nascer preenchida com a cor de «Previsto», como a
+   planilha da equipe, e toda celula tem cor propria. Regra que nao pinta mais nada e regra
+   que mente sobre o que faz — o padrao que este projeto passou o dia 23 caçando. */
 /* A régua de 10 em 10 km, no cabeçalho, nas células e no rodapé */
 table.mat th.m10,table.mat td.m10{border-left:2px solid var(--cinza)}
 table.mat thead th.m10{border-left-color:#7FA6CC}
@@ -375,26 +376,12 @@ table.res tfoot td{background:#F1F4F7;font-weight:700}
           </div>
         </div>
       </details>
-      <details class="avancado">
-        <summary>Ensaios contratados</summary>
-        <div>
-          <div class="campo">
-            <div class="linha2">
-              <button class="mini" id="btTodosEns">Marcar todos</button>
-              <button class="mini" id="btNenhumEns">Desmarcar</button>
-            </div>
-            <div id="listaEns" style="margin-top:8px"></div>
-            <div class="dica" id="dicaEns"></div>
-          </div>
-        </div>
-      </details>
     </div>
 
     <h2><i>3</i> Serviços</h2>
     <div class="bloco">
       <div class="campo">
         <select id="selCat" title="Modelo de lista de serviços"></select>
-        <div class="dica" id="infoCat"></div>
       </div>
       <div class="campo">
         <div class="linha2">
@@ -472,18 +459,6 @@ table.res tfoot td{background:#F1F4F7;font-weight:700}
     </div>
   </div>
 
-  <div id="ficha" class="hidden">
-    <div class="fichaCaixa">
-      <div class="fichaTopo">
-        <b>Ficha técnica do segmento</b>
-        <div class="sep"></div>
-        <button class="mini" id="btFichaAnt">← anterior</button>
-        <button class="mini" id="btFichaProx">próximo →</button>
-        <button class="btn" id="btFechaFicha">Fechar</button>
-      </div>
-      <div id="fichaCorpo"></div>
-    </div>
-  </div>
 </main>
 
 <script src="bibliotecas/leaflet-1.9.4/leaflet.js"></script>
@@ -497,7 +472,6 @@ table.res tfoot td{background:#F1F4F7;font-weight:700}
 <script src="app/06-matriz.js"></script>
 <script src="app/07-relatorio.js"></script>
 <script src="app/08-persistencia.js"></script>
-<script src="app/10-ensaios.js"></script>
 <script src="app/11-painel.js"></script>
 <script src="app/12-cde.js"></script>
 <script src="app/13-faixa.js"></script>
