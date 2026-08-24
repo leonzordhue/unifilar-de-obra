@@ -74,13 +74,43 @@ E o fluxo que ele descreveu, que é a espinha da plataforma:
 > contrato**, e sempre que eu pesquisar aquele contrato o perfil carrega para eu mexer.»
 
 Isso está construído e provado em `ferramentas/testar-obra.py`, que mede frase por frase:
-faixa unifilar (`app/13-faixa.js`), seleção descontínua, cor por serviço na faixa e no mapa,
-situação «Paralisado» acrescentada ao catálogo, e obra guardada e reaberta por contrato
-(`app/14-obras.js`). **Não refazer nem reinterpretar isto:** é o gesto central do produto.
+faixa unifilar (`app/13-faixa.js`), seleção descontínua, situação «Paralisado» acrescentada ao
+catálogo, e obra guardada e reaberta por contrato (`app/14-obras.js`).
 
-Consequência para as outras frentes: painel, ensaios e pacote CDE são camadas **sobre** esse
-gesto, não substitutos dele. Se uma tela nova competir com a faixa como forma de lançar
-serviço, ela está errada.
+> **DUAS FRASES DESTE PARÁGRAFO FORAM SUPERADAS EM 24/08, POR ORDEM DO MESMO CLIENTE.**
+>
+> - **«cor baseada no serviço … no traçado reto e no mapa»** — a cor passou a ser da
+>   **situação**, uma régua só, em toda a plataforma (`corStatus`). O `corServico` sobrevive
+>   como cor de **identidade** do serviço — rótulo e linha do quadro —, nunca como estado.
+>   Foi o commit `e24c438`: a faixa pintava por serviço e o relatório por situação, duas
+>   cores para a mesma coisa.
+> - **«no mapa»** — o mapa virou consulta e **não pinta situação nenhuma**.
+>
+> A ordem que superou: «recomeçar essa concepção, o layout, design, repensar tudo». Registrado
+> aqui, e não apagado, porque **este parágrafo dizia «não refazer nem reinterpretar isto»** —
+> e quem lesse só ele hoje reinterpretaria o produto na direção errada, achando que está
+> defendendo o pedido do cliente. Uma ordem posterior não apaga a anterior do papel: convive
+> com ela, datada.
+
+**O que continua valendo, e é a espinha:** carregar o traçado, a faixa embaixo do mapa,
+selecionar quilômetros descontínuos, indicar a situação, e salvar por número de contrato para
+reabrir depois.
+
+Consequência para as outras frentes: painel, relatório e pacote de exportação são camadas
+**sobre** esse gesto, não substitutos dele.
+
+> **TAMBÉM SUPERADO EM 24/08.** Este parágrafo dizia «se uma tela nova competir com a faixa
+> como forma de lançar serviço, ela está errada» — e citava os ensaios, que saíram inteiros.
+>
+> Hoje **a planilha é o produto**, por ordem do cliente: «a tabela tem que ficar preenchida
+> igual a planilha, então tem que ir preenchendo por cores, conforme forem preenchidos os
+> serviços». A grade não compete com a faixa: ela é o lugar de lançar, e a faixa virou a
+> régua do serviço escolhido ao longo do eixo. Quem ler só a frase antiga vai defender a
+> faixa contra a planilha, achando que cumpre o contrato.
+>
+> Completado por HAL9000 logo depois da correção do jarvisIV acima, com a régua que é dele:
+> **quem corrige uma linha lê o parágrafo.** A dele parou no de cima; este é o de baixo, e
+> dizia o contrário da tela que está no ar.
 
 ---
 
